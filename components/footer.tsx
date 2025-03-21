@@ -67,8 +67,8 @@ export default function Footer() {
               <div>
                 <h3 className="text-lg font-medium mb-3">About</h3>
                 <p className="text-sm text-white/80 mb-2">
-                  Al-Quran Al-Kareem is a web application designed to help
-                  Muslims read, study, and listen to the Holy Quran.
+                  Al-Quran Ai is a web application designed to help Muslims
+                  read, study, and listen to the Holy Quran.
                 </p>
                 <p className="text-sm text-white/80">
                   Features include audio recitation, translations, bookmarks,
@@ -83,7 +83,7 @@ export default function Footer() {
         <div className="mt-8 pt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
           <div className="text-center md:text-left mb-4 md:mb-0">
             <p className="text-sm text-white/80">
-              Al-Quran Al-Kareem • The Noble Quran
+              Al-Quran Ai • The Noble Quran
             </p>
             <p className="text-xs text-[#d4af37] mt-1">
               Read, Study, and Listen to the Holy Quran

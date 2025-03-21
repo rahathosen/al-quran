@@ -17,6 +17,72 @@ import BookmarkSurahButton from "@/components/bookmark-surah-button";
 import ShareSurahButton from "@/components/share-surah-button";
 import VerseMetadata from "@/components/verse-metadata";
 import ViewToggle from "@/components/view-toggle";
+import type { Metadata, ResolvingMetadata } from "next";
+
+// Add this type for the generateMetadata function params
+type Props = {
+  params: { id: string };
+  searchParams: { view?: string };
+};
+
+// Add this generateMetadata function before the default export
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // Get the surah ID from params
+  const surahId = Number.parseInt(params.id);
+
+  // Fetch surah data
+  const surah = await getSurahById(surahId);
+
+  if (!surah) {
+    return {
+      title: "Surah Not Found | Al-Quran Ai",
+      description: "The requested Surah could not be found.",
+    };
+  }
+
+  // Create metadata with surah details
+  return {
+    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
+    description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
+    openGraph: {
+      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
+      description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
+      type: "article",
+      url: `${
+        process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+      }/surah/${surahId}`,
+      images: [
+        {
+          url: `${
+            process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+          }/api/og?surah=${surahId}`,
+          width: 1200,
+          height: 630,
+          alt: `Surah ${surah.englishName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Surah ${surah.englishName} | Al-Quran Ai`,
+      description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
+      images: [
+        `${
+          process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+        }/api/og?surah=${surahId}`,
+      ],
+    },
+    alternates: {
+      canonical: `${
+        process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+      }/surah/${surahId}`,
+    },
+    keywords: `Quran, Surah ${surah.englishName}, ${surah.name}, ${surah.englishNameTranslation}, Islamic scripture, Holy Quran`,
+  };
+}
 
 export default async function SurahPage({
   params,

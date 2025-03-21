@@ -1,28 +1,39 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Share2 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Copy, Facebook, Twitter } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Copy, Facebook, Twitter } from "lucide-react";
 
 interface ShareSurahButtonProps {
-  surahId: number
-  surahName: string
+  surahId: number;
+  surahName: string;
 }
 
-export default function ShareSurahButton({ surahId, surahName }: ShareSurahButtonProps) {
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/surah/${surahId}` : `/surah/${surahId}`
+export default function ShareSurahButton({
+  surahId,
+  surahName,
+}: ShareSurahButtonProps) {
+  const shareUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/surah/${surahId}`
+      : `/surah/${surahId}`;
 
-  const shareTitle = `Surah ${surahName} - Al-Quran Al-Kareem`
+  const shareTitle = `Surah ${surahName} - Al-Quran Ai`;
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl)
-      showToast("Link copied to clipboard")
+      await navigator.clipboard.writeText(shareUrl);
+      showToast("Link copied to clipboard");
     } catch (error) {
-      console.error("Failed to copy link:", error)
+      console.error("Failed to copy link:", error);
     }
-  }
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -30,38 +41,45 @@ export default function ShareSurahButton({ surahId, surahName }: ShareSurahButto
         await navigator.share({
           title: shareTitle,
           url: shareUrl,
-        })
+        });
       } catch (error) {
-        console.error("Error sharing:", error)
+        console.error("Error sharing:", error);
       }
     } else {
-      handleCopyLink()
+      handleCopyLink();
     }
-  }
+  };
 
   const handleFacebookShare = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank")
-  }
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        shareUrl
+      )}`,
+      "_blank"
+    );
+  };
 
   const handleTwitterShare = () => {
     window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareUrl)}`,
-      "_blank",
-    )
-  }
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        shareTitle
+      )}&url=${encodeURIComponent(shareUrl)}`,
+      "_blank"
+    );
+  };
 
   // Show toast notification
   const showToast = (message: string) => {
-    const toast = document.createElement("div")
+    const toast = document.createElement("div");
     toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50"
-    toast.textContent = message
-    document.body.appendChild(toast)
+      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
+    toast.textContent = message;
+    document.body.appendChild(toast);
 
     setTimeout(() => {
-      document.body.removeChild(toast)
-    }, 2000)
-  }
+      document.body.removeChild(toast);
+    }, 2000);
+  };
 
   // If Web Share API is available, use it directly
   if (typeof navigator !== "undefined" && navigator.share) {
@@ -75,7 +93,7 @@ export default function ShareSurahButton({ surahId, surahName }: ShareSurahButto
       >
         <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
-    )
+    );
   }
 
   // Otherwise use dropdown menu
@@ -96,16 +114,21 @@ export default function ShareSurahButton({ surahId, surahName }: ShareSurahButto
           <Copy className="mr-2 h-4 w-4" />
           <span>Copy Link</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleFacebookShare} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleFacebookShare}
+          className="cursor-pointer"
+        >
           <Facebook className="mr-2 h-4 w-4" />
           <span>Share to Facebook</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleTwitterShare} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleTwitterShare}
+          className="cursor-pointer"
+        >
           <Twitter className="mr-2 h-4 w-4" />
           <span>Share to Twitter</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
-
