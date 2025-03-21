@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button"
-import { Clock, BookmarkIcon } from "lucide-react"
-import { getAllSurahs } from "@/lib/quran-api"
-import RecentSurahs from "@/components/recent-surahs"
-import BookmarkedVerses from "@/components/bookmarked-verses"
-import SearchButton from "@/components/search-button"
-import AISearchButton from "@/components/ai-search-button"
-import AISearchInfo from "@/components/ai-search-info"
-import SurahList from "@/components/surah-list"
+import { Button } from "@/components/ui/button";
+import { Clock, BookmarkIcon } from "lucide-react";
+import { getAllSurahs } from "@/lib/quran-api";
+import RecentSurahs from "@/components/recent-surahs";
+import BookmarkedVerses from "@/components/bookmarked-verses";
+import SearchButton from "@/components/search-button";
+import AISearchButton from "@/components/ai-search-button";
+import AISearchInfo from "@/components/ai-search-info";
+import SurahList from "@/components/surah-list";
 
 export default async function Home() {
-  const surahs = await getAllSurahs()
+  const surahs = await getAllSurahs();
 
   return (
     <div className="min-h-screen bg-[#f8f5f0]">
@@ -18,7 +18,9 @@ export default async function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
               القرآن الكريم
-              <span className="block text-lg font-normal text-[#d4af37]">Al-Quran Al-Kareem</span>
+              <span className="block text-lg font-normal text-[#d4af37]">
+                Al-Quran Al-Kareem
+              </span>
             </h1>
             <div className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
               <SearchButton />
@@ -29,7 +31,7 @@ export default async function Home() {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-8">
-        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
+        {/* <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
           <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4">Welcome to Al-Quran Al-Kareem</h2>
           <p className="text-[#555] mb-4">
             Read and explore the Holy Quran with beautiful Arabic text and translations. Navigate through all 114
@@ -41,7 +43,7 @@ export default async function Home() {
               Bookmarks
             </Button>
           </div>
-        </div>
+        </div> */}
 
         {/* AI Search Info Section */}
         <AISearchInfo />
@@ -70,10 +72,11 @@ export default async function Home() {
       <footer className="bg-[#1a5e63] text-white py-4 md:py-6 mt-8">
         <div className="container mx-auto px-4 text-center">
           <p>Al-Quran Al-Kareem • The Noble Quran</p>
-          <p className="text-xs sm:text-sm mt-2 text-[#d4af37]">Read, Study, and Listen to the Holy Quran</p>
+          <p className="text-xs sm:text-sm mt-2 text-[#d4af37]">
+            Read, Study, and Listen to the Holy Quran
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
-
