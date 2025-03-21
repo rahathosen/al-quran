@@ -1,63 +1,63 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { X, Search, Sparkles, Loader2, BookOpen } from "lucide-react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { X, Search, Sparkles, Loader2, BookOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface AISearchModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 type SearchResult = {
-  surahNumber: number
-  verseNumber: number
-  surahName: string
-  englishName: string
-  verseText: string
-  translation: string
-}
+  surahNumber: number;
+  verseNumber: number;
+  surahName: string;
+  englishName: string;
+  verseText: string;
+  translation: string;
+};
 
 export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [recentSearches, setRecentSearches] = useState<string[]>([])
-  const inputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Load recent searches on mount
   useEffect(() => {
-    const savedSearches = localStorage.getItem("quran-ai-recent-searches")
+    const savedSearches = localStorage.getItem("quran-ai-recent-searches");
     if (savedSearches) {
       try {
-        setRecentSearches(JSON.parse(savedSearches))
+        setRecentSearches(JSON.parse(savedSearches));
       } catch (e) {
-        console.error("Error parsing recent AI searches:", e)
+        console.error("Error parsing recent AI searches:", e);
       }
     }
-  }, [])
+  }, []);
 
   // Focus input when modal opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => {
-        inputRef.current?.focus()
-      }, 100)
+        inputRef.current?.focus();
+      }, 100);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Handle search submission
   const handleSearch = async () => {
-    if (!searchTerm.trim()) return
+    if (!searchTerm.trim()) return;
 
-    setIsLoading(true)
-    setError(null)
-    setResults([])
+    setIsLoading(true);
+    setError(null);
+    setResults([]);
 
     try {
       const response = await fetch("/api/ai-search", {
@@ -66,78 +66,86 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ query: searchTerm }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
+        throw new Error(`Error: ${response.status}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.results && Array.isArray(data.results)) {
         if (data.results.length === 0) {
-          setError("No verses found for this search term. Please try a different query.")
+          setError(
+            "No verses found for this search term. Please try a different query."
+          );
         } else {
-          setResults(data.results)
+          setResults(data.results);
 
           // Save to recent searches
-          const newRecentSearches = [searchTerm.trim(), ...recentSearches.filter((s) => s !== searchTerm.trim())].slice(
-            0,
-            5,
-          )
+          const newRecentSearches = [
+            searchTerm.trim(),
+            ...recentSearches.filter((s) => s !== searchTerm.trim()),
+          ].slice(0, 5);
 
-          setRecentSearches(newRecentSearches)
-          localStorage.setItem("quran-ai-recent-searches", JSON.stringify(newRecentSearches))
+          setRecentSearches(newRecentSearches);
+          localStorage.setItem(
+            "quran-ai-recent-searches",
+            JSON.stringify(newRecentSearches)
+          );
         }
       } else {
-        setError("No results found or invalid response format")
+        setError("No results found or invalid response format");
       }
     } catch (err) {
-      console.error("Search error:", err)
-      setError("An error occurred while searching. Please try again.")
+      console.error("Search error:", err);
+      setError("An error occurred while searching. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Handle recent search click
   const handleRecentSearchClick = (term: string) => {
-    setSearchTerm(term)
+    setSearchTerm(term);
     // Auto-search when clicking a recent search
     setTimeout(() => {
-      handleSearch()
-    }, 100)
-  }
+      handleSearch();
+    }, 100);
+  };
 
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose()
+        onClose();
       }
 
       // Enter to submit search
       if (e.key === "Enter" && searchTerm.trim()) {
-        e.preventDefault()
-        handleSearch()
+        e.preventDefault();
+        handleSearch();
       }
-    }
+    };
 
     if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown)
+      window.addEventListener("keydown", handleKeyDown);
     }
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [isOpen, onClose, searchTerm])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose, searchTerm]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
       {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[80vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
@@ -155,7 +163,9 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
             variant="ghost"
             size="icon"
             onClick={() => setSearchTerm("")}
-            className={`${!searchTerm ? "opacity-0" : "opacity-100"} transition-opacity`}
+            className={`${
+              !searchTerm ? "opacity-0" : "opacity-100"
+            } transition-opacity`}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -189,15 +199,16 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         <div className="flex-1 overflow-y-auto p-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-              <p className="font-medium">Error</p>
-              <p>{error}</p>
-              <p className="text-sm mt-2">Please try a different search term or try again later.</p>
+              <p className="font-medium">High Traffic</p>
+              <p>Thanks for your patience. Please try again later.</p>
             </div>
           )}
 
           {results.length > 0 ? (
             <div className="space-y-4">
-              <h3 className="text-[#1a5e63] font-medium">Found {results.length} relevant verses:</h3>
+              <h3 className="text-[#1a5e63] font-medium">
+                Found {results.length} relevant verses:
+              </h3>
               {results.map((result, index) => (
                 <div
                   key={`${result.surahNumber}-${result.verseNumber}-${index}`}
@@ -209,12 +220,17 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                       className="text-[#1a5e63] font-medium hover:underline flex items-center"
                     >
                       <BookOpen className="h-4 w-4 mr-1" />
-                      Surah {result.englishName} ({result.surahNumber}:{result.verseNumber})
+                      Surah {result.englishName} ({result.surahNumber}:
+                      {result.verseNumber})
                     </Link>
-                    <span className="text-sm text-[#666]">{result.surahName}</span>
+                    <span className="text-sm text-[#666]">
+                      {result.surahName}
+                    </span>
                   </div>
 
-                  <p className="font-amiri text-right text-lg mb-2 leading-relaxed">{result.verseText}</p>
+                  <p className="font-amiri text-right text-lg mb-2 leading-relaxed">
+                    {result.verseText}
+                  </p>
                   <p className="text-sm text-[#555]">{result.translation}</p>
                 </div>
               ))}
@@ -223,7 +239,9 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
             <div className="p-4">
               {recentSearches.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Recent AI Searches</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">
+                    Recent AI Searches
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {recentSearches.map((term, index) => (
                       <button
@@ -242,12 +260,17 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#f8f5f0] mb-4">
                   <Sparkles className="h-8 w-8 text-[#d4af37]" />
                 </div>
-                <h3 className="text-lg font-medium text-[#1a5e63] mb-2">AI-Powered Quran Search</h3>
+                <h3 className="text-lg font-medium text-[#1a5e63] mb-2">
+                  AI-Powered Quran Search
+                </h3>
                 <p className="text-[#555] mb-4">
-                  Search for concepts, topics, or words in the Quran using natural language.
+                  Search for concepts, topics, or words in the Quran using
+                  natural language.
                 </p>
                 <div className="bg-[#f8f5f0] p-4 rounded-md text-left">
-                  <h4 className="font-medium text-[#1a5e63] mb-2">Example searches:</h4>
+                  <h4 className="font-medium text-[#1a5e63] mb-2">
+                    Example searches:
+                  </h4>
                   <ul className="text-sm text-[#555] space-y-1">
                     <li>• Verses about patience and perseverance</li>
                     <li>• Mentions of forgiveness in the Quran</li>
@@ -261,6 +284,5 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         </div>
       </div>
     </>
-  )
+  );
 }
-
