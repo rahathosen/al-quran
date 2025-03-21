@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       {
         url: `${
           process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-        }/api/og`,
+        }/og-images/quran-og.svg`,
         width: 1200,
         height: 630,
         alt: "Al-Quran Ai",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     images: [
       `${
         process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-      }/api/og`,
+      }/og-images/quran-og.svg`,
     ],
   },
 };

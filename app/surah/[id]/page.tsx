@@ -54,11 +54,12 @@ export async function generateMetadata(
       url: `${
         process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
       }/surah/${surahId}`,
+      // Use the SVG image instead of JPG
       images: [
         {
           url: `${
             process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-          }/api/og?surah=${surahId}`,
+          }/og-images/quran-og.svg`,
           width: 1200,
           height: 630,
           alt: `Surah ${surah.englishName}`,
@@ -69,10 +70,11 @@ export async function generateMetadata(
       card: "summary_large_image",
       title: `Surah ${surah.englishName} | Al-Quran Ai`,
       description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
+      // Use the same SVG image
       images: [
         `${
           process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-        }/api/og?surah=${surahId}`,
+        }/og-images/quran-og.svg`,
       ],
     },
     alternates: {
