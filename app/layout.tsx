@@ -37,7 +37,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap"
         />
       </head>
-      <script async src="https://cdn.splitbee.io/sb.js"></script>
+      <script
+        defer
+        src="https://cloud.umami.is/script.js"
+        data-website-id="231fe015-6997-42ba-bd51-ba761d2b558c"
+      ></script>
       <body className="font-sans">
         <ThemeProvider
           attribute="class"
