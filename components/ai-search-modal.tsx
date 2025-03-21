@@ -19,6 +19,7 @@ type SearchResult = {
   englishName: string;
   verseText: string;
   translation: string;
+  bengaliTranslation?: string; // Add Bengali translation field
 };
 
 export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
@@ -167,7 +168,7 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
               !searchTerm ? "opacity-0" : "opacity-100"
             } transition-opacity`}
           >
-            <X className="h-4 w-4" />
+            {/* <X className="h-4 w-4" /> */}
           </Button>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -228,10 +229,24 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                     </span>
                   </div>
 
-                  <p className="font-amiri text-right text-lg mb-2 leading-relaxed">
+                  <p className="font-amiri text-[#555] text-right text-lg mb-2 leading-relaxed">
                     {result.verseText}
                   </p>
-                  <p className="text-sm text-[#555]">{result.translation}</p>
+                  <p className="text-sm text-[#555] mb-2">
+                    {result.translation}
+                  </p>
+
+                  {/* Add Bengali translation if available */}
+                  {result.bengaliTranslation && (
+                    <div className="mt-2 pt-2 border-t border-[#d4af37]/10">
+                      <p className="text-sm text-[#555] font-medium">
+                        Bengali Translation:
+                      </p>
+                      <p className="text-sm text-[#555]">
+                        {result.bengaliTranslation}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -265,7 +280,8 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                 </h3>
                 <p className="text-[#555] mb-4">
                   Search for concepts, topics, or words in the Quran using
-                  natural language.
+                  natural language. Results include Arabic text with English and
+                  Bengali translations.
                 </p>
                 <div className="bg-[#f8f5f0] p-4 rounded-md text-left">
                   <h4 className="font-medium text-[#1a5e63] mb-2">

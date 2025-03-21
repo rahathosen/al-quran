@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useAudio } from "@/context/audio-context"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
+import { useAudio } from "@/context/audio-context";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   PlayCircle,
   PauseCircle,
@@ -16,18 +16,19 @@ import {
   RotateCcw,
   FastForward,
   Rewind,
-} from "lucide-react"
-import { useState, useEffect } from "react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+  Plus,
+  Minus,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 // Convert numbers to Arabic numerals
 function convertToArabicNumeral(num: number): string {
-  const arabicNumerals = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"]
+  const arabicNumerals = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
   return num
     .toString()
     .split("")
     .map((digit) => arabicNumerals[Number.parseInt(digit)])
-    .join("")
+    .join("");
 }
 
 export default function AudioPlayerDrawer() {
@@ -56,144 +57,157 @@ export default function AudioPlayerDrawer() {
     isRepeatEnabled: contextRepeatEnabled,
     setIsRepeatEnabled: setContextRepeatEnabled,
     currentVerseData,
-  } = useAudio()
+  } = useAudio();
 
-  const [volume, setVolume] = useState(1)
-  const [isMuted, setIsMuted] = useState(false)
-  const [showVolumeControl, setShowVolumeControl] = useState(false)
-  const [animationClass, setAnimationClass] = useState("")
-  const [repeatMode, setRepeatMode] = useState<"off" | "once" | "twice" | "thrice" | "infinite">("off")
-  const [repeatCount, setRepeatCount] = useState(0)
-  const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [showSpeedControl, setShowSpeedControl] = useState(false)
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolumeControl, setShowVolumeControl] = useState(false);
+  const [animationClass, setAnimationClass] = useState("");
+  const [repeatMode, setRepeatMode] = useState<
+    "off" | "once" | "twice" | "thrice" | "infinite"
+  >("off");
+  const [repeatCount, setRepeatCount] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showSpeedControl, setShowSpeedControl] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Format time (seconds to MM:SS)
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "00:00"
+    if (isNaN(time)) return "00:00";
 
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-  }
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   // Handle volume change
   const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0]
-    setVolume(newVolume)
+    const newVolume = value[0];
+    setVolume(newVolume);
 
     if (newVolume === 0) {
-      setIsMuted(true)
+      setIsMuted(true);
     } else {
-      setIsMuted(false)
+      setIsMuted(false);
     }
-  }
+  };
 
   // Toggle mute
   const toggleMute = () => {
     if (isMuted) {
-      setIsMuted(false)
+      setIsMuted(false);
     } else {
-      setIsMuted(true)
+      setIsMuted(true);
     }
-  }
+  };
 
   // Toggle play/pause
   const togglePlay = () => {
     if (isPlaying) {
-      pauseAudio()
+      pauseAudio();
     } else {
-      resumeAudio()
+      resumeAudio();
     }
-  }
+  };
 
   // Handle repeat mode
   const handleRepeat = () => {
     // Cycle through repeat modes
     if (repeatMode === "off") {
-      setRepeatMode("once")
-      setContextRepeatEnabled(true)
+      setRepeatMode("once");
+      setContextRepeatEnabled(true);
     } else if (repeatMode === "once") {
-      setRepeatMode("twice")
-      setContextRepeatEnabled(true)
+      setRepeatMode("twice");
+      setContextRepeatEnabled(true);
     } else if (repeatMode === "twice") {
-      setRepeatMode("thrice")
-      setContextRepeatEnabled(true)
+      setRepeatMode("thrice");
+      setContextRepeatEnabled(true);
     } else if (repeatMode === "thrice") {
-      setRepeatMode("infinite")
-      setContextRepeatEnabled(true)
+      setRepeatMode("infinite");
+      setContextRepeatEnabled(true);
     } else {
-      setRepeatMode("off")
-      setContextRepeatEnabled(false)
+      setRepeatMode("off");
+      setContextRepeatEnabled(false);
     }
-
-    // Reset repeat count
-    setRepeatCount(0)
-  }
+  };
 
   // Change playback speed
   const changePlaybackSpeed = (speed: number) => {
-    setPlaybackSpeed(speed)
-    setContextPlaybackSpeed(speed)
-  }
+    // Ensure speed is within valid range
+    const validSpeed = Math.max(0.5, Math.min(2, speed));
+    setPlaybackSpeed(validSpeed);
+    setContextPlaybackSpeed(validSpeed);
+
+    // Apply the speed change to the current audio element if it exists
+    if (audioRef.current) {
+      audioRef.current.playbackRate = validSpeed;
+    }
+  };
 
   // Fast forward 5 seconds
   const fastForward = () => {
-    setProgress(Math.min(duration, currentTime + 5))
-  }
+    setProgress(Math.min(duration, currentTime + 5));
+  };
 
   // Rewind 5 seconds
   const rewind = () => {
-    setProgress(Math.max(0, currentTime - 5))
-  }
+    setProgress(Math.max(0, currentTime - 5));
+  };
 
   // Update playback speed when it changes in context
   useEffect(() => {
-    setPlaybackSpeed(contextPlaybackSpeed)
-  }, [contextPlaybackSpeed])
+    setPlaybackSpeed(contextPlaybackSpeed);
+  }, [contextPlaybackSpeed]);
 
   // Update repeat mode when it changes in context
   useEffect(() => {
     if (contextRepeatEnabled && repeatMode === "off") {
-      setRepeatMode("once")
+      setRepeatMode("once");
     } else if (!contextRepeatEnabled && repeatMode !== "off") {
-      setRepeatMode("off")
+      setRepeatMode("off");
     }
-  }, [contextRepeatEnabled, repeatMode])
+  }, [contextRepeatEnabled, repeatMode]);
 
   // Animation class for expanding/collapsing
   useEffect(() => {
     if (isPlayerExpanded) {
-      setAnimationClass("player-expanding")
+      setAnimationClass("player-expanding");
     } else if (isPlayerVisible) {
-      setAnimationClass("player-collapsing")
+      setAnimationClass("player-collapsing");
     }
-  }, [isPlayerExpanded, isPlayerVisible])
+  }, [isPlayerExpanded, isPlayerVisible]);
 
   if (!isPlayerVisible) {
-    return null
+    return null;
   }
 
   // Get the repeat mode display text
   const getRepeatModeText = () => {
     switch (repeatMode) {
       case "once":
-        return "1×"
+        return "1×";
       case "twice":
-        return "2×"
+        return "2×";
       case "thrice":
-        return "3×"
+        return "3×";
       case "infinite":
-        return "∞"
+        return "∞";
       default:
-        return "Off"
+        return "Off";
     }
-  }
+  };
 
   return (
     <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4">
       <div
         className={`bg-black/90 backdrop-blur-lg shadow-lg transition-all duration-300 ease-in-out ${animationClass}
-        ${isPlayerExpanded ? "w-full max-w-3xl rounded-2xl p-4" : "w-auto max-w-md p-2 pr-4 rounded-full"}`}
+        ${
+          isPlayerExpanded
+            ? "w-full max-w-3xl rounded-2xl p-4"
+            : "w-auto max-w-md p-2 pr-4 rounded-full"
+        }`}
         onClick={() => !isPlayerExpanded && setIsPlayerExpanded(true)}
       >
         {isPlayerExpanded ? (
@@ -203,15 +217,18 @@ export default function AudioPlayerDrawer() {
               <div
                 className="flex items-center gap-2 cursor-pointer hover:bg-white/10 p-1 rounded-md transition-colors"
                 onClick={(e) => {
-                  e.stopPropagation()
+                  e.stopPropagation();
                   if (currentSurah && currentVerse) {
-                    window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`
+                    window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`;
                   }
                 }}
                 title="Go to this verse"
               >
                 <div className="w-10 h-10 rounded-full bg-[#d4af37] text-black flex items-center justify-center overflow-hidden">
-                  <span className="font-amiri quran-uthmani text-lg" style={{ textShadow: "0 0 1px rgba(0,0,0,0.3)" }}>
+                  <span
+                    className="font-amiri quran-uthmani text-lg"
+                    style={{ textShadow: "0 0 1px rgba(0,0,0,0.3)" }}
+                  >
                     {currentVerse && convertToArabicNumeral(currentVerse)}
                   </span>
                 </div>
@@ -229,11 +246,17 @@ export default function AudioPlayerDrawer() {
                   size="icon"
                   className="h-8 w-8 text-white hover:bg-white/10 rounded-full"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    setIsPlayerExpanded(false)
+                    e.stopPropagation();
+                    setIsPlayerExpanded(false);
                   }}
                 >
-                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg
+                    width="14"
+                    height="2"
+                    viewBox="0 0 14 2"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <rect width="14" height="2" rx="1" fill="white" />
                   </svg>
                 </Button>
@@ -243,8 +266,8 @@ export default function AudioPlayerDrawer() {
                   size="icon"
                   className="h-8 w-8 text-white hover:bg-white/10 rounded-full"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    closePlayer()
+                    e.stopPropagation();
+                    closePlayer();
                   }}
                 >
                   <X className="h-4 w-4" />
@@ -256,95 +279,60 @@ export default function AudioPlayerDrawer() {
               {/* Controls for repeat and speed */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`text-white hover:bg-white/10 rounded-md flex items-center gap-1 ${repeatMode !== "off" ? "bg-white/20" : ""}`}
-                      >
-                        <Repeat className="h-4 w-4 mr-1" />
-                        Repeat: {getRepeatModeText()}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="bg-black/90 border-white/10 text-white">
-                      <DropdownMenuItem
-                        className={`${repeatMode === "off" ? "bg-white/20" : ""}`}
-                        onClick={() => {
-                          setRepeatMode("off")
-                          setContextRepeatEnabled(false)
-                        }}
-                      >
-                        Off
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className={`${repeatMode === "once" ? "bg-white/20" : ""}`}
-                        onClick={() => {
-                          setRepeatMode("once")
-                          setContextRepeatEnabled(true)
-                        }}
-                      >
-                        1 time
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className={`${repeatMode === "twice" ? "bg-white/20" : ""}`}
-                        onClick={() => {
-                          setRepeatMode("twice")
-                          setContextRepeatEnabled(true)
-                        }}
-                      >
-                        2 times
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className={`${repeatMode === "thrice" ? "bg-white/20" : ""}`}
-                        onClick={() => {
-                          setRepeatMode("thrice")
-                          setContextRepeatEnabled(true)
-                        }}
-                      >
-                        3 times
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className={`${repeatMode === "infinite" ? "bg-white/20" : ""}`}
-                        onClick={() => {
-                          setRepeatMode("infinite")
-                          setContextRepeatEnabled(true)
-                        }}
-                      >
-                        Infinite
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-white hover:bg-white/10 rounded-md flex items-center gap-1 ${
+                      repeatMode !== "off" ? "bg-white/20" : ""
+                    }`}
+                    onClick={handleRepeat}
+                  >
+                    <Repeat
+                      className={`h-4 w-4 mr-1 ${
+                        repeatMode !== "off" ? "text-[#d4af37]" : ""
+                      }`}
+                    />
+                    Repeat: {getRepeatModeText()}
+                  </Button>
                 </div>
 
-                <div className="relative">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-white hover:bg-white/10 rounded-md flex items-center gap-1"
-                      >
-                        <span className="font-medium">{playbackSpeed}×</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-black/90 border-white/10 text-white">
-                      {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
-                        <DropdownMenuItem
-                          key={speed}
-                          className={`${playbackSpeed === speed ? "bg-white/20" : ""}`}
-                          onClick={() => changePlaybackSpeed(speed)}
-                        >
-                          {speed}× {speed === 1 && "(Normal)"}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 rounded-md"
+                    onClick={() =>
+                      changePlaybackSpeed(Math.max(0.5, playbackSpeed - 0.25))
+                    }
+                    disabled={playbackSpeed <= 0.5}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 rounded-md flex items-center gap-1 min-w-[60px] justify-center"
+                  >
+                    <span className="font-medium">{playbackSpeed}×</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 rounded-md"
+                    onClick={() =>
+                      changePlaybackSpeed(Math.min(2, playbackSpeed + 0.25))
+                    }
+                    disabled={playbackSpeed >= 2}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-white/70">{formatTime(currentTime)}</span>
+                <span className="text-xs text-white/70">
+                  {formatTime(currentTime)}
+                </span>
                 <Slider
                   value={[currentTime]}
                   max={duration || 100}
@@ -352,14 +340,16 @@ export default function AudioPlayerDrawer() {
                   onValueChange={(value) => setProgress(value[0])}
                   className="flex-1"
                 />
-                <span className="text-xs text-white/70">{formatTime(duration)}</span>
+                <span className="text-xs text-white/70">
+                  {formatTime(duration)}
+                </span>
               </div>
 
               <div className="flex items-center justify-center gap-2">
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    goToFirstVerse()
+                    e.stopPropagation();
+                    goToFirstVerse();
                   }}
                   variant="ghost"
                   size="icon"
@@ -371,8 +361,8 @@ export default function AudioPlayerDrawer() {
 
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    previousVerse()
+                    e.stopPropagation();
+                    previousVerse();
                   }}
                   variant="ghost"
                   size="icon"
@@ -384,8 +374,8 @@ export default function AudioPlayerDrawer() {
 
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    rewind()
+                    e.stopPropagation();
+                    rewind();
                   }}
                   variant="ghost"
                   size="icon"
@@ -396,8 +386,8 @@ export default function AudioPlayerDrawer() {
 
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    togglePlay()
+                    e.stopPropagation();
+                    togglePlay();
                   }}
                   className="bg-[#d4af37] hover:bg-[#c9a431] h-10 w-10 rounded-full p-0 flex items-center justify-center"
                   disabled={isLoading}
@@ -413,8 +403,8 @@ export default function AudioPlayerDrawer() {
 
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    fastForward()
+                    e.stopPropagation();
+                    fastForward();
                   }}
                   variant="ghost"
                   size="icon"
@@ -425,13 +415,15 @@ export default function AudioPlayerDrawer() {
 
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    nextVerse()
+                    e.stopPropagation();
+                    nextVerse();
                   }}
                   variant="ghost"
                   size="icon"
                   className="text-white hover:bg-white/10 rounded-full"
-                  disabled={!currentVerse || currentVerse >= verses.length || isLoading}
+                  disabled={
+                    !currentVerse || currentVerse >= verses.length || isLoading
+                  }
                 >
                   <SkipForward className="h-5 w-5" />
                 </Button>
@@ -439,15 +431,19 @@ export default function AudioPlayerDrawer() {
                 <div className="relative">
                   <Button
                     onClick={(e) => {
-                      e.stopPropagation()
-                      toggleMute()
+                      e.stopPropagation();
+                      toggleMute();
                     }}
                     onMouseEnter={() => setShowVolumeControl(true)}
                     variant="ghost"
                     size="icon"
                     className="text-white hover:bg-white/10 rounded-full"
                   >
-                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    {isMuted ? (
+                      <VolumeX className="h-5 w-5" />
+                    ) : (
+                      <Volume2 className="h-5 w-5" />
+                    )}
                   </Button>
 
                   {showVolumeControl && (
@@ -477,7 +473,13 @@ export default function AudioPlayerDrawer() {
             <div className="relative w-8 h-8">
               <svg className="w-8 h-8" viewBox="0 0 36 36">
                 {/* Background circle */}
-                <circle cx="18" cy="18" r="16" fill="#d4af37" className="stroke-none" />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="#d4af37"
+                  className="stroke-none"
+                />
 
                 {/* Progress circle - stroke-dasharray is the circumference of the circle (2πr) */}
                 <circle
@@ -512,15 +514,17 @@ export default function AudioPlayerDrawer() {
             <div
               className="flex-1 min-w-0 cursor-pointer hover:bg-white/10 rounded-md px-2 py-1 transition-colors"
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
                 if (currentSurah && currentVerse) {
-                  window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`
+                  window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`;
                 }
               }}
               title="Go to this verse"
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium truncate">Surah {surahName}</p>
+                <p className="text-sm font-medium truncate">
+                  Surah {surahName}
+                </p>
                 {currentVerseData?.juz && (
                   <div className="text-xs text-white/70 bg-white/10 px-1.5 py-0.5 rounded-sm hidden sm:flex items-center gap-1.5">
                     <span>J:{currentVerseData.juz}</span>
@@ -535,7 +539,9 @@ export default function AudioPlayerDrawer() {
                 </span>
                 {currentVerseData?.juz && (
                   <span className="sm:hidden bg-white/10 px-1 rounded-sm text-[10px]">
-                    J:{currentVerseData.juz} H:{Math.ceil(currentVerseData.juz * 2)} P:{currentVerseData.page}
+                    J:{currentVerseData.juz} H:
+                    {Math.ceil(currentVerseData.juz * 2)} P:
+                    {currentVerseData.page}
                   </span>
                 )}
               </p>
@@ -543,8 +549,8 @@ export default function AudioPlayerDrawer() {
 
             <Button
               onClick={(e) => {
-                e.stopPropagation()
-                togglePlay()
+                e.stopPropagation();
+                togglePlay();
               }}
               variant="ghost"
               size="icon"
@@ -563,6 +569,5 @@ export default function AudioPlayerDrawer() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

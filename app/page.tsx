@@ -68,15 +68,6 @@ export default async function Home() {
 
         <SurahList surahs={surahs} />
       </main>
-
-      <footer className="bg-[#1a5e63] text-white py-4 md:py-6 mt-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>Al-Quran Al-Kareem • The Noble Quran</p>
-          <p className="text-xs sm:text-sm mt-2 text-[#d4af37]">
-            Read, Study, and Listen to the Holy Quran
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

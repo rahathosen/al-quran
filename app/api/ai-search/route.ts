@@ -30,31 +30,34 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prompt engineering for better results
+    // Update the system prompt to include Bengali translation
     const systemPrompt = `You are an AI assistant specialized in the Quran. 
-    When given a topic or concept, find relevant verses from the Quran that address this topic.
-    For each verse, provide:
-    1. The Surah number
-    2. The verse number
-    3. The Arabic name of the Surah
-    4. The English name of the Surah
-    5. The Arabic text of the verse
-    6. An English translation of the verse
-    
-    Format your response as a JSON array of objects with these fields:
-    [
-      {
-        "surahNumber": number,
-        "verseNumber": number,
-        "surahName": "Arabic name",
-        "englishName": "English name",
-        "verseText": "Arabic text",
-        "translation": "English translation"
-      }
-    ]
-    
-    Limit your response to the 5 most relevant verses. Do not include any explanations or additional text outside the JSON structure.
-    If you cannot find relevant verses, return an empty array.`;
+ When given a topic or concept, find relevant verses from the Quran that address this topic.
+ For each verse, provide:
+ 1. The Surah number
+ 2. The verse number
+ 3. The Arabic name of the Surah
+ 4. The English name of the Surah
+ 5. The Arabic text of the verse
+ 6. An English translation of the verse
+ 7. A Bengali translation of the verse (if available)
+ 
+ Format your response as a JSON array of objects with these fields:
+ [
+   {
+     "surahNumber": number,
+     "verseNumber": number,
+     "surahName": "Arabic name",
+     "englishName": "English name",
+     "verseText": "Arabic text",
+     "translation": "English translation",
+     "bengaliTranslation": "Bengali translation"
+   }
+ ]
+ 
+ Limit your response to the 5 most relevant verses. Do not include any explanations or additional text outside the JSON structure.
+ If you cannot find relevant verses, return an empty array.
+ If Bengali translation is not available for a verse, you can omit the bengaliTranslation field or set it to null.`;
 
     // Make the API request to OpenRouter
     const completion = await openai.chat.completions.create({

@@ -1,45 +1,56 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { getSurahById, getSurahTranslation, getVerseAudioUrl } from "@/lib/quran-api"
-import { notFound } from "next/navigation"
-import SurahAudioPlayer from "@/components/surah-audio-player"
-import VerseItem from "@/components/verse-item"
-import SurahPageClient from "./page.client"
-import { cookies } from "next/headers"
-import SearchButton from "@/components/search-button"
-import AISearchButton from "@/components/ai-search-button"
-import BookmarkSurahButton from "@/components/bookmark-surah-button"
-import ShareSurahButton from "@/components/share-surah-button"
-import VerseMetadata from "@/components/verse-metadata"
-import ViewToggle from "@/components/view-toggle"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  getSurahById,
+  getSurahTranslation,
+  getVerseAudioUrl,
+} from "@/lib/quran-api";
+import { notFound } from "next/navigation";
+import SurahAudioPlayer from "@/components/surah-audio-player";
+import VerseItem from "@/components/verse-item";
+import SurahPageClient from "./page.client";
+import { cookies } from "next/headers";
+import SearchButton from "@/components/search-button";
+import AISearchButton from "@/components/ai-search-button";
+import BookmarkSurahButton from "@/components/bookmark-surah-button";
+import ShareSurahButton from "@/components/share-surah-button";
+import VerseMetadata from "@/components/verse-metadata";
+import ViewToggle from "@/components/view-toggle";
 
 export default async function SurahPage({
   params,
   searchParams,
-}: { params: { id: string }; searchParams: { view?: string } }) {
-  const surahId = Number.parseInt(params.id)
-  const viewMode = searchParams.view || "default" // Can be "default", "compact", or "arabic-only"
+}: {
+  params: { id: string };
+  searchParams: { view?: string };
+}) {
+  const surahId = Number.parseInt(params.id);
+  const viewMode = searchParams.view || "default"; // Can be "default", "compact", or "arabic-only"
 
   if (isNaN(surahId) || surahId < 1 || surahId > 114) {
-    notFound()
+    notFound();
   }
 
   // Get settings from cookies if available (fallback to defaults)
-  const cookieStore = cookies()
-  const settingsCookie = cookieStore.get("quran-settings")
-  let settings = { reciterId: "alafasy", translationId: "en.asad", quranFont: "uthmani" }
+  const cookieStore = cookies();
+  const settingsCookie = cookieStore.get("quran-settings");
+  let settings = {
+    reciterId: "alafasy",
+    translationId: "en.asad",
+    quranFont: "uthmani",
+  };
 
   if (settingsCookie?.value) {
     try {
-      const parsedSettings = JSON.parse(settingsCookie.value)
+      const parsedSettings = JSON.parse(settingsCookie.value);
       settings = {
         reciterId: parsedSettings.reciterId || "alafasy",
         translationId: parsedSettings.translationId || "en.asad",
         quranFont: parsedSettings.quranFont || "uthmani",
-      }
+      };
     } catch (e) {
-      console.error("Error parsing settings cookie:", e)
+      console.error("Error parsing settings cookie:", e);
     }
   }
 
@@ -47,10 +58,10 @@ export default async function SurahPage({
   const [surah, translation] = await Promise.all([
     getSurahById(surahId, `ar.${settings.reciterId}`),
     getSurahTranslation(surahId, settings.translationId),
-  ])
+  ]);
 
   if (!surah || !translation) {
-    notFound()
+    notFound();
   }
 
   // Combine Arabic text with translation and add audio URLs
@@ -61,7 +72,7 @@ export default async function SurahPage({
     audioUrl: getVerseAudioUrl(surahId, ayah.numberInSurah, settings.reciterId),
     juz: ayah.juz,
     page: ayah.page,
-  }))
+  }));
 
   return (
     <div className="min-h-screen bg-[#f8f5f0]">
@@ -70,7 +81,10 @@ export default async function SurahPage({
           {/* Top row: Back button on left, action buttons on right */}
           <div className="flex justify-between items-center">
             <Link href="/">
-              <Button variant="ghost" className="text-white hover:text-[#d4af37] px-2">
+              <Button
+                variant="ghost"
+                className="text-white hover:text-[#d4af37] px-2"
+              >
                 <ChevronLeft className="mr-1 h-4 w-4" />
                 <span className="hidden sm:inline">Back to Surahs</span>
                 <span className="sm:hidden">Back</span>
@@ -79,8 +93,14 @@ export default async function SurahPage({
 
             <div className="flex gap-1">
               <SurahPageClient surahId={surahId} />
-              <ShareSurahButton surahId={surahId} surahName={surah.englishName} />
-              <BookmarkSurahButton surahId={surahId} surahName={surah.englishName} />
+              <ShareSurahButton
+                surahId={surahId}
+                surahName={surah.englishName}
+              />
+              <BookmarkSurahButton
+                surahId={surahId}
+                surahName={surah.englishName}
+              />
             </div>
           </div>
 
@@ -92,7 +112,9 @@ export default async function SurahPage({
 
           {/* Bottom row: Surah info */}
           <div className="text-center pb-1">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">{surah.name}</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
+              {surah.name}
+            </h1>
             <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm font-normal text-[#d4af37]">
               <span>{surah.englishName}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span>
@@ -120,16 +142,24 @@ export default async function SurahPage({
             </div>
             <div className="flex items-center gap-2">
               <ViewToggle currentView={viewMode} surahId={surahId} />
-              <SurahAudioPlayer surahId={surahId} verses={verses} surahName={surah.englishName} />
+              <SurahAudioPlayer
+                surahId={surahId}
+                verses={verses}
+                surahName={surah.englishName}
+              />
             </div>
           </div>
 
           {surah.number !== 9 && (
             <div className="bg-[#f8f5f0] p-3 md:p-4 rounded-lg border border-[#d4af37]/20 mb-6">
-              <p className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-2`}>
+              <p
+                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-2`}
+              >
                 أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
               </p>
-              <p className={`text-center font-amiri text-xl md:text-2xl text-[#333] quran-${settings.quranFont}`}>
+              <p
+                className={`text-center font-amiri text-xl md:text-2xl text-[#333] quran-${settings.quranFont}`}
+              >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
             </div>
@@ -137,7 +167,11 @@ export default async function SurahPage({
 
           <div
             className={`${
-              viewMode === "compact" ? "space-y-3" : viewMode === "arabic-only" ? "space-y-2" : "space-y-6"
+              viewMode === "compact"
+                ? "space-y-3"
+                : viewMode === "arabic-only"
+                ? "space-y-2"
+                : "space-y-6"
             }`}
           >
             {verses.map((verse) => (
@@ -158,7 +192,10 @@ export default async function SurahPage({
         <div className="flex justify-between mt-6">
           {surahId > 1 ? (
             <Link href={`/surah/${surahId - 1}`}>
-              <Button variant="outline" className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4">
+              <Button
+                variant="outline"
+                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4"
+              >
                 <ChevronLeft className="mr-1 sm:mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Previous Surah</span>
                 <span className="sm:hidden">Previous</span>
@@ -170,7 +207,10 @@ export default async function SurahPage({
 
           {surahId < 114 ? (
             <Link href={`/surah/${surahId + 1}`}>
-              <Button variant="outline" className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4">
+              <Button
+                variant="outline"
+                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4"
+              >
                 <span className="hidden sm:inline">Next Surah</span>
                 <span className="sm:hidden">Next</span>
                 <ChevronRight className="ml-1 sm:ml-2 h-4 w-4" />
@@ -181,14 +221,6 @@ export default async function SurahPage({
           )}
         </div>
       </main>
-
-      <footer className="bg-[#1a5e63] text-white py-4 md:py-6 mt-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>Al-Quran Al-Kareem • The Noble Quran</p>
-          <p className="text-xs sm:text-sm mt-2 text-[#d4af37]">Read, Study, and Listen to the Holy Quran</p>
-        </div>
-      </footer>
     </div>
-  )
+  );
 }
-
