@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY || "",
   defaultHeaders: {
     "HTTP-Referer":
-      process.env.NEXT_PUBLIC_APP_URL || "https://quran-app.vercel.app",
+      process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app",
     "X-Title": "Al-Quran Al-Kareem",
   },
 });
