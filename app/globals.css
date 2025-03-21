@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 30% 96%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 184 57% 24%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 184 57% 24%;
+    --chart-2: 43 74% 49%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 24 75% 50%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 184 57% 24%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+
+  /* Sepia Theme - More refined */
+  .theme-sepia {
+    --background: 43 30% 97%;
+    --foreground: 30 15% 15%;
+
+    --card: 43 30% 99%;
+    --card-foreground: 30 15% 15%;
+
+    --popover: 43 30% 99%;
+    --popover-foreground: 30 15% 15%;
+
+    --primary: 30 40% 35%;
+    --primary-foreground: 43 30% 97%;
+
+    --secondary: 30 20% 92%;
+    --secondary-foreground: 30 15% 15%;
+
+    --muted: 30 20% 92%;
+    --muted-foreground: 30 15% 35%;
+
+    --accent: 30 20% 92%;
+    --accent-foreground: 30 15% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 20% 87%;
+    --input: 30 20% 87%;
+    --ring: 30 15% 15%;
+
+    --radius: 0.5rem;
+  }
+
+  /* Green Theme - Softer and more elegant */
+  .theme-green {
+    --background: 150 25% 97%;
+    --foreground: 150 30% 15%;
+
+    --card: 150 25% 99%;
+    --card-foreground: 150 30% 15%;
+
+    --popover: 150 25% 99%;
+    --popover-foreground: 150 30% 15%;
+
+    --primary: 150 35% 35%;
+    --primary-foreground: 150 25% 97%;
+
+    --secondary: 150 15% 92%;
+    --secondary-foreground: 150 30% 15%;
+
+    --muted: 150 15% 92%;
+    --muted-foreground: 150 30% 35%;
+
+    --accent: 150 15% 92%;
+    --accent-foreground: 150 30% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 15% 87%;
+    --input: 150 15% 87%;
+    --ring: 150 30% 15%;
+
+    --radius: 0.5rem;
+  }
+
+  /* Blue Theme - Calming and professional */
+  .theme-blue {
+    --background: 210 25% 97%;
+    --foreground: 210 30% 15%;
+
+    --card: 210 25% 99%;
+    --card-foreground: 210 30% 15%;
+
+    --popover: 210 25% 99%;
+    --popover-foreground: 210 30% 15%;
+
+    --primary: 210 35% 40%;
+    --primary-foreground: 210 25% 97%;
+
+    --secondary: 210 15% 92%;
+    --secondary-foreground: 210 30% 15%;
+
+    --muted: 210 15% 92%;
+    --muted-foreground: 210 30% 35%;
+
+    --accent: 210 15% 92%;
+    --accent-foreground: 210 30% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 15% 87%;
+    --input: 210 15% 87%;
+    --ring: 210 30% 15%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Quran Font Styles */
+.quran-uthmani {
+  font-family: "Amiri", serif;
+  /* Standard Uthmani script - default */
+}
+
+.quran-indopak {
+  font-family: "Scheherazade New", serif;
+  letter-spacing: 0.5px;
+  /* Indo-Pakistani style has slightly different letter shapes */
+}
+
+.quran-tajweed {
+  font-family: "Amiri", serif;
+  /* Tajweed rules with colors */
+  color: #000;
+  text-shadow: 0 0 1px rgba(26, 94, 99, 0.2), 0 0 1px rgba(212, 175, 55, 0.2);
+}
+
+.quran-naskh {
+  font-family: "Noto Naskh Arabic", serif;
+  letter-spacing: 0.25px;
+  /* Clear Naskh style for easy reading */
+}
+
+.quran-quran {
+  font-family: "Amiri Quran", serif;
+  /* Specialized for Quran text */
+}
+
+.quran-hafs {
+  font-family: "Scheherazade New", serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  /* Traditional Hafs typography with heavier weight */
+}
+
+.quran-madani {
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  /* Medina Mushaf style with bolder text */
+}
+
+/* Tajweed color rules - simplified version */
+.quran-tajweed .tajweed-idgham,
+.quran-tajweed .tajweed-idgham-shafawi {
+  color: #169200; /* Green */
+}
+
+.quran-tajweed .tajweed-ikhfa,
+.quran-tajweed .tajweed-ikhfa-shafawi {
+  color: #9400a8; /* Purple */
+}
+
+.quran-tajweed .tajweed-iqlab {
+  color: #5e00ff; /* Blue */
+}
+
+.quran-tajweed .tajweed-qalqalah {
+  color: #dd0008; /* Red */
+}
+
+.quran-tajweed .tajweed-madda-necessary {
+  color: #ff7e1e; /* Orange */
+}
+
+.quran-tajweed .tajweed-madda-permissible {
+  color: #b1a8b4; /* Gray */
+}
+
+/* Add smooth transition for the dynamic island */
+@keyframes expandPlayer {
+  from {
+    max-width: md;
+    border-radius: 9999px;
+  }
+  to {
+    max-width: 3xl;
+    border-radius: 1rem;
+  }
+}
+
+@keyframes collapsePlayer {
+  from {
+    max-width: 3xl;
+    border-radius: 1rem;
+  }
+  to {
+    max-width: md;
+    border-radius: 9999px;
+  }
+}
+
+.player-expanding {
+  animation: expandPlayer 0.3s ease-in-out forwards;
+}
+
+.player-collapsing {
+  animation: collapsePlayer 0.3s ease-in-out forwards;
+}
+
+/* Add styles for sticky verse */
+.verse-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f8f5f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin: -1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Dark mode sticky verse */
+.dark .verse-sticky {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Theme-specific sticky verse */
+.theme-sepia .verse-sticky {
+  background-color: #f8f3e9;
+}
+
+.theme-green .verse-sticky {
+  background-color: #f0f8f4;
+}
+
+.theme-blue .verse-sticky {
+  background-color: #f0f4f8;
+}
+
