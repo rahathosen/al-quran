@@ -19,7 +19,7 @@ export async function GET(
       return new NextResponse("Surah not found", { status: 404 });
     }
 
-    // Create an SVG with the same style as quran-og.svg but with surah-specific content
+    // Create an SVG that matches the style of /og-images/quran-og.svg but with surah-specific content
     const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background with premium gradient -->
   <rect width="1200" height="630" fill="#1a5e63"/>
@@ -39,7 +39,7 @@ export async function GET(
   <text x="600" y="250" fontFamily="Arial, sans-serif" fontSize="72" fontWeight="bold" fill="white" textAnchor="middle">${surah.name}</text>
   
   <!-- Subtitle - Surah name in English -->
-  <text x="600" y="330" fontFamily="Arial, sans-serif" fontSize="48" fontWeight="normal" fill="#d4af37" textAnchor="middle">${surah.englishName}</text>
+  <text x="600" y="330" fontFamily="Arial, sans-serif" fontSize="48" fontWeight="normal" fill="#d4af37" textAnchor="middle">Surah ${surah.englishName}</text>
   
   <!-- Tagline - Verse count and revelation type -->
   <text x="600" y="400" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="normal" fill="white" textAnchor="middle" fillOpacity="0.8">${surah.numberOfAyahs} Verses • ${surah.revelationType}</text>
