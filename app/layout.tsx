@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: "Al-Quran Ai",
   description:
     "Read and explore the Holy Quran with beautiful Arabic text and translations",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+    shortcut: "/favicon-96x96.png",
+  },
 };
 
 export default function RootLayout({
