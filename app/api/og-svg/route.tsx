@@ -19,7 +19,7 @@ export async function GET(
       return new NextResponse("Surah not found", { status: 404 });
     }
 
-    // Create a simpler SVG with just the essential surah info in bigger fonts
+    // Create an SVG that matches the style of /og-images/quran-og.svg but with surah-specific content
     const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background with premium gradient -->
   <rect width="1200" height="630" fill="#1a5e63"/>
@@ -35,17 +35,20 @@ export async function GET(
   <circle cx="100" cy="530" r="80" fill="#d4af37" fillOpacity="0.1"/>
   <circle cx="1100" cy="530" r="80" fill="#d4af37" fillOpacity="0.1"/>
   
-  <!-- Surah name in English - BIGGER FONT -->
-  <text x="600" y="250" fontFamily="Arial, sans-serif" fontSize="120" fontWeight="bold" fill="white" textAnchor="middle">Surah ${surah.englishName}</text>
+  <!-- Main title - Surah name in Arabic -->
+  <text x="600" y="250" fontFamily="Arial, sans-serif" fontSize="72" fontWeight="bold" fill="white" textAnchor="middle">${surah.name}</text>
   
-  <!-- Revelation type - BIGGER FONT -->
-  <text x="600" y="350" fontFamily="Arial, sans-serif" fontSize="80" fontWeight="normal" fill="#d4af37" textAnchor="middle">${surah.revelationType}</text>
+  <!-- Subtitle - Surah name in English -->
+  <text x="600" y="330" fontFamily="Arial, sans-serif" fontSize="48" fontWeight="normal" fill="#d4af37" textAnchor="middle">Surah ${surah.englishName}</text>
   
-  <!-- Verse count - BIGGER FONT -->
-  <text x="600" y="450" fontFamily="Arial, sans-serif" fontSize="80" fontWeight="normal" fill="white" textAnchor="middle">${surah.numberOfAyahs} Verses</text>
+  <!-- Tagline - Verse count and revelation type -->
+  <text x="600" y="400" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="normal" fill="white" textAnchor="middle" fillOpacity="0.8">${surah.numberOfAyahs} Verses • ${surah.revelationType}</text>
+  
+  <!-- Decorative line -->
+  <line x1="400" y1="450" x2="800" y2="450" stroke="#d4af37" strokeWidth="2" strokeOpacity="0.5"/>
   
   <!-- URL -->
-  <text x="600" y="550" fontFamily="Arial, sans-serif" fontSize="32" fontWeight="normal" fill="white" textAnchor="middle" fillOpacity="0.6">al-quran-ai.vercel.app</text>
+  <text x="600" y="500" fontFamily="Arial, sans-serif" fontSize="24" fontWeight="normal" fill="white" textAnchor="middle" fillOpacity="0.6">al-quran-ai.vercel.app</text>
   
   <!-- Gradient definition -->
   <defs>
