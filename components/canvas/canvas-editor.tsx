@@ -142,7 +142,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   const [showTranslation, setShowTranslation] = useState<boolean>(true);
   const [showReference, setShowReference] = useState<boolean>(true);
   const [colorScheme, setColorScheme] = useState<string>("light");
-  const [opacity, setOpacity] = useState<number>(30);
+  const [opacity, setOpacity] = useState<number>(20);
   const [fontSize, setFontSize] = useState<number>(2); // 1-4 scale
 
   // Add a new state for font color after the fontSize state
@@ -258,7 +258,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       const arabicText = getCurrentVerseText();
       const fontSizeMap = { 1: 36, 2: 48, 3: 60, 4: 72 };
       const arabicFontSize = fontSizeMap[fontSize as keyof typeof fontSizeMap];
-      ctx.font = `${arabicFontSize}px 'Amiri', serif`;
+      // Get the font family based on selected font
+      const fontFamily =
+        QURAN_FONTS.find((font) => font.id === selectedFont)?.id || "uthmani";
+      ctx.font = `${arabicFontSize}px ${getFontFamilyClass(fontFamily)}`;
 
       // Handle multiline text
       const maxWidth = canvasRef.width * 0.8;
@@ -366,6 +369,26 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
     return lines;
   };
 
+  // Helper function to get the correct font family based on the selected font style
+  const getFontFamilyClass = (fontStyle: string): string => {
+    switch (fontStyle) {
+      case "uthmani":
+        return "'Amiri', serif";
+      case "indopak":
+        return "'Scheherazade New', serif";
+      case "naskh":
+        return "'Noto Naskh Arabic', serif";
+      case "quran":
+        return "'Amiri Quran', serif";
+      case "hafs":
+        return "'Scheherazade New', serif";
+      case "madani":
+        return "'Amiri', serif";
+      default:
+        return "'Amiri', serif";
+    }
+  };
+
   // Render canvas with current settings
   const renderCanvas = () => {
     if (!canvasRef) return;
@@ -411,7 +434,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       const arabicText = getCurrentVerseText();
       const fontSizeMap = { 1: 36, 2: 48, 3: 60, 4: 72 };
       const arabicFontSize = fontSizeMap[fontSize as keyof typeof fontSizeMap];
-      ctx.font = `${arabicFontSize}px 'Amiri', serif`;
+      // Get the font family based on selected font
+      const fontFamily =
+        QURAN_FONTS.find((font) => font.id === selectedFont)?.id || "uthmani";
+      ctx.font = `${arabicFontSize}px ${getFontFamilyClass(fontFamily)}`;
 
       // Handle multiline text
       const maxWidth = canvasRef.width * 0.8;
@@ -583,6 +609,21 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       renderCanvas();
     }
   }, [selectedBackground, canvasRef]);
+
+  // Add this effect after the existing useEffect for background changes
+  useEffect(() => {
+    if (canvasRef) {
+      renderCanvas();
+    }
+  }, [
+    selectedFont,
+    fontSize,
+    fontColor,
+    colorScheme,
+    opacity,
+    showTranslation,
+    showReference,
+  ]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
