@@ -38,17 +38,17 @@ export async function generateMetadata(
 
   if (!surah) {
     return {
-      title: "Surah Not Found | Al-Quran Al-Kareem",
+      title: "Surah Not Found | Al-Quran Ai",
       description: "The requested Surah could not be found.",
     };
   }
 
   // Create metadata with surah details
   return {
-    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
+    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
     description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
     openGraph: {
-      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
+      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
       description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
       type: "article",
       url: `${
@@ -68,7 +68,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: `Surah ${surah.englishName} | Al-Quran Al-Kareem`,
+      title: `Surah ${surah.englishName} | Al-Quran Ai`,
       description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
       // Use the same dynamic SVG
       images: [
