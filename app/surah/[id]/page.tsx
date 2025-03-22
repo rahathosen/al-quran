@@ -38,28 +38,28 @@ export async function generateMetadata(
 
   if (!surah) {
     return {
-      title: "Surah Not Found | Al-Quran Ai",
+      title: "Surah Not Found | Al-Quran Al-Kareem",
       description: "The requested Surah could not be found.",
     };
   }
 
   // Create metadata with surah details
   return {
-    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
+    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
     description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
     openGraph: {
-      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Ai`,
+      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
       description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
       type: "article",
       url: `${
         process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
       }/surah/${surahId}`,
-      // Use the SVG image instead of JPG
+      // Use the dynamic SVG API route
       images: [
         {
           url: `${
             process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-          }/og-images/quran-og.svg`,
+          }/api/og-svg/${surahId}`,
           width: 1200,
           height: 630,
           alt: `Surah ${surah.englishName}`,
@@ -68,13 +68,13 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: `Surah ${surah.englishName} | Al-Quran Ai`,
+      title: `Surah ${surah.englishName} | Al-Quran Al-Kareem`,
       description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
-      // Use the same SVG image
+      // Use the same dynamic SVG
       images: [
         `${
           process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-        }/og-images/quran-og.svg`,
+        }/api/og-svg/${surahId}`,
       ],
     },
     alternates: {
@@ -85,7 +85,6 @@ export async function generateMetadata(
     keywords: `Quran, Surah ${surah.englishName}, ${surah.name}, ${surah.englishNameTranslation}, Islamic scripture, Holy Quran`,
   };
 }
-
 export default async function SurahPage({
   params,
   searchParams,
