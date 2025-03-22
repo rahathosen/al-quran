@@ -133,14 +133,16 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   // Canvas settings
   const [selectedSurah, setSelectedSurah] = useState<number>(1);
   const [selectedVerse, setSelectedVerse] = useState<number>(1);
-  const [selectedBackground, setSelectedBackground] = useState<string>("");
+  const [selectedBackground, setSelectedBackground] = useState<string>(
+    "/canvas-images/mountains.webp"
+  );
   const [selectedFont, setSelectedFont] = useState<string>("uthmani");
   const [selectedTranslation, setSelectedTranslation] =
     useState<string>("en.asad");
   const [showTranslation, setShowTranslation] = useState<boolean>(true);
   const [showReference, setShowReference] = useState<boolean>(true);
   const [colorScheme, setColorScheme] = useState<string>("light");
-  const [opacity, setOpacity] = useState<number>(20);
+  const [opacity, setOpacity] = useState<number>(30);
   const [fontSize, setFontSize] = useState<number>(2); // 1-4 scale
 
   // Add a new state for font color after the fontSize state
@@ -169,6 +171,11 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     setCanvasRef(canvas);
+
+    // Render the canvas with default background after a short delay to ensure everything is loaded
+    setTimeout(() => {
+      renderCanvas();
+    }, 100);
   }, []);
 
   // Fetch surah data when selected surah changes
@@ -361,7 +368,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
   // Render canvas with current settings
   const renderCanvas = () => {
-    if (!canvasRef || !selectedBackground) return;
+    if (!canvasRef) return;
+
+    // Use default background if none selected
+    const bgImage = selectedBackground || "/canvas-images/mountains.webp";
 
     const ctx = canvasRef.getContext("2d");
     if (!ctx) return;
@@ -371,6 +381,8 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
     // Load background image
     const img = new Image();
+    img.crossOrigin = "anonymous"; // Important for CORS
+
     img.onload = () => {
       // Draw background
       ctx.drawImage(img, 0, 0, canvasRef.width, canvasRef.height);
@@ -416,7 +428,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       // Draw translation if enabled
       if (showTranslation) {
         const translationText = getCurrentVerseTranslation();
-        const translationFontSizeMap = { 1: 24, 2: 30, 3: 36, 4: 42 };
+        const translationFontSizeMap = { 1: 24, 2: 30, 3: 36, 4: 72 };
         const translationFontSize =
           translationFontSizeMap[
             fontSize as keyof typeof translationFontSizeMap
@@ -476,7 +488,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
     };
 
     // Set image source
-    img.src = selectedBackground;
+    img.src = bgImage;
   };
 
   // Get current verse text
@@ -567,10 +579,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
   // Effect to render canvas when background changes
   useEffect(() => {
-    if (selectedBackground) {
+    if (canvasRef) {
       renderCanvas();
     }
-  }, [selectedBackground]);
+  }, [selectedBackground, canvasRef]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -705,6 +717,9 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                           value={image.src}
                           id={image.id}
                           className="sr-only"
+                          defaultChecked={
+                            image.src === "/canvas-images/mountains.webp"
+                          }
                         />
                         <Label htmlFor={image.id} className="cursor-pointer">
                           <Card
@@ -902,23 +917,20 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
         <Card className="shadow-lg border-[#d4af37]/20 overflow-hidden">
           <CardContent className="p-0">
             <div className="relative w-full h-full flex items-center justify-center bg-gray-100 min-h-[500px]">
-              {!selectedBackground ? (
+              {!canvasRef ? (
                 <div className="text-center p-8">
-                  <p className="text-gray-500">
-                    Select a background image to preview your verse card
-                  </p>
+                  <Loader2 className="h-8 w-8 animate-spin text-[#1a5e63] mx-auto mb-2" />
+                  <p className="text-gray-500">Preparing canvas...</p>
                 </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  {canvasRef && (
-                    <img
-                      src={
-                        canvasRef.toDataURL("image/jpeg") || "/placeholder.svg"
-                      }
-                      alt="Verse preview"
-                      className="max-w-full max-h-[70vh] object-contain shadow-lg"
-                    />
-                  )}
+                  <img
+                    src={
+                      canvasRef.toDataURL("image/jpeg") || "/placeholder.svg"
+                    }
+                    alt="Verse preview"
+                    className="max-w-full max-h-[70vh] object-contain shadow-lg"
+                  />
                 </div>
               )}
 
@@ -936,11 +948,11 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
           </CardContent>
         </Card>
 
-        {!selectedBackground && (
+        {!selectedBackground && !canvasRef && (
           <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
             <p className="font-medium">
-              Please select a background image from the Background tab to create
-              your verse card.
+              Loading default background. You can select a different background
+              from the Background tab.
             </p>
           </div>
         )}
