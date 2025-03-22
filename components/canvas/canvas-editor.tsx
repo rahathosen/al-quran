@@ -140,7 +140,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   const [showTranslation, setShowTranslation] = useState<boolean>(true);
   const [showReference, setShowReference] = useState<boolean>(true);
   const [colorScheme, setColorScheme] = useState<string>("light");
-  const [opacity, setOpacity] = useState<number>(85);
+  const [opacity, setOpacity] = useState<number>(20);
   const [fontSize, setFontSize] = useState<number>(2); // 1-4 scale
 
   // Add a new state for font color after the fontSize state
