@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Search, Sparkles, Loader2, BookOpen } from "lucide-react";
+import { X, Search, Sparkles, Loader2, BookOpen, Eraser } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -160,18 +160,21 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
             placeholder="Search Quran with AI (e.g., 'patience', 'gratitude', 'forgiveness')"
             className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSearchTerm("")}
-            className={`${
-              !searchTerm ? "opacity-0" : "opacity-100"
-            } transition-opacity`}
-          >
-            {/* <X className="h-4 w-4" /> */}
-          </Button>
+
+          {/* Ensure Erase button is fully visible */}
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSearchTerm("")}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <Eraser className="h-4 w-4" />
+            </Button>
+          )}
+
           <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-gray-600 hover:text-gray-800" />
           </Button>
         </div>
 
