@@ -1,65 +1,64 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Bookmark, BookmarkCheck } from "lucide-react"
-import { getSettings, saveSettings } from "@/lib/local-storage"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Bookmark, BookmarkCheck } from "lucide-react";
+import {
+  isSurahBookmarked,
+  addSurahBookmark,
+  removeSurahBookmark,
+} from "@/lib/local-storage";
 
 interface BookmarkSurahButtonProps {
-  surahId: number
-  surahName: string
+  surahId: number;
+  surahName: string;
+  englishName?: string;
 }
 
-export default function BookmarkSurahButton({ surahId, surahName }: BookmarkSurahButtonProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false)
+export default function BookmarkSurahButton({
+  surahId,
+  surahName,
+  englishName = "",
+}: BookmarkSurahButtonProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   // Check if surah is bookmarked on mount
   useEffect(() => {
-    const settings = getSettings()
-    const bookmarkedSurahs = settings.bookmarkedSurahs || []
-    setIsBookmarked(bookmarkedSurahs.some((s: any) => s.id === surahId))
-  }, [surahId])
+    setIsBookmarked(isSurahBookmarked(surahId));
+  }, [surahId]);
 
   const toggleBookmark = () => {
-    const settings = getSettings()
-    let bookmarkedSurahs = settings.bookmarkedSurahs || []
-
     if (isBookmarked) {
       // Remove from bookmarks
-      bookmarkedSurahs = bookmarkedSurahs.filter((s: any) => s.id !== surahId)
-      showToast("Surah removed from bookmarks")
+      removeSurahBookmark(surahId);
+      showToast("Surah removed from bookmarks");
     } else {
       // Add to bookmarks
-      bookmarkedSurahs.push({
-        id: surahId,
-        name: surahName,
+      addSurahBookmark({
+        surahId,
+        surahName,
+        englishName: englishName || surahName,
         timestamp: Date.now(),
-      })
-      showToast("Surah added to bookmarks")
+      });
+      showToast("Surah added to bookmarks");
     }
 
-    // Update settings
-    saveSettings({
-      ...settings,
-      bookmarkedSurahs,
-    })
-
     // Update state
-    setIsBookmarked(!isBookmarked)
-  }
+    setIsBookmarked(!isBookmarked);
+  };
 
   // Show toast notification
   const showToast = (message: string) => {
-    const toast = document.createElement("div")
+    const toast = document.createElement("div");
     toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50"
-    toast.textContent = message
-    document.body.appendChild(toast)
+      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
+    toast.textContent = message;
+    document.body.appendChild(toast);
 
     setTimeout(() => {
-      document.body.removeChild(toast)
-    }, 2000)
-  }
+      document.body.removeChild(toast);
+    }, 2000);
+  };
 
   return (
     <Button
@@ -75,6 +74,5 @@ export default function BookmarkSurahButton({ surahId, surahName }: BookmarkSura
         <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
       )}
     </Button>
-  )
+  );
 }
-

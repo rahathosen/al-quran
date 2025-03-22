@@ -166,7 +166,8 @@ export default async function SurahPage({
               />
               <BookmarkSurahButton
                 surahId={surahId}
-                surahName={surah.englishName}
+                surahName={surah.name}
+                englishName={surah.englishName}
               />
             </div>
           </div>
