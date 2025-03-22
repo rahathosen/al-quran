@@ -1,0 +1,45 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with premium gradient -->
+  <rect width="1200" height="630" fill="#1a5e63"/>
+  <rect width="1200" height="630" fill="url(#paint0_linear)" fill-opacity="0.2"/>
+  
+  <!-- Decorative elements -->
+  <path d="M0 0L1200 0L1200 20C1200 20 900 40 600 40C300 40 0 20 0 20L0 0Z" fill="#d4af37" fill-opacity="0.3"/>
+  <path d="M0 630L1200 630L1200 610C1200 610 900 590 600 590C300 590 0 610 0 610L0 630Z" fill="#d4af37" fill-opacity="0.3"/>
+  
+  <!-- Decorative Islamic pattern at the corners -->
+  <circle cx="100" cy="100" r="80" fill="#d4af37" fill-opacity="0.1"/>
+  <circle cx="1100" cy="100" r="80" fill="#d4af37" fill-opacity="0.1"/>
+  <circle cx="100" cy="530" r="80" fill="#d4af37" fill-opacity="0.1"/>
+  <circle cx="1100" cy="530" r="80" fill="#d4af37" fill-opacity="0.1"/>
+   <!-- Main title -->
+  <text x="600" y="250" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">القرآن الكريم</text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="330" font-family="Arial, sans-serif" font-size="48" font-weight="normal" fill="#d4af37" text-anchor="middle">Al-Quran Ai</text>
+  
+  <!-- Verse card illustration -->
+  <!-- <rect x="400" y="150" width="400" height="280" rx="8" fill="#f8f5f0" stroke="#d4af37" stroke-width="2"/>
+  <text x="600" y="250" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1a5e63" text-anchor="middle">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</text>
+  <line x1="450" y1="280" x2="750" y2="280" stroke="#d4af37" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="600" y="320" font-family="Arial, sans-serif" font-size="18" font-weight="normal" fill="#1a5e63" text-anchor="middle">In the name of Allah, the Most Gracious, the Most Merciful</text>
+  <text x="600" y="370" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#666" text-anchor="middle">Al-Fatihah 1:1</text>
+   -->
+  <!-- Main title -->
+  <text x="600" y="480" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="white" text-anchor="middle">Quran Verse Cards</text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="530" font-family="Arial, sans-serif" font-size="32" font-weight="normal" fill="#d4af37" text-anchor="middle">Create and Share Beautiful Verses</text>
+  
+
+  <!-- URL -->
+  <text x="600" y="580" font-family="Arial, sans-serif" font-size="24" font-weight="normal" fill="white" text-anchor="middle" fill-opacity="0.6">al-quran-ai.vercel.app/canvas</text>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#134548"/>
+      <stop offset="1" stop-color="#1a5e63"/>
+    </linearGradient>
+  </defs>
+</svg>

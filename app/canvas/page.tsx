@@ -6,6 +6,38 @@ export const metadata: Metadata = {
   title: "Create Quran Verse Cards | Al-Quran Ai",
   description:
     "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
+  openGraph: {
+    title: "Create Quran Verse Cards | Al-Quran Ai",
+    description:
+      "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
+    type: "website",
+    url:
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://al-quran-ai.vercel.app/canvas",
+    images: [
+      {
+        url: `${
+          process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+        }/og-images/verse-cards-og.svg`,
+        width: 1200,
+        height: 630,
+        alt: "Quran Verse Cards Creator",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Create Quran Verse Cards | Al-Quran Ai",
+    description:
+      "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
+    images: [
+      `${
+        process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
+      }/og-images/verse-cards-og.svg`,
+    ],
+  },
+  keywords:
+    "Quran verses, Islamic quotes, Quran cards, verse creator, Islamic social media, Quran sharing",
 };
 
 export default async function CanvasPage() {
