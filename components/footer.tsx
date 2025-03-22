@@ -104,9 +104,14 @@ export default function Footer() {
             <p className="text-sm text-white/80 flex items-center justify-center md:justify-end">
               Developed with{" "}
               <Heart className="h-3 w-3 mx-1 text-red-400 fill-red-400" /> by
-              <span className="font-medium ml-1 text-[#d4af37]">
+              <a
+                href="https://www.facebook.com/rahathosen.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium ml-1 text-[#d4af37] hover:underline"
+              >
                 Rahat Hosen
-              </span>
+              </a>
             </p>
             <p className="text-xs text-white/60 mt-1">
               © {currentYear} All rights reserved
