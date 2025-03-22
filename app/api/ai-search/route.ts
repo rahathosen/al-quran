@@ -8,7 +8,7 @@ const openai = new OpenAI({
   defaultHeaders: {
     "HTTP-Referer":
       process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app",
-    "X-Title": "Al-Quran Ai",
+    "X-Title": "Al-Quran",
   },
 });
 

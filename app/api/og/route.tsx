@@ -28,7 +28,7 @@ export async function GET(request: Request) {
             }}
           >
             <div style={{ fontSize: 60, fontWeight: "bold", marginBottom: 20 }}>
-              Al-Quran Ai
+              Al-Quran
             </div>
             <div style={{ fontSize: 30, color: "#d4af37" }}>
               The Noble Quran
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
           <div style={{ fontSize: 60, fontWeight: "bold", marginBottom: 20 }}>
             Surah {surahId}
           </div>
-          <div style={{ fontSize: 30, color: "#d4af37" }}>Al-Quran Ai</div>
+          <div style={{ fontSize: 30, color: "#d4af37" }}>Al-Quran</div>
         </div>
       ),
       {
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
           }}
         >
           <div style={{ fontSize: 60, fontWeight: "bold", marginBottom: 20 }}>
-            Al-Quran Ai
+            Al-Quran
           </div>
           <div style={{ fontSize: 30, color: "#d4af37" }}>The Noble Quran</div>
         </div>

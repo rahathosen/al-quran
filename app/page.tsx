@@ -10,13 +10,13 @@ import SurahList from "@/components/surah-list";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Al-Quran Ai | Read and Listen to the Holy Quran",
+  title: "Al-Quran | Read and Listen to the Holy Quran",
   description:
     "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
   keywords:
     "Quran, Holy Quran, Quran online, Quran reading, Quran listening, Islamic scripture, Quran translations",
   openGraph: {
-    title: "Al-Quran Ai | Read and Listen to the Holy Quran",
+    title: "Al-Quran | Read and Listen to the Holy Quran",
     description:
       "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
     type: "website",
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
         }/og-images/quran-og.svg`,
         width: 1200,
         height: 630,
-        alt: "Al-Quran Ai",
+        alt: "Al-Quran",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Al-Quran Ai | Read and Listen to the Holy Quran",
+    title: "Al-Quran | Read and Listen to the Holy Quran",
     description:
       "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
     images: [
@@ -55,7 +55,7 @@ export default async function Home() {
             <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
               القرآن الكريم
               <span className="block text-lg font-normal text-[#d4af37]">
-                Al-Quran Ai
+                Al-Quran
               </span>
             </h1>
             <div className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
@@ -68,7 +68,7 @@ export default async function Home() {
 
       <main className="container mx-auto px-4 py-6 md:py-8">
         {/* <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
-          <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4">Welcome to Al-Quran Ai</h2>
+          <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4">Welcome to Al-Quran</h2>
           <p className="text-[#555] mb-4">
             Read and explore the Holy Quran with beautiful Arabic text and translations. Navigate through all 114
             Surahs.

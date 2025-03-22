@@ -24,7 +24,7 @@ export default function ShareSurahButton({
       ? `${window.location.origin}/surah/${surahId}`
       : `/surah/${surahId}`;
 
-  const shareTitle = `Surah ${surahName} - Al-Quran Ai`;
+  const shareTitle = `Surah ${surahName} - Al-Quran`;
 
   const handleCopyLink = async () => {
     try {

@@ -7,7 +7,7 @@ import Footer from "@/components/footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Al-Quran Ai",
+  title: "Al-Quran",
   description:
     "Read and explore the Holy Quran with beautiful Arabic text and translations",
   icons: {

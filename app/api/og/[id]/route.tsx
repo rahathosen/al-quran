@@ -159,7 +159,7 @@ export async function GET(
               textAlign: "center",
             }}
           >
-            Al-Quran Ai
+            Al-Quran
           </div>
         </div>
       ),

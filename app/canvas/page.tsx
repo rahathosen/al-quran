@@ -3,11 +3,11 @@ import { getAllSurahs } from "@/lib/quran-api";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Create Quran Verse Cards | Al-Quran Ai",
+  title: "Create Quran Verse Cards | Al-Quran",
   description:
     "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
   openGraph: {
-    title: "Create Quran Verse Cards | Al-Quran Ai",
+    title: "Create Quran Verse Cards | Al-Quran",
     description:
       "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Create Quran Verse Cards | Al-Quran Ai",
+    title: "Create Quran Verse Cards | Al-Quran",
     description:
       "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
     images: [
