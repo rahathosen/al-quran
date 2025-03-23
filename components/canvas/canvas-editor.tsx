@@ -1637,69 +1637,15 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   Download
                 </Button>
 
-                <Popover
-                  open={showSocialOptions}
-                  onOpenChange={setShowSocialOptions}
+                <Button
+                  variant="outline"
+                  className="border-[#d4af37] text-[#d4af37]"
+                  disabled={!generatedImage}
+                  id="share-button"
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="border-[#d4af37] text-[#d4af37]"
-                      disabled={!generatedImage}
-                      id="share-button"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-56">
-                    <div className="space-y-2">
-                      <h3 className="font-medium">Share to</h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10"
-                          onClick={() => shareToSocial("facebook")}
-                        >
-                          <Facebook className="h-5 w-5 text-blue-600" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10"
-                          onClick={() => shareToSocial("twitter")}
-                        >
-                          <Twitter className="h-5 w-5 text-sky-500" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10"
-                          onClick={() => shareToSocial("instagram")}
-                        >
-                          <Instagram className="h-5 w-5 text-pink-600" />
-                        </Button>
-                      </div>
-                      <Separator className="my-2" />
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                          if (navigator.clipboard && generatedImage) {
-                            navigator.clipboard.writeText(
-                              `Surah ${surahData?.englishName} (${selectedVerse})`
-                            );
-                            alert("Verse reference copied to clipboard!");
-                          }
-                        }}
-                      >
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy Reference
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
               </div>
             </div>
           </CardContent>
