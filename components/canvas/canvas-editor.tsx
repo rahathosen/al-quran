@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +20,17 @@ import {
   ImageIcon,
   Type,
   Palette,
+  Layout,
+  Save,
+  Undo,
+  Redo,
+  Copy,
+  Trash2,
+  HelpCircle,
+  Instagram,
+  Twitter,
+  Facebook,
+  Smartphone,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -27,103 +38,65 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSettings } from "@/lib/local-storage";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  QURAN_FONTS,
+  TRANSLATIONS,
+  COLOR_SCHEMES,
+  COLOR_OPTIONS,
+  BACKGROUND_IMAGES,
+  TEXT_EFFECTS,
+  FRAME_STYLES,
+  CANVAS_SIZES,
+  SOCIAL_TEMPLATES,
+  getFontFamilyClass,
+  wrapText,
+  applyTextEffect,
+  drawFrame,
+  addWatermark,
+  debounce,
+} from "@/lib/canvas-utils";
 
-// Available Quran font styles
-const QURAN_FONTS = [
-  { id: "uthmani", name: "Uthmani", description: "Standard Uthmani script" },
-  {
-    id: "indopak",
-    name: "IndoPak",
-    description: "Indo-Pakistani style script",
-  },
-  { id: "naskh", name: "Naskh", description: "Clear Naskh style" },
-  {
-    id: "quran",
-    name: "Amiri Quran",
-    description: "Specialized for Quran text",
-  },
-  { id: "hafs", name: "Hafs", description: "Traditional Hafs typography" },
-  { id: "madani", name: "Madani", description: "Medina Mushaf style" },
-];
+// Define default settings
+const DEFAULT_SETTINGS = {
+  surahId: 1,
+  verseNumber: 1,
+  background: "/canvas-images/mountains.webp",
+  fontStyle: "uthmani",
+  translation: "en.asad",
+  showTranslation: true,
+  showReference: true,
+  colorScheme: "light",
+  opacity: 20,
+  fontSize: 2,
+  fontColor: "white",
+  textEffect: "none",
+  frameStyle: "none",
+  canvasSize: "square",
+  watermark: "",
+  textPosition: 50, // Vertical position as percentage
+};
 
-// Available translations
-const TRANSLATIONS = [
-  { id: "en.asad", name: "Muhammad Asad", language: "English" },
-  { id: "en.pickthall", name: "Marmaduke Pickthall", language: "English" },
-  { id: "en.sahih", name: "Saheeh International", language: "English" },
-  { id: "en.yusufali", name: "Yusuf Ali", language: "English" },
-  { id: "bn.bengali", name: "Muhiuddin Khan", language: "Bengali" },
-  { id: "ur.jalandhry", name: "Jalandhry", language: "Urdu" },
-  { id: "fr.hamidullah", name: "Hamidullah", language: "French" },
-  { id: "es.cortes", name: "Julio Cortes", language: "Spanish" },
-];
-
-// Available color schemes
-const COLOR_SCHEMES = [
-  {
-    id: "light",
-    name: "Light",
-    background: "rgba(255, 255, 255, 0.85)",
-    text: "#1a1a1a",
-  },
-  {
-    id: "dark",
-    name: "Dark",
-    background: "rgba(0, 0, 0, 0.75)",
-    text: "#ffffff",
-  },
-  {
-    id: "teal",
-    name: "Teal",
-    background: "rgba(26, 94, 99, 0.85)",
-    text: "#ffffff",
-  },
-  {
-    id: "gold",
-    name: "Gold",
-    background: "rgba(212, 175, 55, 0.85)",
-    text: "#1a1a1a",
-  },
-  {
-    id: "sepia",
-    name: "Sepia",
-    background: "rgba(112, 66, 20, 0.85)",
-    text: "#f8f5f0",
-  },
-];
-
-// Add a new COLOR_OPTIONS array after the COLOR_SCHEMES array
-const COLOR_OPTIONS = [
-  { id: "white", name: "White", color: "#ffffff" },
-  { id: "black", name: "Black", color: "#000000" },
-  { id: "teal", name: "Teal", color: "#1a5e63" },
-  { id: "gold", name: "Gold", color: "#d4af37" },
-  { id: "red", name: "Red", color: "#e53e3e" },
-  { id: "blue", name: "Blue", color: "#3182ce" },
-  { id: "green", name: "Green", color: "#38a169" },
-  { id: "purple", name: "Purple", color: "#805ad5" },
-];
-
-// Define background images
-const backgroundImages = [
-  { id: "mountains", src: "/canvas-images/mountains.webp", alt: "Mountains" },
-  { id: "nature1", src: "/canvas-images/nature1.jpeg", alt: "Snowy Mountains" },
-  { id: "water", src: "/canvas-images/water.webp", alt: "Dark Ocean" },
-  { id: "ocean", src: "/canvas-images/ocean.jpeg", alt: "Blue Ocean" },
-  {
-    id: "mountain-peak",
-    src: "/canvas-images/mountain-peak.jpeg",
-    alt: "Mountain Peak",
-  },
-  { id: "forest", src: "/canvas-images/forest.jpeg", alt: "Misty Forest" },
-  {
-    id: "lavender",
-    src: "/canvas-images/lavender.jpeg",
-    alt: "Lavender Field",
-  },
-  { id: "sunset", src: "/canvas-images/sunset.jpeg", alt: "Sunset" },
-  { id: "bridge", src: "/canvas-images/bridge.jpeg", alt: "Forest Bridge" },
-];
+// Define history state type
+type HistoryState = {
+  past: Record<string, any>[];
+  present: Record<string, any>;
+  future: Record<string, any>[];
+};
 
 interface CanvasEditorProps {
   surahs: any[];
@@ -131,23 +104,52 @@ interface CanvasEditorProps {
 
 export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   // Canvas settings
-  const [selectedSurah, setSelectedSurah] = useState<number>(1);
-  const [selectedVerse, setSelectedVerse] = useState<number>(1);
-  const [selectedBackground, setSelectedBackground] = useState<string>(
-    "/canvas-images/mountains.webp"
+  const [selectedSurah, setSelectedSurah] = useState<number>(
+    DEFAULT_SETTINGS.surahId
   );
-  const [selectedFont, setSelectedFont] = useState<string>("uthmani");
-  const [selectedTranslation, setSelectedTranslation] =
-    useState<string>("en.asad");
-  const [showTranslation, setShowTranslation] = useState<boolean>(true);
-  const [showReference, setShowReference] = useState<boolean>(true);
-  const [colorScheme, setColorScheme] = useState<string>("light");
-  const [opacity, setOpacity] = useState<number>(20);
-  const [fontSize, setFontSize] = useState<number>(2); // 1-4 scale
+  const [selectedVerse, setSelectedVerse] = useState<number>(
+    DEFAULT_SETTINGS.verseNumber
+  );
+  const [selectedBackground, setSelectedBackground] = useState<string>(
+    DEFAULT_SETTINGS.background
+  );
+  const [selectedFont, setSelectedFont] = useState<string>(
+    DEFAULT_SETTINGS.fontStyle
+  );
+  const [selectedTranslation, setSelectedTranslation] = useState<string>(
+    DEFAULT_SETTINGS.translation
+  );
+  const [showTranslation, setShowTranslation] = useState<boolean>(
+    DEFAULT_SETTINGS.showTranslation
+  );
+  const [showReference, setShowReference] = useState<boolean>(
+    DEFAULT_SETTINGS.showReference
+  );
+  const [colorScheme, setColorScheme] = useState<string>(
+    DEFAULT_SETTINGS.colorScheme
+  );
+  const [opacity, setOpacity] = useState<number>(DEFAULT_SETTINGS.opacity);
+  const [fontSize, setFontSize] = useState<number>(DEFAULT_SETTINGS.fontSize);
+  const [fontColor, setFontColor] = useState<string>(
+    DEFAULT_SETTINGS.fontColor
+  );
+  const [textEffect, setTextEffect] = useState<string>(
+    DEFAULT_SETTINGS.textEffect
+  );
+  const [frameStyle, setFrameStyle] = useState<string>(
+    DEFAULT_SETTINGS.frameStyle
+  );
+  const [canvasSize, setCanvasSize] = useState<string>(
+    DEFAULT_SETTINGS.canvasSize
+  );
+  const [watermark, setWatermark] = useState<string>(
+    DEFAULT_SETTINGS.watermark
+  );
+  const [textPosition, setTextPosition] = useState<number>(
+    DEFAULT_SETTINGS.textPosition
+  );
 
-  // Add a new state for font color after the fontSize state
-  const [fontColor, setFontColor] = useState<string>("white");
-
+  // Canvas dimensions
   const [canvasWidth, setCanvasWidth] = useState(1080);
   const [canvasHeight, setCanvasHeight] = useState(1080);
 
@@ -160,16 +162,50 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement | null>(null);
 
+  // History for undo/redo
+  const [history, setHistory] = useState<HistoryState>({
+    past: [],
+    present: { ...DEFAULT_SETTINGS },
+    future: [],
+  });
+
+  // Saved presets
+  const [presets, setPresets] = useState<Record<string, any>[]>([]);
+  const [presetName, setPresetName] = useState<string>("");
+
+  // UI state
+  const [activeTab, setActiveTab] = useState<string>("content");
+  const [showHelp, setShowHelp] = useState<boolean>(false);
+  const [showPresetSave, setShowPresetSave] = useState<boolean>(false);
+  const [showSocialOptions, setShowSocialOptions] = useState<boolean>(false);
+
   // Load user settings on mount
   useEffect(() => {
     const settings = getSettings();
     if (settings.quranFont) setSelectedFont(settings.quranFont);
     if (settings.translationId) setSelectedTranslation(settings.translationId);
 
+    // Load saved presets from localStorage
+    const savedPresets = localStorage.getItem("quran-canvas-presets");
+    if (savedPresets) {
+      try {
+        setPresets(JSON.parse(savedPresets));
+      } catch (e) {
+        console.error("Error loading presets:", e);
+      }
+    }
+
     // Create canvas element
     const canvas = document.createElement("canvas");
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+
+    // Set canvas size based on selected template
+    const selectedSize =
+      CANVAS_SIZES.find((size) => size.id === canvasSize) || CANVAS_SIZES[0];
+    canvas.width = selectedSize.width;
+    canvas.height = selectedSize.height;
+    setCanvasWidth(selectedSize.width);
+    setCanvasHeight(selectedSize.height);
+
     setCanvasRef(canvas);
 
     // Render the canvas with default background after a short delay to ensure everything is loaded
@@ -177,6 +213,20 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       renderCanvas();
     }, 100);
   }, []);
+
+  // Update canvas dimensions when size changes
+  useEffect(() => {
+    if (!canvasRef) return;
+
+    const selectedSize =
+      CANVAS_SIZES.find((size) => size.id === canvasSize) || CANVAS_SIZES[0];
+    canvasRef.width = selectedSize.width;
+    canvasRef.height = selectedSize.height;
+    setCanvasWidth(selectedSize.width);
+    setCanvasHeight(selectedSize.height);
+
+    renderCanvas();
+  }, [canvasSize, canvasRef]);
 
   // Fetch surah data when selected surah changes
   useEffect(() => {
@@ -207,6 +257,240 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
     fetchSurahData();
   }, [selectedSurah, selectedTranslation]);
+
+  // Save current state to history when settings change
+  const saveToHistory = useCallback(
+    debounce(() => {
+      const currentState = {
+        selectedSurah,
+        selectedVerse,
+        selectedBackground,
+        selectedFont,
+        selectedTranslation,
+        showTranslation,
+        showReference,
+        colorScheme,
+        opacity,
+        fontSize,
+        fontColor,
+        textEffect,
+        frameStyle,
+        canvasSize,
+        watermark,
+        textPosition,
+      };
+
+      setHistory((prev) => ({
+        past: [...prev.past, prev.present],
+        present: currentState,
+        future: [],
+      }));
+    }, 500),
+    [
+      selectedSurah,
+      selectedVerse,
+      selectedBackground,
+      selectedFont,
+      selectedTranslation,
+      showTranslation,
+      showReference,
+      colorScheme,
+      opacity,
+      fontSize,
+      fontColor,
+      textEffect,
+      frameStyle,
+      canvasSize,
+      watermark,
+      textPosition,
+    ]
+  );
+
+  // Call saveToHistory when settings change
+  useEffect(() => {
+    saveToHistory();
+  }, [
+    selectedSurah,
+    selectedVerse,
+    selectedBackground,
+    selectedFont,
+    selectedTranslation,
+    showTranslation,
+    showReference,
+    colorScheme,
+    opacity,
+    fontSize,
+    fontColor,
+    textEffect,
+    frameStyle,
+    canvasSize,
+    watermark,
+    textPosition,
+    saveToHistory,
+  ]);
+
+  // Undo function
+  const handleUndo = () => {
+    if (history.past.length === 0) return;
+
+    const previous = history.past[history.past.length - 1];
+
+    setHistory({
+      past: history.past.slice(0, -1),
+      present: previous,
+      future: [history.present, ...history.future],
+    });
+
+    // Apply the previous state
+    setSelectedSurah(previous.selectedSurah);
+    setSelectedVerse(previous.selectedVerse);
+    setSelectedBackground(previous.selectedBackground);
+    setSelectedFont(previous.selectedFont);
+    setSelectedTranslation(previous.selectedTranslation);
+    setShowTranslation(previous.showTranslation);
+    setShowReference(previous.showReference);
+    setColorScheme(previous.colorScheme);
+    setOpacity(previous.opacity);
+    setFontSize(previous.fontSize);
+    setFontColor(previous.fontColor);
+    setTextEffect(previous.textEffect);
+    setFrameStyle(previous.frameStyle);
+    setCanvasSize(previous.canvasSize);
+    setWatermark(previous.watermark);
+    setTextPosition(previous.textPosition);
+  };
+
+  // Redo function
+  const handleRedo = () => {
+    if (history.future.length === 0) return;
+
+    const next = history.future[0];
+
+    setHistory({
+      past: [...history.past, history.present],
+      present: next,
+      future: history.future.slice(1),
+    });
+
+    // Apply the next state
+    setSelectedSurah(next.selectedSurah);
+    setSelectedVerse(next.selectedVerse);
+    setSelectedBackground(next.selectedBackground);
+    setSelectedFont(next.selectedFont);
+    setSelectedTranslation(next.selectedTranslation);
+    setShowTranslation(next.showTranslation);
+    setShowReference(next.showReference);
+    setColorScheme(next.colorScheme);
+    setOpacity(next.opacity);
+    setFontSize(next.fontSize);
+    setFontColor(next.fontColor);
+    setTextEffect(next.textEffect);
+    setFrameStyle(next.frameStyle);
+    setCanvasSize(next.canvasSize);
+    setWatermark(next.watermark);
+    setTextPosition(next.textPosition);
+  };
+
+  // Reset to defaults
+  const handleReset = () => {
+    setSelectedSurah(DEFAULT_SETTINGS.surahId);
+    setSelectedVerse(DEFAULT_SETTINGS.verseNumber);
+    setSelectedBackground(DEFAULT_SETTINGS.background);
+    setSelectedFont(DEFAULT_SETTINGS.fontStyle);
+    setSelectedTranslation(DEFAULT_SETTINGS.translation);
+    setShowTranslation(DEFAULT_SETTINGS.showTranslation);
+    setShowReference(DEFAULT_SETTINGS.showReference);
+    setColorScheme(DEFAULT_SETTINGS.colorScheme);
+    setOpacity(DEFAULT_SETTINGS.opacity);
+    setFontSize(DEFAULT_SETTINGS.fontSize);
+    setFontColor(DEFAULT_SETTINGS.fontColor);
+    setTextEffect(DEFAULT_SETTINGS.textEffect);
+    setFrameStyle(DEFAULT_SETTINGS.frameStyle);
+    setCanvasSize(DEFAULT_SETTINGS.canvasSize);
+    setWatermark(DEFAULT_SETTINGS.watermark);
+    setTextPosition(DEFAULT_SETTINGS.textPosition);
+
+    // Add current state to history
+    saveToHistory();
+  };
+
+  // Save current settings as preset
+  const savePreset = () => {
+    if (!presetName.trim()) return;
+
+    const newPreset = {
+      name: presetName,
+      timestamp: Date.now(),
+      settings: {
+        selectedSurah,
+        selectedVerse,
+        selectedBackground,
+        selectedFont,
+        selectedTranslation,
+        showTranslation,
+        showReference,
+        colorScheme,
+        opacity,
+        fontSize,
+        fontColor,
+        textEffect,
+        frameStyle,
+        canvasSize,
+        watermark,
+        textPosition,
+      },
+    };
+
+    const updatedPresets = [...presets, newPreset];
+    setPresets(updatedPresets);
+
+    // Save to localStorage
+    localStorage.setItem(
+      "quran-canvas-presets",
+      JSON.stringify(updatedPresets)
+    );
+
+    // Reset form
+    setPresetName("");
+    setShowPresetSave(false);
+  };
+
+  // Load a preset
+  const loadPreset = (preset: any) => {
+    const settings = preset.settings;
+
+    setSelectedSurah(settings.selectedSurah);
+    setSelectedVerse(settings.selectedVerse);
+    setSelectedBackground(settings.selectedBackground);
+    setSelectedFont(settings.selectedFont);
+    setSelectedTranslation(settings.selectedTranslation);
+    setShowTranslation(settings.showTranslation);
+    setShowReference(settings.showReference);
+    setColorScheme(settings.colorScheme);
+    setOpacity(settings.opacity);
+    setFontSize(settings.fontSize);
+    setFontColor(settings.fontColor);
+    setTextEffect(settings.textEffect);
+    setFrameStyle(settings.frameStyle);
+    setCanvasSize(settings.canvasSize);
+    setWatermark(settings.watermark);
+    setTextPosition(settings.textPosition);
+
+    // Add to history
+    saveToHistory();
+  };
+
+  // Delete a preset
+  const deletePreset = (presetIndex: number) => {
+    const updatedPresets = presets.filter((_, index) => index !== presetIndex);
+    setPresets(updatedPresets);
+
+    // Save to localStorage
+    localStorage.setItem(
+      "quran-canvas-presets",
+      JSON.stringify(updatedPresets)
+    );
+  };
 
   // Update the generateImage function to ensure the image is properly generated
   const generateImage = () => {
@@ -246,6 +530,17 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       );
       ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
 
+      // Draw frame if selected
+      if (frameStyle !== "none") {
+        drawFrame(
+          ctx,
+          frameStyle,
+          canvasRef.width,
+          canvasRef.height,
+          COLOR_OPTIONS.find((c) => c.id === fontColor)?.color || "#ffffff"
+        );
+      }
+
       // Draw text
       ctx.textAlign = "center";
       // Use the selected font color
@@ -253,6 +548,9 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
         COLOR_OPTIONS.find((option) => option.id === fontColor) ||
         COLOR_OPTIONS[0];
       ctx.fillStyle = selectedColorOption.color;
+
+      // Apply text effect
+      applyTextEffect(ctx, textEffect, selectedColorOption.color);
 
       // Draw Arabic text
       const arabicText = getCurrentVerseText();
@@ -268,12 +566,21 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       const lineHeight = arabicFontSize * 1.4;
       const arabicLines = wrapText(ctx, arabicText, maxWidth);
 
-      // Position Arabic text
-      let y = canvasRef.height * 0.35;
+      // Position Arabic text based on textPosition
+      let y = canvasRef.height * (textPosition / 100);
       arabicLines.forEach((line) => {
         ctx.fillText(line, canvasRef.width / 2, y);
+        if (textEffect === "outline") {
+          ctx.strokeText(line, canvasRef.width / 2, y);
+        }
         y += lineHeight;
       });
+
+      // Reset shadow for other text
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
 
       // Draw translation if enabled
       if (showTranslation) {
@@ -289,8 +596,8 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
         const translationLineHeight = translationFontSize * 1.4;
         const translationLines = wrapText(ctx, translationText, maxWidth);
 
-        // Position translation text
-        y = canvasRef.height * 0.6;
+        // Position translation text below Arabic
+        y += translationLineHeight * 0.5;
         translationLines.forEach((line) => {
           ctx.fillText(line, canvasRef.width / 2, y);
           y += translationLineHeight;
@@ -305,6 +612,11 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
           canvasRef.width / 2,
           canvasRef.height - 50
         );
+      }
+
+      // Add watermark if provided
+      if (watermark) {
+        addWatermark(ctx, watermark, canvasRef.width, canvasRef.height);
       }
 
       // Generate image URL
@@ -337,56 +649,6 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
     // Set image source
     img.src = selectedBackground;
-  };
-
-  // Function to wrap text into multiple lines
-  const wrapText = (
-    ctx: CanvasRenderingContext2D,
-    text: string,
-    maxWidth: number
-  ): string[] => {
-    if (!text) return [""];
-
-    const words = text.split(" ");
-    if (words.length === 0) return [""];
-
-    const lines: string[] = [];
-    let currentLine = words[0] || "";
-
-    for (let i = 1; i < words.length; i++) {
-      const word = words[i];
-      const width = ctx.measureText(currentLine + " " + word).width;
-
-      if (width < maxWidth) {
-        currentLine += " " + word;
-      } else {
-        lines.push(currentLine);
-        currentLine = word;
-      }
-    }
-
-    lines.push(currentLine);
-    return lines;
-  };
-
-  // Helper function to get the correct font family based on the selected font style
-  const getFontFamilyClass = (fontStyle: string): string => {
-    switch (fontStyle) {
-      case "uthmani":
-        return "'Amiri', serif";
-      case "indopak":
-        return "'Scheherazade New', serif";
-      case "naskh":
-        return "'Noto Naskh Arabic', serif";
-      case "quran":
-        return "'Amiri Quran', serif";
-      case "hafs":
-        return "'Scheherazade New', serif";
-      case "madani":
-        return "'Amiri', serif";
-      default:
-        return "'Amiri', serif";
-    }
   };
 
   // Render canvas with current settings
@@ -422,13 +684,27 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       );
       ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
 
+      // Draw frame if selected
+      if (frameStyle !== "none") {
+        drawFrame(
+          ctx,
+          frameStyle,
+          canvasRef.width,
+          canvasRef.height,
+          COLOR_OPTIONS.find((c) => c.id === fontColor)?.color || "#ffffff"
+        );
+      }
+
       // Draw text
       ctx.textAlign = "center";
-      // Use the selected font color instead of the color scheme text color
+      // Use the selected font color
       const selectedColorOption =
         COLOR_OPTIONS.find((option) => option.id === fontColor) ||
         COLOR_OPTIONS[0];
       ctx.fillStyle = selectedColorOption.color;
+
+      // Apply text effect
+      applyTextEffect(ctx, textEffect, selectedColorOption.color);
 
       // Draw Arabic text
       const arabicText = getCurrentVerseText();
@@ -444,17 +720,26 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       const lineHeight = arabicFontSize * 1.4;
       const arabicLines = wrapText(ctx, arabicText, maxWidth);
 
-      // Position Arabic text
-      let y = canvasRef.height * 0.35;
+      // Position Arabic text based on textPosition
+      let y = canvasRef.height * (textPosition / 100);
       arabicLines.forEach((line) => {
         ctx.fillText(line, canvasRef.width / 2, y);
+        if (textEffect === "outline") {
+          ctx.strokeText(line, canvasRef.width / 2, y);
+        }
         y += lineHeight;
       });
+
+      // Reset shadow for other text
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
 
       // Draw translation if enabled
       if (showTranslation) {
         const translationText = getCurrentVerseTranslation();
-        const translationFontSizeMap = { 1: 24, 2: 30, 3: 36, 4: 72 };
+        const translationFontSizeMap = { 1: 24, 2: 30, 3: 36, 4: 42 };
         const translationFontSize =
           translationFontSizeMap[
             fontSize as keyof typeof translationFontSizeMap
@@ -465,8 +750,8 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
         const translationLineHeight = translationFontSize * 1.4;
         const translationLines = wrapText(ctx, translationText, maxWidth);
 
-        // Position translation text
-        y = canvasRef.height * 0.6;
+        // Position translation text below Arabic
+        y += translationLineHeight * 0.5;
         translationLines.forEach((line) => {
           ctx.fillText(line, canvasRef.width / 2, y);
           y += translationLineHeight;
@@ -481,6 +766,11 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
           canvasRef.width / 2,
           canvasRef.height - 50
         );
+      }
+
+      // Add watermark if provided
+      if (watermark) {
+        addWatermark(ctx, watermark, canvasRef.width, canvasRef.height);
       }
 
       // Generate image URL
@@ -603,6 +893,38 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
     }
   };
 
+  // Share to specific social media
+  const shareToSocial = (platform: string) => {
+    if (!generatedImage) return;
+
+    const text = `Surah ${surahData?.englishName} (${selectedVerse})`;
+    const url = window.location.href;
+
+    let shareUrl = "";
+
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          url
+        )}&quote=${encodeURIComponent(text)}`;
+        break;
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          text
+        )}&url=${encodeURIComponent(url)}`;
+        break;
+      case "instagram":
+        alert(
+          "To share on Instagram, please download the image and upload it through the Instagram app."
+        );
+        return;
+      default:
+        return;
+    }
+
+    window.open(shareUrl, "_blank");
+  };
+
   // Effect to render canvas when background changes
   useEffect(() => {
     if (canvasRef) {
@@ -623,33 +945,242 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
     opacity,
     showTranslation,
     showReference,
+    textEffect,
+    frameStyle,
+    watermark,
+    textPosition,
   ]);
+
+  // Debounced render function for performance
+  const debouncedRender = useCallback(
+    debounce(() => {
+      if (canvasRef) {
+        renderCanvas();
+      }
+    }, 300),
+    [canvasRef, renderCanvas]
+  );
+
+  // Use debounced render for frequently changing values
+  useEffect(() => {
+    debouncedRender();
+  }, [opacity, textPosition, debouncedRender]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left column - Settings */}
+
       <div className="lg:col-span-1">
         <Card className="shadow-lg border-[#d4af37]/20">
-          <CardContent className="p-6">
-            <Tabs defaultValue="content">
-              <TabsList className="grid grid-cols-3 mb-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col space-y-4 mb-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-[#1a5e63] font-medium text-lg">
+                  Canvas Editor
+                </h3>
+
+                <div className="flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowHelp(!showHelp)}
+                          className="h-8 w-8"
+                        >
+                          <HelpCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Help</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1.5">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleUndo}
+                          disabled={history.past.length === 0}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Undo className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Undo</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRedo}
+                          disabled={history.future.length === 0}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Redo className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Redo</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleReset}
+                          className="h-8 w-8 p-0"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Reset to defaults</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
+                <div className="ml-auto">
+                  <Popover
+                    open={showPresetSave}
+                    onOpenChange={setShowPresetSave}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        <Save className="h-4 w-4 mr-1.5" />
+                        <span className="hidden sm:inline">Save Preset</span>
+                        <span className="sm:hidden">Save</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="space-y-4">
+                        <h3 className="font-medium">Save Current Settings</h3>
+                        <div className="space-y-2">
+                          <Label htmlFor="preset-name">Preset Name</Label>
+                          <Input
+                            id="preset-name"
+                            value={presetName}
+                            onChange={(e) => setPresetName(e.target.value)}
+                            placeholder="My Preset"
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowPresetSave(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={savePreset}
+                            disabled={!presetName.trim()}
+                          >
+                            Save Preset
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+
+            {showHelp && (
+              <Alert className="mb-4 bg-[#1a5e63]/10 border-[#1a5e63]/20 rounded-lg">
+                <AlertDescription>
+                  <div className="space-y-2 py-1">
+                    <p className="text-sm">
+                      Create beautiful Quran verse cards by selecting a verse,
+                      background, and customizing the appearance.
+                    </p>
+                    <p className="text-sm">
+                      Use the tabs below to navigate between content,
+                      background, and style settings.
+                    </p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {presets.length > 0 && (
+              <div className="mb-4">
+                <Label className="mb-2 block text-[#1a5e63]">
+                  Saved Presets
+                </Label>
+                <ScrollArea className="h-auto max-h-20 border rounded-md p-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {presets.map((preset, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-1 group"
+                      >
+                        <Badge
+                          className="cursor-pointer hover:bg-[#1a5e63] transition-colors"
+                          onClick={() => loadPreset(preset)}
+                        >
+                          {preset.name}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => deletePreset(index)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+
+            <Tabs
+              defaultValue="content"
+              value={activeTab}
+              onValueChange={setActiveTab}
+            >
+              <TabsList className="grid grid-cols-4 mb-4 w-full">
                 <TabsTrigger
                   value="content"
-                  className="flex items-center gap-1"
+                  className="flex items-center justify-center gap-1 px-1 sm:px-3"
                 >
                   <Type className="h-4 w-4" />
-                  <span>Content</span>
+                  <span className="hidden sm:inline">Content</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="background"
-                  className="flex items-center gap-1"
+                  className="flex items-center justify-center gap-1 px-1 sm:px-3"
                 >
                   <ImageIcon className="h-4 w-4" />
-                  <span>Background</span>
+                  <span className="hidden sm:inline">Background</span>
                 </TabsTrigger>
-                <TabsTrigger value="style" className="flex items-center gap-1">
+                <TabsTrigger
+                  value="style"
+                  className="flex items-center justify-center gap-1 px-1 sm:px-3"
+                >
                   <Palette className="h-4 w-4" />
-                  <span>Style</span>
+                  <span className="hidden sm:inline">Style</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="layout"
+                  className="flex items-center justify-center gap-1 px-1 sm:px-3"
+                >
+                  <Layout className="h-4 w-4" />
+                  <span className="hidden sm:inline">Layout</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -742,17 +1273,27 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                     onCheckedChange={setShowReference}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="watermark">Watermark/Credit</Label>
+                  <Input
+                    id="watermark"
+                    value={watermark}
+                    onChange={(e) => setWatermark(e.target.value)}
+                    placeholder="@username or website"
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="background">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Background</h3>
+                  <h3 className="text-lg font-medium">Background Image</h3>
                   <RadioGroup
                     value={selectedBackground}
                     onValueChange={setSelectedBackground}
                     className="grid grid-cols-3 gap-2"
                   >
-                    {backgroundImages.map((image) => (
+                    {BACKGROUND_IMAGES.map((image) => (
                       <div key={image.id} className="relative">
                         <RadioGroupItem
                           value={image.src}
@@ -782,6 +1323,59 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                       </div>
                     ))}
                   </RadioGroup>
+
+                  <Separator className="my-4" />
+
+                  <div className="space-y-2">
+                    <Label>Color Scheme</Label>
+                    <RadioGroup
+                      value={colorScheme}
+                      onValueChange={setColorScheme}
+                      className="grid grid-cols-2 gap-2"
+                    >
+                      {COLOR_SCHEMES.map((scheme) => (
+                        <div
+                          key={scheme.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <RadioGroupItem
+                            value={scheme.id}
+                            id={`scheme-${scheme.id}`}
+                          />
+                          <Label
+                            htmlFor={`scheme-${scheme.id}`}
+                            className="cursor-pointer flex items-center gap-1"
+                          >
+                            <div
+                              className="w-4 h-4 rounded-full"
+                              style={{
+                                backgroundColor: scheme.background.replace(
+                                  /[^,]+\)/,
+                                  "1)"
+                                ),
+                              }}
+                            ></div>
+                            {scheme.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label htmlFor="opacity">Background Opacity</Label>
+                      <span className="text-sm text-gray-500">{opacity}%</span>
+                    </div>
+                    <Slider
+                      id="opacity"
+                      min={10}
+                      max={100}
+                      step={5}
+                      value={[opacity]}
+                      onValueChange={(value) => setOpacity(value[0])}
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
@@ -814,57 +1408,6 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Color Scheme</Label>
-                  <RadioGroup
-                    value={colorScheme}
-                    onValueChange={setColorScheme}
-                    className="grid grid-cols-2 gap-2"
-                  >
-                    {COLOR_SCHEMES.map((scheme) => (
-                      <div
-                        key={scheme.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <RadioGroupItem
-                          value={scheme.id}
-                          id={`scheme-${scheme.id}`}
-                        />
-                        <Label
-                          htmlFor={`scheme-${scheme.id}`}
-                          className="cursor-pointer flex items-center gap-1"
-                        >
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{
-                              backgroundColor: scheme.background.replace(
-                                /[^,]+\)/,
-                                "1)"
-                              ),
-                            }}
-                          ></div>
-                          {scheme.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="opacity">Background Opacity</Label>
-                    <span className="text-sm text-gray-500">{opacity}%</span>
-                  </div>
-                  <Slider
-                    id="opacity"
-                    min={10}
-                    max={100}
-                    step={5}
-                    value={[opacity]}
-                    onValueChange={(value) => setOpacity(value[0])}
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="font-size">Font Size</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Small</span>
@@ -881,7 +1424,6 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   </div>
                 </div>
 
-                {/* Add a new section for font color in the Style tab content */}
                 <div className="space-y-2">
                   <Label>Font Color</Label>
                   <div className="grid grid-cols-4 gap-2">
@@ -903,6 +1445,162 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                           {option.name}
                         </span>
                       </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Text Effect</Label>
+                  <RadioGroup
+                    value={textEffect}
+                    onValueChange={setTextEffect}
+                    className="grid grid-cols-2 gap-2"
+                  >
+                    {TEXT_EFFECTS.map((effect) => (
+                      <div
+                        key={effect.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem
+                          value={effect.id}
+                          id={`effect-${effect.id}`}
+                        />
+                        <Label
+                          htmlFor={`effect-${effect.id}`}
+                          className="cursor-pointer"
+                        >
+                          {effect.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Frame Style</Label>
+                  <RadioGroup
+                    value={frameStyle}
+                    onValueChange={setFrameStyle}
+                    className="grid grid-cols-2 gap-2"
+                  >
+                    {FRAME_STYLES.map((frame) => (
+                      <div
+                        key={frame.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem
+                          value={frame.id}
+                          id={`frame-${frame.id}`}
+                        />
+                        <Label
+                          htmlFor={`frame-${frame.id}`}
+                          className="cursor-pointer"
+                        >
+                          {frame.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="layout" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Canvas Size</Label>
+                  <RadioGroup
+                    value={canvasSize}
+                    onValueChange={setCanvasSize}
+                    className="grid grid-cols-2 gap-2"
+                  >
+                    {CANVAS_SIZES.map((size) => (
+                      <div
+                        key={size.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem
+                          value={size.id}
+                          id={`size-${size.id}`}
+                        />
+                        <Label
+                          htmlFor={`size-${size.id}`}
+                          className="cursor-pointer"
+                        >
+                          {size.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="text-position">
+                      Text Vertical Position
+                    </Label>
+                    <span className="text-sm text-gray-500">
+                      {textPosition}%
+                    </span>
+                  </div>
+                  <Slider
+                    id="text-position"
+                    min={20}
+                    max={80}
+                    step={5}
+                    value={[textPosition]}
+                    onValueChange={(value) => setTextPosition(value[0])}
+                  />
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="space-y-2">
+                  <Label>Social Media Templates</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SOCIAL_TEMPLATES.map((template) => (
+                      <Button
+                        key={template.id}
+                        variant="outline"
+                        className="justify-start"
+                        onClick={() => {
+                          setCanvasWidth(template.width);
+                          setCanvasHeight(template.height);
+
+                          // Find matching canvas size or create custom
+                          const matchingSize = CANVAS_SIZES.find(
+                            (size) =>
+                              size.width === template.width &&
+                              size.height === template.height
+                          );
+
+                          if (matchingSize) {
+                            setCanvasSize(matchingSize.id);
+                          } else {
+                            // For custom sizes not in the predefined list
+                            setCanvasSize("custom");
+                          }
+
+                          // Render with new dimensions
+                          if (canvasRef) {
+                            canvasRef.width = template.width;
+                            canvasRef.height = template.height;
+                            renderCanvas();
+                          }
+                        }}
+                      >
+                        {template.id === "instagram" && (
+                          <Instagram className="h-4 w-4 mr-2" />
+                        )}
+                        {template.id === "instagram-story" && (
+                          <Smartphone className="h-4 w-4 mr-2" />
+                        )}
+                        {template.id === "facebook" && (
+                          <Facebook className="h-4 w-4 mr-2" />
+                        )}
+                        {template.id === "twitter" && (
+                          <Twitter className="h-4 w-4 mr-2" />
+                        )}
+                        {template.name}
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -938,15 +1636,70 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   <Download className="mr-2 h-4 w-4" />
                   Download
                 </Button>
-                <Button
-                  variant="outline"
-                  className="border-[#d4af37] text-[#d4af37]"
-                  disabled={!generatedImage}
-                  id="share-button"
+
+                <Popover
+                  open={showSocialOptions}
+                  onOpenChange={setShowSocialOptions}
                 >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="border-[#d4af37] text-[#d4af37]"
+                      disabled={!generatedImage}
+                      id="share-button"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Share to</h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10"
+                          onClick={() => shareToSocial("facebook")}
+                        >
+                          <Facebook className="h-5 w-5 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10"
+                          onClick={() => shareToSocial("twitter")}
+                        >
+                          <Twitter className="h-5 w-5 text-sky-500" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10"
+                          onClick={() => shareToSocial("instagram")}
+                        >
+                          <Instagram className="h-5 w-5 text-pink-600" />
+                        </Button>
+                      </div>
+                      <Separator className="my-2" />
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          if (navigator.clipboard && generatedImage) {
+                            navigator.clipboard.writeText(
+                              `Surah ${surahData?.englishName} (${selectedVerse})`
+                            );
+                            alert("Verse reference copied to clipboard!");
+                          }
+                        }}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Reference
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </CardContent>
@@ -997,6 +1750,46 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
             </p>
           </div>
         )}
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-sm font-medium text-[#1a5e63] mb-2">
+                Preview Information
+              </h3>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p>
+                  <span className="font-medium">Surah:</span>{" "}
+                  {surahData?.englishName || "Loading..."}
+                </p>
+                <p>
+                  <span className="font-medium">Verse:</span> {selectedVerse}
+                </p>
+                <p>
+                  <span className="font-medium">Canvas Size:</span>{" "}
+                  {canvasWidth} x {canvasHeight}px
+                </p>
+                <p>
+                  <span className="font-medium">Font:</span>{" "}
+                  {QURAN_FONTS.find((f) => f.id === selectedFont)?.name ||
+                    "Uthmani"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-sm font-medium text-[#1a5e63] mb-2">Tips</h3>
+              <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
+                <li>Use the Layout tab to adjust text position</li>
+                <li>Try different frame styles for a unique look</li>
+                <li>Save your favorite settings as presets</li>
+                <li>Adjust opacity for better text visibility</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
