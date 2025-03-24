@@ -22,11 +22,11 @@ const RECITERS = [
   { id: "alafasy", name: "Mishary Alafasy", language: "Arabic" },
   { id: "minshawi", name: "Mohamed Siddiq Al-Minshawi", language: "Arabic" },
   { id: "husary", name: "Mahmoud Khalil Al-Husary", language: "Arabic" },
-  { id: "abdulbasit", name: "Abdul Basit Abdus-Samad", language: "Arabic" },
-  { id: "sudais", name: "Abdur-Rahman As-Sudais", language: "Arabic" },
+  // { id: "abdulbasit", name: "Abdul Basit Abdus-Samad", language: "Arabic" },
+  // { id: "sudais", name: "Abdur-Rahman As-Sudais", language: "Arabic" },
   { id: "shatri", name: "Abu Bakr Ash-Shatri", language: "Arabic" },
-  { id: "ajamy", name: "Ahmed ibn Ali al-Ajamy", language: "Arabic" },
-  { id: "maher", name: "Maher Al Muaiqly", language: "Arabic" },
+  // { id: "ajamy", name: "Ahmed ibn Ali al-Ajamy", language: "Arabic" },
+  // { id: "maher", name: "Maher Al Muaiqly", language: "Arabic" },
 ];
 
 // Available translations

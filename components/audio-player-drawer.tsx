@@ -685,16 +685,17 @@ export default function AudioPlayerDrawer() {
               title="Go to this verse"
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium truncate">
+                {/* <p className="text-sm font-medium truncate">
                   Surah {surahName}
-                </p>
-                {/* {currentVerseData?.juz && (
+                </p> */}
+                {currentVerseData?.juz && (
                   <div className="text-xs text-white/70 bg-white/10 px-1.5 py-0.5 rounded-sm hidden sm:flex items-center gap-1.5">
-                    <span>J:{currentVerseData.juz}</span>
-                    <span>H:{Math.ceil(currentVerseData.juz * 2)}</span>
-                    <span>P:{currentVerseData.page}</span>
+                    <span>Juz: {currentVerseData.juz}</span>
+                    <span>Hizb: {Math.ceil(currentVerseData.juz * 2)}</span>
+                    {/* <span>Manzil:{Math.ceil((currentVerseData.juz || 1) / 7)}</span> */}
+                    {/* <span>P:{currentVerseData.page}</span> */}
                   </div>
-                )} */}
+                )}
               </div>
               <p className="text-xs text-white/70 truncate flex items-center gap-1">
                 <span>
