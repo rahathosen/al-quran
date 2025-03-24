@@ -12,7 +12,6 @@ A modern, feature-rich Quran application with AI-powered search, audio recitatio
 - **Audio Recitations**: Listen to beautiful recitations by renowned reciters
 - **AI-Powered Search**: Find verses by meaning, theme, or content using advanced AI
 - **Responsive Design**: Beautiful interface that works on all devices
-- **Offline Support**: Access the Quran even without internet connection
 
 ### Reading Experience
 
