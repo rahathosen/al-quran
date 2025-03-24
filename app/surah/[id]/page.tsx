@@ -234,16 +234,37 @@ export default async function SurahPage({
         />
 
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          {/* Mobile header - Stack everything vertically with better spacing */}
+          <div className="flex flex-col gap-4 mb-6 sm:hidden">
+            <div className="text-center">
+              <h2 className="text-[#1a5e63] text-xl font-semibold">
+                Surah {surah.number}: {surah.englishName}
+              </h2>
+              <p className="text-sm text-[#666] mt-1">
+                {surah.numberOfAyahs} Verses • {surah.revelationType}
+              </p>
+            </div>
+            <div className="flex justify-center items-center gap-3">
+              <ViewToggle currentView={viewMode} surahId={surahId} />
+              <SurahAudioPlayer
+                surahId={surahId}
+                verses={verses}
+                surahName={surah.englishName}
+              />
+            </div>
+          </div>
+
+          {/* Tablet/Desktop header - Side by side with better alignment */}
+          <div className="hidden sm:flex sm:flex-row justify-between items-center gap-4 mb-6">
             <div>
-              <h2 className="text-[#1a5e63] text-lg md:text-xl lg:text-2xl font-semibold">
+              <h2 className="text-[#1a5e63] text-xl lg:text-2xl font-semibold">
                 Surah {surah.number}: {surah.englishName}
               </h2>
               <p className="text-sm text-[#666]">
                 {surah.numberOfAyahs} Verses • {surah.revelationType}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <ViewToggle currentView={viewMode} surahId={surahId} />
               <SurahAudioPlayer
                 surahId={surahId}
