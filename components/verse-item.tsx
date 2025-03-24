@@ -215,7 +215,9 @@ export default function VerseItem({
           : ""
       }`}
       id={`verse-${verse.number}`}
+      data-page={verse.page}
     >
+      <span className="verse-page sr-only">{verse.page}</span>
       <div
         className={`flex justify-between items-center ${
           viewMode === "arabic-only"

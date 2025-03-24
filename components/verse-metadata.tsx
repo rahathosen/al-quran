@@ -17,6 +17,7 @@ export default function VerseMetadata({
 }: VerseMetadataProps) {
   const [isSticky, setIsSticky] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(page);
   const metadataRef = useRef<HTMLDivElement>(null);
 
   // Set up scroll event listener to detect when to show the component
@@ -38,11 +39,59 @@ export default function VerseMetadata({
         const rect = metadataRef.current.getBoundingClientRect();
         setIsSticky(rect.top === 0);
       }
+
+      // Find the current verse in view and update page number
+      const verseElements = document.querySelectorAll('[id^="verse-"]');
+      if (verseElements.length === 0) return;
+
+      // Find which verse is most visible in the viewport
+      let mostVisibleVerse = null;
+      let maxVisibleArea = 0;
+
+      verseElements.forEach((verse) => {
+        const rect = verse.getBoundingClientRect();
+
+        // Calculate how much of the element is visible in the viewport
+        const visibleTop = Math.max(0, rect.top);
+        const visibleBottom = Math.min(window.innerHeight, rect.bottom);
+
+        if (visibleBottom > visibleTop) {
+          const visibleArea = visibleBottom - visibleTop;
+          if (visibleArea > maxVisibleArea) {
+            maxVisibleArea = visibleArea;
+            mostVisibleVerse = verse;
+          }
+        }
+      });
+
+      if (mostVisibleVerse) {
+        // Extract verse number from the ID
+        const verseId = mostVisibleVerse.id;
+        const verseNumber = Number.parseInt(verseId.replace("verse-", ""), 10);
+
+        // Find the page number for this verse
+        const pageElement = mostVisibleVerse.querySelector(".verse-page");
+        if (pageElement && pageElement.textContent) {
+          const newPage = Number.parseInt(pageElement.textContent, 10);
+          if (!isNaN(newPage) && newPage !== currentPage) {
+            setCurrentPage(newPage);
+          }
+        } else {
+          // Alternative: look for page info in a data attribute
+          const pageAttr = mostVisibleVerse.getAttribute("data-page");
+          if (pageAttr) {
+            const newPage = Number.parseInt(pageAttr, 10);
+            if (!isNaN(newPage) && newPage !== currentPage) {
+              setCurrentPage(newPage);
+            }
+          }
+        }
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isVisible]);
+  }, [isVisible, currentPage]);
 
   if (!isVisible) return null;
 
@@ -66,7 +115,7 @@ export default function VerseMetadata({
 
       <div className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-md">
         <span className="font-semibold">Page:</span>
-        <span>{page}</span>
+        <span>{currentPage}</span>
       </div>
     </div>
   );
