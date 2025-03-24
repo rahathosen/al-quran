@@ -287,19 +287,32 @@ export default function VerseItem({
           isCurrentVerse ? "text-[#1a5e63]" : "text-[#333]"
         } relative`}
       >
-        {/* <span
-          className={`inline-flex items-center justify-center ${
-            viewMode === "arabic-only"
-              ? "w-6 h-6 text-sm"
-              : viewMode === "compact"
-              ? "w-7 h-7 text-sm"
-              : "w-8 h-8 text-lg"
-          } rounded-full border border-[#d4af37]/40 text-[#d4af37]/70 absolute right-full mr-1 top-1/2 -translate-y-1/2 font-amiri`}
-          style={{ backgroundColor: "rgba(212, 175, 55, 0.05)" }}
-        >
-          {convertToArabicNumeral(verse.number)}
-        </span> */}
-        {verse.arabic}
+        {(() => {
+          // Debug log to check the verse number and surah ID
+          // console.log(`Verse Number: ${verse.number}, Surah ID: ${surahId}`);
+
+          // Check if this is the first verse, not Surah 1 (Al-Fatiha), and not Surah 9 (At-Tawbah)
+          if (verse.number === 1 && surahId !== 1 && surahId !== 9) {
+            // Debug log to check the original Arabic text
+            // console.log(`Original Arabic Text: ${verse.arabic}`);
+
+            // Remove "Bismillah" from the first verse
+            const modifiedText = verse.arabic.replace(
+              "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+              ""
+            );
+
+            // Debug log to check the modified Arabic text
+            // console.log(`Modified Arabic Text: ${modifiedText}`);
+
+            return modifiedText;
+          }
+
+          // Debug log for non-first verses, Surah 1, or Surah 9
+          console.log(`No modification needed for this verse.`);
+
+          return verse.arabic;
+        })()}
       </p>
       {(viewMode === "default" || viewMode === "compact") && (
         <p
