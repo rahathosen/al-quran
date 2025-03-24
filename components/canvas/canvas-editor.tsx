@@ -810,10 +810,29 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
   // Get current verse text
   const getCurrentVerseText = () => {
     if (!surahData || !surahData.ayahs) return "";
+
+    // Find the verse
     const verse = surahData.ayahs.find(
       (v: any) => v.numberInSurah === selectedVerse
     );
-    return verse ? verse.text : "";
+
+    if (!verse) return "";
+
+    // Remove "Bismillah" from the first ayah of surahs other than Surah 1 and Surah 9
+    if (
+      verse.numberInSurah === 1 &&
+      surahData.number !== 1 &&
+      surahData.number !== 9
+    ) {
+      const modifiedText = verse.text.replace(
+        "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+        ""
+      );
+
+      return modifiedText;
+    }
+
+    return verse.text;
   };
 
   // Get current verse translation
