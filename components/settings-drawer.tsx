@@ -63,33 +63,14 @@ const QURAN_FONTS = [
 // Available themes
 const THEMES = [
   { id: "light", name: "Light", description: "Default light theme", icon: Sun },
-  {
-    id: "dark",
-    name: "Dark",
-    description: "Dark theme for night reading",
-    icon: Moon,
-  },
-  {
-    id: "sepia",
-    name: "Sepia",
-    description: "Warm sepia tone for comfort",
-    icon: Palette,
-    color: "amber",
-  },
-  {
-    id: "green",
-    name: "Green",
-    description: "Soft green theme",
-    icon: Palette,
-    color: "green",
-  },
-  {
-    id: "blue",
-    name: "Blue",
-    description: "Calming blue theme",
-    icon: Palette,
-    color: "blue",
-  },
+  { id: "dark", name: "Dark", description: "Night reading mode", icon: Moon },
+  // {
+  //   id: "sepia",
+  //   name: "Sepia",
+  //   description: "Warm sepia tone for comfort",
+  //   icon: Palette,
+  //   color: "amber",
+  // },
 ];
 
 export default function SettingsDrawer({
@@ -250,15 +231,19 @@ export default function SettingsDrawer({
 
   // Apply custom theme
   const applyCustomTheme = (themeId: string) => {
-    // Apply theme-specific CSS variables or classes
-    document.documentElement.classList.remove(
-      "theme-sepia",
-      "theme-green",
-      "theme-blue"
-    );
+    // First remove all theme classes
+    document.documentElement.classList.remove("theme-sepia");
 
-    if (themeId !== "light" && themeId !== "dark") {
-      document.documentElement.classList.add(`theme-${themeId}`);
+    // Handle dark mode separately
+    if (themeId === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    // Then apply sepia if needed
+    if (themeId === "sepia") {
+      document.documentElement.classList.add("theme-sepia");
     }
   };
 
@@ -377,9 +362,7 @@ export default function SettingsDrawer({
                                 ? "bg-gray-800 text-blue-400"
                                 : theme.id === "sepia"
                                 ? "bg-amber-50 text-amber-800"
-                                : theme.id === "green"
-                                ? "bg-green-50 text-green-700"
-                                : "bg-blue-50 text-blue-700"
+                                : ""
                             }`}
                           >
                             <Icon className="h-5 w-5" />
@@ -393,9 +376,7 @@ export default function SettingsDrawer({
                                   ? "text-gray-800 dark:text-gray-200"
                                   : theme.id === "sepia"
                                   ? "text-amber-800 dark:text-amber-300"
-                                  : theme.id === "green"
-                                  ? "text-green-800 dark:text-green-300"
-                                  : "text-blue-800 dark:text-blue-300"
+                                  : ""
                               }`}
                             >
                               {theme.name}
@@ -662,7 +643,7 @@ export default function SettingsDrawer({
                     Preview:
                   </h4>
                   <p
-                    className={`font-amiri text-right text-xl quran-${quranFont} leading-loose`}
+                    className={`font-amiri text-right text-xl quran-${quranFont} leading-loose text-[#555] dark:text-gray-300`}
                   >
                     بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                   </p>

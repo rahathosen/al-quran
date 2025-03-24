@@ -42,65 +42,48 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 13%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 13%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 184 57% 24%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 186 79% 45%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 32% 17%;
     --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 32% 17%;
     --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 186 79% 45%;
   }
 
   /* Sepia Theme - More refined */
   .theme-sepia {
-    --background: 43 30% 97%;
-    --foreground: 30 15% 15%;
-
-    --card: 43 30% 99%;
-    --card-foreground: 30 15% 15%;
-
-    --popover: 43 30% 99%;
-    --popover-foreground: 30 15% 15%;
-
-    --primary: 30 40% 35%;
-    --primary-foreground: 43 30% 97%;
-
-    --secondary: 30 20% 92%;
-    --secondary-foreground: 30 15% 15%;
-
-    --muted: 30 20% 92%;
-    --muted-foreground: 30 15% 35%;
-
-    --accent: 30 20% 92%;
-    --accent-foreground: 30 15% 15%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 30 20% 87%;
-    --input: 30 20% 87%;
-    --ring: 30 15% 15%;
-
+    --background: 43 100% 95%;
+    --foreground: 20 30% 20%;
+    --card: 43 100% 97%;
+    --card-foreground: 20 30% 20%;
+    --popover: 43 100% 97%;
+    --popover-foreground: 20 30% 20%;
+    --primary: 36 100% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 36 50% 90%;
+    --secondary-foreground: 36 50% 30%;
+    --muted: 36 30% 90%;
+    --muted-foreground: 36 30% 40%;
+    --accent: 36 50% 90%;
+    --accent-foreground: 36 50% 30%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 30% 80%;
+    --input: 36 30% 80%;
+    --ring: 36 100% 40%;
     --radius: 0.5rem;
   }
 
@@ -287,7 +270,8 @@
   top: 0;
   z-index: 10;
   background-color: #f8f5f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   margin: -1rem;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -296,7 +280,8 @@
 /* Dark mode sticky verse */
 .dark .verse-sticky {
   background-color: #1a1a1a;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 /* Theme-specific sticky verse */
@@ -311,4 +296,3 @@
 .theme-blue .verse-sticky {
   background-color: #f0f4f8;
 }
-
