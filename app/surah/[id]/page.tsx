@@ -222,7 +222,7 @@ export default async function SurahPage({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8 pb-32">
+      <main className="container mx-auto px-4 py-6 md:py-8 pb-32 transition-colors duration-300 dark:bg-gray-900">
         {/* Verse Metadata - Sticky at top of page */}
         <VerseMetadata
           surahName={surah.englishName}
@@ -230,23 +230,15 @@ export default async function SurahPage({
           page={surah.ayahs[0]?.page}
         />
 
-        <div className="bg-gradient-to-b from-white to-[#f8f5f0]/50 rounded-xl shadow-xl p-4 md:p-8 mb-6 md:mb-8 border border-[#d4af37]/30 relative overflow-hidden">
+        <div className="bg-gradient-to-b from-white to-[#f8f5f0]/50 rounded-xl shadow-xl p-4 md:p-8 mb-6 md:mb-8 border border-[#d4af37]/30 relative overflow-hidden dark:from-gray-800 dark:to-gray-900/90 dark:border-gray-700 dark:text-white theme-sepia:from-amber-50 theme-sepia:to-amber-100/30 theme-sepia:border-amber-200">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a5e63]/5 rounded-br-full"></div>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-bl-full"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 bg-[#1a5e63]/5 rounded-tl-full"></div>
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#d4af37]/5 rounded-tr-full"></div>
+          <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a5e63]/5 rounded-br-full dark:bg-[#4db6bd]/10 theme-sepia:bg-amber-700/5"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-bl-full dark:bg-[#d4af37]/10 theme-sepia:bg-amber-500/10"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-[#1a5e63]/5 rounded-tl-full dark:bg-[#4db6bd]/10 theme-sepia:bg-amber-700/5"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#d4af37]/5 rounded-tr-full dark:bg-[#d4af37]/10 theme-sepia:bg-amber-500/10"></div>
 
           {/* Mobile header - Stack everything vertically with better spacing */}
           <div className="flex flex-col gap-4 mb-8 sm:hidden relative z-10">
-            {/* <div className="text-center">
-              <h2 className="text-[#1a5e63] text-xl font-semibold">
-                Surah {surah.number}: {surah.englishName}
-              </h2>
-              <p className="text-sm text-[#666] mt-1">
-                {surah.numberOfAyahs} Verses • {surah.revelationType}
-              </p>
-            </div> */}
             <div className="flex justify-center items-center gap-3">
               <ViewToggle currentView={viewMode} surahId={surahId} />
               <SurahAudioPlayer
@@ -259,14 +251,7 @@ export default async function SurahPage({
 
           {/* Tablet/Desktop header - Side by side with better alignment */}
           <div className="hidden sm:flex sm:flex-row justify-between items-center gap-4 mb-8 relative z-10">
-            <div className="text-center">
-              {/* <h2 className="text-[#1a5e63] text-xl font-semibold">
-                Surah {surah.number}: {surah.englishName}
-              </h2>
-              <p className="text-sm text-[#666] mt-1">
-                {surah.numberOfAyahs} Verses • {surah.revelationType}
-              </p> */}
-            </div>
+            <div className="text-center"></div>
             <div className="flex items-center gap-3">
               <ViewToggle currentView={viewMode} surahId={surahId} />
               <SurahAudioPlayer
@@ -278,16 +263,16 @@ export default async function SurahPage({
           </div>
 
           {surah.number !== 9 && (
-            <div className="bg-gradient-to-r from-[#f8f5f0]/80 via-[#f8f5f0] to-[#f8f5f0]/80 p-4 md:p-6 rounded-lg border border-[#d4af37]/30 mb-8 shadow-sm relative z-10">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
+            <div className="bg-gradient-to-r from-[#f8f5f0]/80 via-[#f8f5f0] to-[#f8f5f0]/80 p-4 md:p-6 rounded-lg border border-[#d4af37]/30 mb-8 shadow-sm relative z-10 dark:from-gray-800/80 dark:via-gray-800 dark:to-gray-800/80 dark:border-gray-700 theme-sepia:from-amber-50/80 theme-sepia:via-amber-50 theme-sepia:to-amber-50/80 theme-sepia:border-amber-200">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent dark:via-[#d4af37]/20 theme-sepia:via-amber-300/40"></div>
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent dark:via-[#d4af37]/20 theme-sepia:via-amber-300/40"></div>
               <p
-                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-3`}
+                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-3 dark:text-gray-300 theme-sepia:text-amber-900`}
               >
                 أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
               </p>
               <p
-                className={`text-center font-amiri text-xl md:text-2xl lg:text-3xl text-[#333] quran-${settings.quranFont}`}
+                className={`text-center font-amiri text-xl md:text-2xl lg:text-3xl text-[#333] quran-${settings.quranFont} dark:text-white theme-sepia:text-amber-950`}
               >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
@@ -307,7 +292,9 @@ export default async function SurahPage({
               <div
                 key={verse.number}
                 className={
-                  index % 2 === 0 ? "bg-[#f8f5f0]/50 rounded-lg p-2" : "p-2"
+                  index % 2 === 0
+                    ? "bg-[#f8f5f0]/50 rounded-lg p-2 dark:bg-gray-800/50 theme-sepia:bg-amber-50/50"
+                    : "p-2"
                 }
               >
                 <VerseItem
@@ -329,7 +316,7 @@ export default async function SurahPage({
             <Link href={`/surah/${surahId - 1}`}>
               <Button
                 variant="outline"
-                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4"
+                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4 dark:border-[#4db6bd] dark:text-[#4db6bd] theme-sepia:border-amber-700 theme-sepia:text-amber-700"
               >
                 <ChevronLeft className="mr-1 sm:mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Previous Surah</span>
@@ -344,7 +331,7 @@ export default async function SurahPage({
             <Link href={`/surah/${surahId + 1}`}>
               <Button
                 variant="outline"
-                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4"
+                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4 dark:border-[#4db6bd] dark:text-[#4db6bd] theme-sepia:border-amber-700 theme-sepia:text-amber-700"
               >
                 <span className="hidden sm:inline">Next Surah</span>
                 <span className="sm:hidden">Next</span>
