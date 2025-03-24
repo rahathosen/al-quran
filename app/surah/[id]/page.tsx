@@ -200,10 +200,10 @@ export default async function SurahPage({
                 <span className="font-semibold">Hizb:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) * 2)}
               </div>
-              <div className="bg-white/10 px-2 py-1 rounded-md">
+              {/* <div className="bg-white/10 px-2 py-1 rounded-md">
                 <span className="font-semibold">Page:</span>{" "}
                 {surah.ayahs[0]?.page || 1}
-              </div>
+              </div> */}
               <div className="bg-white/10 px-2 py-1 rounded-md">
                 <span className="font-semibold">Manzil:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) / 7)}
