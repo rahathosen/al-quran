@@ -190,6 +190,37 @@ export default async function SurahPage({
               <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span>
               <span>{surah.revelationType}</span>
             </div>
+            {/* Metadata information */}
+            <div className="mt-2 flex flex-wrap justify-center items-center gap-2 text-xs text-white/90">
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Juz:</span>{" "}
+                {surah.ayahs[0]?.juz || 1}
+              </div>
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Hizb:</span>{" "}
+                {Math.ceil((surah.ayahs[0]?.juz || 1) * 2)}
+              </div>
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Page:</span>{" "}
+                {surah.ayahs[0]?.page || 1}
+              </div>
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Manzil:</span>{" "}
+                {Math.ceil((surah.ayahs[0]?.juz || 1) / 7)}
+              </div>
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Ruku:</span>{" "}
+                {Math.ceil(((surah.ayahs[0]?.juz || 1) * 8) / 30)}
+              </div>
+              <div className="bg-white/10 px-2 py-1 rounded-md">
+                <span className="font-semibold">Sajda:</span>{" "}
+                {[7, 13, 15, 16, 19, 22, 25, 27, 32, 38, 41, 53, 84].includes(
+                  surahId
+                )
+                  ? "Yes"
+                  : "No"}
+              </div>
+            </div>
           </div>
         </div>
       </header>
