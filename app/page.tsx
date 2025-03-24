@@ -53,7 +53,7 @@ export default async function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
-              القرآن الكريم
+              القرآن
               <span className="block text-lg font-normal text-[#d4af37]">
                 Al-Quran
               </span>
