@@ -16,8 +16,6 @@ import {
   RotateCcw,
   FastForward,
   Rewind,
-  Plus,
-  Minus,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -29,6 +27,13 @@ function convertToArabicNumeral(num: number): string {
     .split("")
     .map((digit) => arabicNumerals[Number.parseInt(digit)])
     .join("");
+}
+
+// Initialize global variables if they don't exist
+if (typeof window !== "undefined") {
+  window.audioRepeatCount = window.audioRepeatCount || 0;
+  window.audioVolume = window.audioVolume || 1;
+  window.audioIsMuted = window.audioIsMuted || false;
 }
 
 export default function AudioPlayerDrawer() {
@@ -52,24 +57,25 @@ export default function AudioPlayerDrawer() {
     calculateProgress,
     goToFirstVerse,
     currentSurah,
-    playbackSpeed: contextPlaybackSpeed,
-    setPlaybackSpeed: setContextPlaybackSpeed,
     isRepeatEnabled: contextRepeatEnabled,
     setIsRepeatEnabled: setContextRepeatEnabled,
     currentVerseData,
   } = useAudio();
 
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(
+    typeof window !== "undefined" && window.audioVolume ? window.audioVolume : 1
+  );
+  const [isMuted, setIsMuted] = useState(
+    typeof window !== "undefined" && window.audioIsMuted
+      ? window.audioIsMuted
+      : false
+  );
   const [showVolumeControl, setShowVolumeControl] = useState(false);
   const [animationClass, setAnimationClass] = useState("");
   const [repeatMode, setRepeatMode] = useState<
     "off" | "once" | "twice" | "thrice" | "infinite"
   >("off");
-  const [repeatCount, setRepeatCount] = useState(0);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [showSpeedControl, setShowSpeedControl] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Format time (seconds to MM:SS)
   const formatTime = (time: number) => {
@@ -82,24 +88,66 @@ export default function AudioPlayerDrawer() {
       .padStart(2, "0")}`;
   };
 
+  // Find the active audio element
+  const getActiveAudioElement = () => {
+    // Try to find the audio element that's currently playing
+    const audioElements = document.querySelectorAll("audio");
+    for (let i = 0; i < audioElements.length; i++) {
+      const audio = audioElements[i] as HTMLAudioElement;
+      if (!audio.paused || audio.currentTime > 0) {
+        return audio;
+      }
+    }
+
+    // If no playing audio is found, return the first audio element or null
+    return audioElements.length > 0
+      ? (audioElements[0] as HTMLAudioElement)
+      : null;
+  };
+
   // Handle volume change
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
 
+    // Save to global state
+    if (typeof window !== "undefined") {
+      window.audioVolume = newVolume;
+    }
+
+    // Apply to audio element
+    const audioElement = getActiveAudioElement();
+    if (audioElement) {
+      audioElement.volume = newVolume;
+    }
+
     if (newVolume === 0) {
       setIsMuted(true);
+      if (typeof window !== "undefined") {
+        window.audioIsMuted = true;
+      }
     } else {
       setIsMuted(false);
+      if (typeof window !== "undefined") {
+        window.audioIsMuted = false;
+      }
     }
   };
 
   // Toggle mute
   const toggleMute = () => {
-    if (isMuted) {
-      setIsMuted(false);
-    } else {
-      setIsMuted(true);
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+
+    // Save to global state
+    if (typeof window !== "undefined") {
+      window.audioIsMuted = newMutedState;
+    }
+
+    // Apply to audio element
+    const audioElement = getActiveAudioElement();
+    if (audioElement) {
+      audioElement.muted = newMutedState;
     }
   };
 
@@ -114,59 +162,103 @@ export default function AudioPlayerDrawer() {
 
   // Handle repeat mode
   const handleRepeat = () => {
+    let newRepeatCount = 0;
+    let newRepeatMode = "off";
+
     // Cycle through repeat modes
     if (repeatMode === "off") {
-      setRepeatMode("once");
-      setContextRepeatEnabled(true);
+      newRepeatMode = "once";
+      newRepeatCount = 1;
     } else if (repeatMode === "once") {
-      setRepeatMode("twice");
-      setContextRepeatEnabled(true);
+      newRepeatMode = "twice";
+      newRepeatCount = 2;
     } else if (repeatMode === "twice") {
-      setRepeatMode("thrice");
-      setContextRepeatEnabled(true);
+      newRepeatMode = "thrice";
+      newRepeatCount = 3;
     } else if (repeatMode === "thrice") {
-      setRepeatMode("infinite");
-      setContextRepeatEnabled(true);
+      newRepeatMode = "infinite";
+      newRepeatCount = -1; // -1 means infinite
     } else {
-      setRepeatMode("off");
-      setContextRepeatEnabled(false);
+      newRepeatMode = "off";
+      newRepeatCount = 0;
+    }
+
+    // Update state
+    setRepeatMode(newRepeatMode as any);
+    setContextRepeatEnabled(newRepeatCount !== 0);
+
+    // Save to global state
+    if (typeof window !== "undefined") {
+      window.audioRepeatCount = newRepeatCount;
+      console.log(
+        `Repeat mode set to: ${newRepeatMode}, count: ${newRepeatCount}`
+      );
     }
   };
 
-  // Change playback speed
-  const changePlaybackSpeed = (speed: number) => {
-    // Ensure speed is within valid range
-    const validSpeed = Math.max(0.5, Math.min(2, speed));
-    setPlaybackSpeed(validSpeed);
-    setContextPlaybackSpeed(validSpeed);
-
-    // Apply the speed change to the current audio element if it exists
-    if (audioRef.current) {
-      audioRef.current.playbackRate = validSpeed;
-    }
-  };
-
-  // Fast forward 5 seconds
-  const fastForward = () => {
-    setProgress(Math.min(duration, currentTime + 5));
-  };
-
-  // Rewind 5 seconds
-  const rewind = () => {
-    setProgress(Math.max(0, currentTime - 5));
-  };
-
-  // Update playback speed when it changes in context
+  // Initialize repeat mode from global state
   useEffect(() => {
-    setPlaybackSpeed(contextPlaybackSpeed);
-  }, [contextPlaybackSpeed]);
+    if (typeof window !== "undefined") {
+      const count = window.audioRepeatCount || 0;
+
+      // Set the appropriate repeat mode based on count
+      if (count === 0) {
+        setRepeatMode("off");
+        setContextRepeatEnabled(false);
+      } else if (count === 1) {
+        setRepeatMode("once");
+        setContextRepeatEnabled(true);
+      } else if (count === 2) {
+        setRepeatMode("twice");
+        setContextRepeatEnabled(true);
+      } else if (count === 3) {
+        setRepeatMode("thrice");
+        setContextRepeatEnabled(true);
+      } else if (count === -1) {
+        setRepeatMode("infinite");
+        setContextRepeatEnabled(true);
+      }
+    }
+  }, [setContextRepeatEnabled]);
+
+  // Apply settings to audio element whenever it changes
+  useEffect(() => {
+    // Function to apply settings to audio element
+    const applySettingsToAudio = () => {
+      const audioElement = getActiveAudioElement();
+      if (audioElement) {
+        // Apply volume and mute settings
+        audioElement.volume = volume;
+        audioElement.muted = isMuted;
+
+        console.log(
+          `Applied settings to audio: volume=${volume}, muted=${isMuted}`
+        );
+      }
+    };
+
+    // Apply settings immediately
+    applySettingsToAudio();
+
+    // Set up a periodic check to apply settings to new audio elements
+    const intervalId = setInterval(applySettingsToAudio, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [volume, isMuted]);
 
   // Update repeat mode when it changes in context
   useEffect(() => {
     if (contextRepeatEnabled && repeatMode === "off") {
+      // Default to "once" if enabled but mode is off
       setRepeatMode("once");
+      if (typeof window !== "undefined" && window.audioRepeatCount === 0) {
+        window.audioRepeatCount = 1;
+      }
     } else if (!contextRepeatEnabled && repeatMode !== "off") {
       setRepeatMode("off");
+      if (typeof window !== "undefined") {
+        window.audioRepeatCount = 0;
+      }
     }
   }, [contextRepeatEnabled, repeatMode]);
 
@@ -178,6 +270,97 @@ export default function AudioPlayerDrawer() {
       setAnimationClass("player-collapsing");
     }
   }, [isPlayerExpanded, isPlayerVisible]);
+
+  // Listen for new audio elements and apply settings
+  useEffect(() => {
+    // Function to handle new audio elements
+    const handleNewAudio = (mutations: MutationRecord[]) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeName === "AUDIO") {
+              const audioElement = node as HTMLAudioElement;
+
+              // Apply current settings
+              audioElement.volume = volume;
+              audioElement.muted = isMuted;
+
+              console.log("Applied settings to new audio element");
+
+              // Add ended event listener for repeat functionality
+              audioElement.addEventListener("ended", () => {
+                if (
+                  typeof window !== "undefined" &&
+                  window.audioRepeatCount !== 0
+                ) {
+                  const repeatCount = window.audioRepeatCount;
+
+                  // Handle repeat based on count
+                  if (repeatCount === -1) {
+                    // Infinite repeat
+                    audioElement.currentTime = 0;
+                    audioElement.play().catch(console.error);
+                  } else if (repeatCount > 0) {
+                    // Decrement count and repeat if still positive
+                    window.audioRepeatCount = repeatCount - 1;
+                    audioElement.currentTime = 0;
+                    audioElement.play().catch(console.error);
+                  }
+                  // If count reaches 0, let the normal ended behavior happen
+                }
+              });
+            }
+          });
+        }
+      }
+    };
+
+    // Set up mutation observer to watch for new audio elements
+    if (
+      typeof window !== "undefined" &&
+      typeof MutationObserver !== "undefined"
+    ) {
+      const observer = new MutationObserver(handleNewAudio);
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      return () => observer.disconnect();
+    }
+  }, [volume, isMuted]);
+
+  const rewind = () => {
+    const audioElement = getActiveAudioElement();
+    if (audioElement) {
+      // Calculate new time (current time - 10 seconds, but not less than 0)
+      const newTime = Math.max(0, audioElement.currentTime - 10);
+
+      // Update audio element time
+      audioElement.currentTime = newTime;
+
+      // Also update the progress in the context to keep UI in sync
+      setProgress(newTime);
+
+      console.log(`Rewind to: ${newTime}s`);
+    }
+  };
+
+  const fastForward = () => {
+    const audioElement = getActiveAudioElement();
+    if (audioElement) {
+      // Calculate new time (current time + 10 seconds)
+      const newTime = Math.min(
+        audioElement.duration,
+        audioElement.currentTime + 10
+      );
+
+      // Update audio element time
+      audioElement.currentTime = newTime;
+
+      // Also update the progress in the context to keep UI in sync
+      setProgress(newTime);
+
+      console.log(`Fast forward to: ${newTime}s`);
+    }
+  };
 
   if (!isPlayerVisible) {
     return null;
@@ -276,7 +459,7 @@ export default function AudioPlayerDrawer() {
             </div>
 
             <div className="flex flex-col gap-3">
-              {/* Controls for repeat and speed */}
+              {/* Controls for repeat only */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
@@ -293,38 +476,6 @@ export default function AudioPlayerDrawer() {
                       }`}
                     />
                     Repeat: {getRepeatModeText()}
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/10 rounded-md"
-                    onClick={() =>
-                      changePlaybackSpeed(Math.max(0.5, playbackSpeed - 0.25))
-                    }
-                    disabled={playbackSpeed <= 0.5}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/10 rounded-md flex items-center gap-1 min-w-[60px] justify-center"
-                  >
-                    <span className="font-medium">{playbackSpeed}×</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/10 rounded-md"
-                    onClick={() =>
-                      changePlaybackSpeed(Math.min(2, playbackSpeed + 0.25))
-                    }
-                    disabled={playbackSpeed >= 2}
-                  >
-                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
@@ -490,7 +641,15 @@ export default function AudioPlayerDrawer() {
                   stroke="white"
                   strokeWidth="3"
                   strokeDasharray="100.53"
-                  strokeDashoffset={100.53 - calculateProgress() * 100.53}
+                  strokeDashoffset={
+                    100.53 -
+                    (currentVerse &&
+                    verses.length &&
+                    currentVerse >= verses.length
+                      ? 1
+                      : calculateProgress()) *
+                      100.53
+                  }
                   className="transition-all duration-500 ease-in-out"
                   transform="rotate(-90 18 18)"
                 />
@@ -506,7 +665,11 @@ export default function AudioPlayerDrawer() {
                   fontWeight="bold"
                   className="font-medium"
                 >
-                  {Math.round(calculateProgress() * 100)}%
+                  {currentVerse &&
+                  verses.length &&
+                  currentVerse >= verses.length
+                    ? "100%"
+                    : `${Math.round(calculateProgress() * 100)}%`}
                 </text>
               </svg>
             </div>
@@ -525,13 +688,13 @@ export default function AudioPlayerDrawer() {
                 <p className="text-sm font-medium truncate">
                   Surah {surahName}
                 </p>
-                {currentVerseData?.juz && (
+                {/* {currentVerseData?.juz && (
                   <div className="text-xs text-white/70 bg-white/10 px-1.5 py-0.5 rounded-sm hidden sm:flex items-center gap-1.5">
                     <span>J:{currentVerseData.juz}</span>
                     <span>H:{Math.ceil(currentVerseData.juz * 2)}</span>
                     <span>P:{currentVerseData.page}</span>
                   </div>
-                )}
+                )} */}
               </div>
               <p className="text-xs text-white/70 truncate flex items-center gap-1">
                 <span>
