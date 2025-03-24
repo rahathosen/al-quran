@@ -309,7 +309,7 @@ export default function VerseItem({
           }
 
           // Debug log for non-first verses, Surah 1, or Surah 9
-          console.log(`No modification needed for this verse.`);
+          // console.log(`No modification needed for this verse.`);
 
           return verse.arabic;
         })()}
