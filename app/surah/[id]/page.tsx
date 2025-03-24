@@ -38,17 +38,17 @@ export async function generateMetadata(
 
   if (!surah) {
     return {
-      title: "Surah Not Found | Al-Quran",
+      title: "Surah Not Found | Al-Quran Al-Kareem",
       description: "The requested Surah could not be found.",
     };
   }
 
   // Create metadata with surah details
   return {
-    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran`,
+    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
     description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
     openGraph: {
-      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran`,
+      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
       description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
       type: "article",
       url: `${
@@ -68,7 +68,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: `Surah ${surah.englishName} | Al-Quran`,
+      title: `Surah ${surah.englishName} | Al-Quran Al-Kareem`,
       description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
       // Use the same dynamic SVG
       images: [
@@ -85,6 +85,7 @@ export async function generateMetadata(
     keywords: `Quran, Surah ${surah.englishName}, ${surah.name}, ${surah.englishNameTranslation}, Islamic scripture, Holy Quran`,
   };
 }
+
 export default async function SurahPage({
   params,
   searchParams,
@@ -178,18 +179,18 @@ export default async function SurahPage({
             <AISearchButton />
           </div>
 
-          {/* Bottom row: Surah info */}
+          {/* Bottom row: Surah info with metadata */}
           <div className="text-center pb-1">
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
-              {surah.name}
+              {surah.englishName} ({surah.number}) : {surah.name}
             </h1>
             <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm font-normal text-[#d4af37]">
-              <span>{surah.englishName}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span>
+              {/* <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span> */}
               <span>{surah.numberOfAyahs} Verses</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span>
               <span>{surah.revelationType}</span>
             </div>
+
             {/* Metadata information */}
             <div className="mt-2 flex flex-wrap justify-center items-center gap-2 text-xs text-white/90">
               <div className="bg-white/10 px-2 py-1 rounded-md">
@@ -200,10 +201,6 @@ export default async function SurahPage({
                 <span className="font-semibold">Hizb:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) * 2)}
               </div>
-              {/* <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Page:</span>{" "}
-                {surah.ayahs[0]?.page || 1}
-              </div> */}
               <div className="bg-white/10 px-2 py-1 rounded-md">
                 <span className="font-semibold">Manzil:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) / 7)}
@@ -233,17 +230,23 @@ export default async function SurahPage({
           page={surah.ayahs[0]?.page}
         />
 
-        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
+        <div className="bg-gradient-to-b from-white to-[#f8f5f0]/50 rounded-xl shadow-xl p-4 md:p-8 mb-6 md:mb-8 border border-[#d4af37]/30 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a5e63]/5 rounded-br-full"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-bl-full"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-[#1a5e63]/5 rounded-tl-full"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#d4af37]/5 rounded-tr-full"></div>
+
           {/* Mobile header - Stack everything vertically with better spacing */}
-          <div className="flex flex-col gap-4 mb-6 sm:hidden">
-            <div className="text-center">
+          <div className="flex flex-col gap-4 mb-8 sm:hidden relative z-10">
+            {/* <div className="text-center">
               <h2 className="text-[#1a5e63] text-xl font-semibold">
                 Surah {surah.number}: {surah.englishName}
               </h2>
               <p className="text-sm text-[#666] mt-1">
                 {surah.numberOfAyahs} Verses • {surah.revelationType}
               </p>
-            </div>
+            </div> */}
             <div className="flex justify-center items-center gap-3">
               <ViewToggle currentView={viewMode} surahId={surahId} />
               <SurahAudioPlayer
@@ -255,14 +258,14 @@ export default async function SurahPage({
           </div>
 
           {/* Tablet/Desktop header - Side by side with better alignment */}
-          <div className="hidden sm:flex sm:flex-row justify-between items-center gap-4 mb-6">
-            <div>
-              <h2 className="text-[#1a5e63] text-xl lg:text-2xl font-semibold">
+          <div className="hidden sm:flex sm:flex-row justify-between items-center gap-4 mb-8 relative z-10">
+            <div className="text-center">
+              {/* <h2 className="text-[#1a5e63] text-xl font-semibold">
                 Surah {surah.number}: {surah.englishName}
               </h2>
-              <p className="text-sm text-[#666]">
+              <p className="text-sm text-[#666] mt-1">
                 {surah.numberOfAyahs} Verses • {surah.revelationType}
-              </p>
+              </p> */}
             </div>
             <div className="flex items-center gap-3">
               <ViewToggle currentView={viewMode} surahId={surahId} />
@@ -275,14 +278,16 @@ export default async function SurahPage({
           </div>
 
           {surah.number !== 9 && (
-            <div className="bg-[#f8f5f0] p-3 md:p-4 rounded-lg border border-[#d4af37]/20 mb-6">
+            <div className="bg-gradient-to-r from-[#f8f5f0]/80 via-[#f8f5f0] to-[#f8f5f0]/80 p-4 md:p-6 rounded-lg border border-[#d4af37]/30 mb-8 shadow-sm relative z-10">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
               <p
-                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-2`}
+                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-3`}
               >
                 أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
               </p>
               <p
-                className={`text-center font-amiri text-xl md:text-2xl text-[#333] quran-${settings.quranFont}`}
+                className={`text-center font-amiri text-xl md:text-2xl lg:text-3xl text-[#333] quran-${settings.quranFont}`}
               >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
@@ -292,23 +297,29 @@ export default async function SurahPage({
           <div
             className={`${
               viewMode === "compact"
-                ? "space-y-3"
+                ? "space-y-4"
                 : viewMode === "arabic-only"
-                ? "space-y-2"
-                : "space-y-6"
-            }`}
+                ? "space-y-3"
+                : "space-y-8"
+            } relative z-10`}
           >
-            {verses.map((verse) => (
-              <VerseItem
+            {verses.map((verse, index) => (
+              <div
                 key={verse.number}
-                verse={verse}
-                surahId={surahId}
-                surahName={surah.name}
-                englishName={surah.englishName}
-                verses={verses}
-                quranFont={settings.quranFont}
-                viewMode={viewMode}
-              />
+                className={
+                  index % 2 === 0 ? "bg-[#f8f5f0]/50 rounded-lg p-2" : "p-2"
+                }
+              >
+                <VerseItem
+                  verse={verse}
+                  surahId={surahId}
+                  surahName={surah.name}
+                  englishName={surah.englishName}
+                  verses={verses}
+                  quranFont={settings.quranFont}
+                  viewMode={viewMode}
+                />
+              </div>
             ))}
           </div>
         </div>
