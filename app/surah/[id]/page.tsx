@@ -227,7 +227,11 @@ export default async function SurahPage({
 
       <main className="container mx-auto px-4 py-6 md:py-8 pb-32">
         {/* Verse Metadata - Sticky at top of page */}
-        <VerseMetadata />
+        <VerseMetadata
+          surahName={surah.englishName}
+          juz={surah.ayahs[0]?.juz}
+          page={surah.ayahs[0]?.page}
+        />
 
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">

@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VerseMetadataProps {
   verseNumber?: number;
@@ -18,10 +26,16 @@ export default function VerseMetadata({
   const [isSticky, setIsSticky] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(page);
+  const [currentVerse, setCurrentVerse] = useState(verseNumber);
+  const [totalVerses, setTotalVerses] = useState(0);
   const metadataRef = useRef<HTMLDivElement>(null);
 
   // Set up scroll event listener to detect when to show the component
   useEffect(() => {
+    // Get total number of verses
+    const verseElements = document.querySelectorAll('[id^="verse-"]');
+    setTotalVerses(verseElements.length);
+
     const handleScroll = () => {
       // Get header height (assuming the header has a fixed height or we can get it)
       const headerHeight =
@@ -67,7 +81,12 @@ export default function VerseMetadata({
       if (mostVisibleVerse) {
         // Extract verse number from the ID
         const verseId = mostVisibleVerse.id;
-        const verseNumber = Number.parseInt(verseId.replace("verse-", ""), 10);
+        const verseNum = Number.parseInt(verseId.replace("verse-", ""), 10);
+
+        // Update current verse
+        if (!isNaN(verseNum) && verseNum !== currentVerse) {
+          setCurrentVerse(verseNum);
+        }
 
         // Find the page number for this verse
         const pageElement = mostVisibleVerse.querySelector(".verse-page");
@@ -91,7 +110,20 @@ export default function VerseMetadata({
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isVisible, currentPage]);
+  }, [isVisible, currentPage, currentVerse]);
+
+  // Handle verse selection
+  const handleVerseSelect = (value: string) => {
+    const verseNum = Number.parseInt(value, 10);
+    if (!isNaN(verseNum)) {
+      // Scroll to the selected verse
+      const verseElement = document.getElementById(`verse-${verseNum}`);
+      if (verseElement) {
+        verseElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        setCurrentVerse(verseNum);
+      }
+    }
+  };
 
   if (!isVisible) return null;
 
@@ -108,9 +140,26 @@ export default function VerseMetadata({
       </div>
 
       <div className="font-medium text-center">
-        <span>
-          Surah {surahName} - Verse {verseNumber}
-        </span>
+        <Select
+          value={currentVerse.toString()}
+          onValueChange={handleVerseSelect}
+        >
+          <SelectTrigger className="h-7 min-w-[120px] bg-white/10 border-none text-white">
+            <span>
+              Surah {surahName} - Verse {currentVerse}
+            </span>
+            {/* <ChevronDown className="h-3 w-3 opacity-50" /> */}
+          </SelectTrigger>
+          <SelectContent>
+            <ScrollArea className="h-[200px]">
+              {Array.from({ length: totalVerses }, (_, i) => (
+                <SelectItem key={i + 1} value={(i + 1).toString()}>
+                  Verse {i + 1}
+                </SelectItem>
+              ))}
+            </ScrollArea>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-md">
