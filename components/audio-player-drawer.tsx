@@ -703,9 +703,10 @@ export default function AudioPlayerDrawer() {
                 </span>
                 {currentVerseData?.juz && (
                   <span className="sm:hidden bg-white/10 px-1 rounded-sm text-[10px]">
-                    J:{currentVerseData.juz} H:
-                    {Math.ceil(currentVerseData.juz * 2)} P:
-                    {currentVerseData.page}
+                    Juz: {currentVerseData.juz} Hizb:{" "}
+                    {Math.ceil(currentVerseData.juz * 2)}
+                    {/* P:
+                    {currentVerseData.page} */}
                   </span>
                 )}
               </p>
