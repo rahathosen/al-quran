@@ -992,7 +992,9 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       <div className="lg:col-span-1">
         <Card className="shadow-lg border-[#d4af37]/20">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col space-y-4 mb-4">
+            {/* this comments section is more advance feature */}
+
+            {/* <div className="flex flex-col space-y-4 mb-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-[#1a5e63] font-medium text-lg">
                   Canvas Editor
@@ -1115,9 +1117,9 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   </Popover>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            {showHelp && (
+            {/* {showHelp && (
               <Alert className="mb-4 bg-[#1a5e63]/10 border-[#1a5e63]/20 rounded-lg">
                 <AlertDescription>
                   <div className="space-y-2 py-1">
@@ -1132,9 +1134,9 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   </div>
                 </AlertDescription>
               </Alert>
-            )}
+            )} */}
 
-            {presets.length > 0 && (
+            {/* {presets.length > 0 && (
               <div className="mb-4">
                 <Label className="mb-2 block text-[#1a5e63]">
                   Saved Presets
@@ -1165,7 +1167,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                   </div>
                 </ScrollArea>
               </div>
-            )}
+            )} */}
 
             <Tabs
               defaultValue="content"
