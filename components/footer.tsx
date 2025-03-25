@@ -105,7 +105,7 @@ export default function Footer() {
               Developed with{" "}
               <Heart className="h-3 w-3 mx-1 text-red-400 fill-red-400" /> by
               <a
-                href="https://www.facebook.com/rahathosen.me/"
+                href="https://www.linkedin.com/in/rahathosen/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium ml-1 text-[#d4af37] hover:underline"
