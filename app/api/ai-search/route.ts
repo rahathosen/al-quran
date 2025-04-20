@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-// Initialize OpenRouter client
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  // baseURL: "https://api.groq.com/openai/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "",
   defaultHeaders: {
     "HTTP-Referer":
@@ -31,41 +29,38 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update the system prompt to include Bengali translation and use transliterated names
     const systemPrompt = `You are an AI assistant specialized in the Quran. 
 When given a topic or concept, find relevant verses from the Quran that address this topic.
 For each verse, provide:
 1. The Surah number
 2. The verse number
 3. The Arabic name of the Surah
-4. The transliterated Arabic name of the Surah (like "Al-Baqara", "Al-Fatiha", etc.) - NOT the English translation
+4. The transliterated Arabic name of the Surah (like "Al-Baqara", "Al-Fatiha", etc.)
 5. The Arabic text of the verse
 6. An English translation of the verse
 7. A Bengali translation of the verse (if available)
 
-Format your response as a JSON array of objects with these fields:
+Format your response as a VALID JSON array of objects with these fields:
 [
   {
     "surahNumber": number,
     "verseNumber": number,
     "surahName": "Arabic name",
-    "englishName": "Transliterated name (e.g., Al-Baqara, not The Cow)",
+    "englishName": "Transliterated name",
     "verseText": "Arabic text",
     "translation": "English translation",
     "bengaliTranslation": "Bengali translation"
   }
 ]
 
-Limit your response to the 5 most relevant verses. Do not include any explanations or additional text outside the JSON structure.
-If you cannot find relevant verses, return an empty array.
-If Bengali translation is not available for a verse, you can omit the bengaliTranslation field or set it to null.`;
+IMPORTANT:
+- Ensure all strings are properly escaped for JSON
+- Do not include any line breaks within JSON strings
+- Do not include any text outside the JSON structure
+- If Bengali translation is unavailable, set "bengaliTranslation" to null`;
 
-    // Make the API request to OpenRouter
     const completion = await openai.chat.completions.create({
-      // model: "deepseek/deepseek-r1:free",
       model: "google/gemini-2.0-flash-exp:free",
-      // model: "google/gemini-2.0-pro-exp-02-05:free",
-      // model: "mistralai/mistral-small-3.1-24b-instruct:free",
       messages: [
         {
           role: "system",
@@ -77,73 +72,77 @@ If Bengali translation is not available for a verse, you can omit the bengaliTra
         },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.3, // Lower temperature for more consistent results
-      max_tokens: 2000, // Ensure enough tokens for complete responses
+      temperature: 0.3,
+      max_tokens: 2000,
     });
 
-    // Extract the response text
     const responseText = completion.choices[0]?.message?.content || "";
 
+    // First try to parse directly
     try {
-      // Parse the JSON response
-      const jsonResponse = JSON.parse(responseText);
-
-      // Check if the response has the expected format
-      if (Array.isArray(jsonResponse.results)) {
-        return NextResponse.json({ results: jsonResponse.results });
-      } else if (Array.isArray(jsonResponse)) {
-        return NextResponse.json({ results: jsonResponse });
-      } else if (jsonResponse && typeof jsonResponse === "object") {
-        // Try to extract results from any property that might be an array
-        for (const key in jsonResponse) {
-          if (Array.isArray(jsonResponse[key])) {
-            return NextResponse.json({ results: jsonResponse[key] });
-          }
-        }
-
-        // If we have an object but no array property, convert it to an array if it has the right structure
-        if (jsonResponse.surahNumber && jsonResponse.verseNumber) {
-          return NextResponse.json({ results: [jsonResponse] });
-        }
-
-        console.error("Unexpected response format:", jsonResponse);
-        return NextResponse.json(
-          { error: "Invalid response format from AI", results: [] },
-          { status: 500 }
-        );
-      } else {
-        console.error("Unexpected response format:", jsonResponse);
-        return NextResponse.json(
-          { error: "Invalid response format from AI", results: [] },
-          { status: 500 }
-        );
+      const parsed = JSON.parse(responseText);
+      if (Array.isArray(parsed)) {
+        return NextResponse.json({ results: parsed });
       }
-    } catch (parseError) {
-      console.error("Error parsing AI response:", parseError);
-      console.error("Raw response:", responseText);
-
-      // Try to extract JSON from the response if it's embedded in text
-      try {
-        const jsonMatch = responseText.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const extractedJson = JSON.parse(jsonMatch[0]);
-          if (Array.isArray(extractedJson)) {
-            return NextResponse.json({ results: extractedJson });
-          } else if (extractedJson && typeof extractedJson === "object") {
-            if (Array.isArray(extractedJson.results)) {
-              return NextResponse.json({ results: extractedJson.results });
-            }
-          }
+      if (parsed && typeof parsed === "object") {
+        // Check for common response formats
+        if (Array.isArray(parsed.results)) {
+          return NextResponse.json({ results: parsed.results });
         }
-      } catch (e) {
-        console.error("Failed to extract JSON from response:", e);
+        if (Array.isArray(parsed.verses)) {
+          return NextResponse.json({ results: parsed.verses });
+        }
+        if (parsed.surahNumber) {
+          // Single verse case
+          return NextResponse.json({ results: [parsed] });
+        }
       }
-
-      return NextResponse.json(
-        { error: "Failed to parse AI response", results: [] },
-        { status: 500 }
-      );
+    } catch (directParseError) {
+      console.log("Direct parse failed, trying cleanup...");
     }
+
+    // If direct parse fails, try cleaning the response
+    try {
+      // Remove any non-JSON content before and after the JSON
+      const jsonStart = responseText.indexOf("[") >= 0 ? "[" : "{";
+      const jsonEnd = jsonStart === "[" ? "]" : "}";
+
+      const startIndex = Math.max(0, responseText.indexOf(jsonStart));
+      const endIndex = responseText.lastIndexOf(jsonEnd) + 1;
+
+      if (startIndex >= 0 && endIndex > startIndex) {
+        const jsonStr = responseText
+          .slice(startIndex, endIndex)
+          // Remove any newlines within strings
+          .replace(/"([^"]*)\n([^"]*)"/g, '"$1 $2"')
+          // Escape special characters
+          .replace(/\n/g, "\\n")
+          .replace(/\r/g, "\\r")
+          .replace(/\t/g, "\\t");
+
+        const cleanedJson = JSON.parse(jsonStr);
+
+        if (Array.isArray(cleanedJson)) {
+          return NextResponse.json({ results: cleanedJson });
+        }
+        if (cleanedJson && typeof cleanedJson === "object") {
+          if (Array.isArray(cleanedJson.results)) {
+            return NextResponse.json({ results: cleanedJson.results });
+          }
+          if (cleanedJson.surahNumber) {
+            return NextResponse.json({ results: [cleanedJson] });
+          }
+        }
+      }
+    } catch (cleanParseError) {
+      console.error("Error parsing cleaned response:", cleanParseError);
+      console.error("Raw response:", responseText);
+    }
+
+    return NextResponse.json(
+      { error: "Failed to parse AI response", results: [] },
+      { status: 500 }
+    );
   } catch (error) {
     console.error("AI search error:", error);
     return NextResponse.json(
