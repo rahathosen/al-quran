@@ -64,6 +64,6 @@ A modern, feature-rich Quran application with AI-powered search, audio recitatio
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/al-quran-ai.git
+   git clone https://github.com/rahathosen/al-quran-ai.git
    cd al-quran-ai
    ```
