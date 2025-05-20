@@ -5,7 +5,7 @@ import { AudioProvider } from "@/context/audio-context";
 import AudioPlayerDrawer from "@/components/audio-player-drawer";
 import Footer from "@/components/footer";
 import type { Metadata } from "next";
-
+import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "Al-Quran",
   description:
@@ -56,6 +56,7 @@ export default function RootLayout({
         >
           <AudioProvider>
             {children}
+            <Analytics />
             <Footer />
             <AudioPlayerDrawer />
           </AudioProvider>
