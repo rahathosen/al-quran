@@ -61,6 +61,7 @@ IMPORTANT:
 - If Bengali translation is unavailable, set "bengaliTranslation" to null`;
 
     const completion = await openai.chat.completions.create({
+      // model: "deepseek/deepseek-r1:free",
       model: "deepseek/deepseek-chat-v3-0324:free",
       //model: "google/gemini-2.0-flash-exp:free",
       messages: [

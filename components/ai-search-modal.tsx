@@ -203,7 +203,9 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         <div className="flex-1 overflow-y-auto p-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-              <p className="font-medium">High Traffic</p>
+              <p className="font-medium">
+                High Traffic or Rate limit exceeded for Today
+              </p>
               <p>Thanks for your patience. Please try again later.</p>
             </div>
           )}
