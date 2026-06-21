@@ -133,6 +133,7 @@ interface VerseMetadataProps {
   surahName?: string;
   surahNumber?: number;
   page?: number;
+  juz?: number;
 }
 
 export default function VerseMetadata({
