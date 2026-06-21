@@ -19,7 +19,8 @@ type SearchResult = {
   englishName: string;
   verseText: string;
   translation: string;
-  bengaliTranslation?: string; // Add Bengali translation field
+  bengaliTranslation?: string;
+  explanation?: string;
 };
 
 export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
@@ -78,7 +79,7 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
       if (data.results && Array.isArray(data.results)) {
         if (data.results.length === 0) {
           setError(
-            "No verses found for this search term. Please try a different query."
+            "No verses found for this search term. Please try a different query.",
           );
         } else {
           setResults(data.results);
@@ -92,7 +93,7 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
           setRecentSearches(newRecentSearches);
           localStorage.setItem(
             "quran-ai-recent-searches",
-            JSON.stringify(newRecentSearches)
+            JSON.stringify(newRecentSearches),
           );
         }
       } else {
@@ -215,11 +216,17 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
               <h3 className="text-[#1a5e63] font-medium">
                 Found {results.length} relevant verses:
               </h3>
+
               {results.map((result, index) => (
                 <div
                   key={`${result.surahNumber}-${result.verseNumber}-${index}`}
                   className="bg-[#f8f5f0] p-4 rounded-lg border border-[#d4af37]/20"
                 >
+                  {result.explanation && (
+                    <p className="text-sm text-[#1a5e63] italic mb-2 border-l-4 border-[#d4af37] pl-3">
+                      {result.explanation}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between mb-2">
                     <Link
                       href={`/surah/${result.surahNumber}#verse-${result.verseNumber}`}
