@@ -60,10 +60,36 @@ A modern, feature-rich Quran application with AI-powered search, audio recitatio
 - Node.js 16.x or higher
 - npm or yarn
 
+
+### Default Endpoint: Al-Quran Cloud
+
+- **Base URL**: `https://api.alquran.cloud/v1`
+- **Documentation**: [https://alquran.cloud/api](https://alquran.cloud/api)
+- **Features**: Free, CORS-enabled, supports multiple reciters and translations.
+
+
 ### Installation
 
 1. Clone the repository
    ```bash
    git clone https://github.com/rahathosen/al-quran-ai.git
    cd al-quran-ai
+   ```
+
+2. Create Environment Variables
+   ```bash
+   NEXT_PUBLIC_APP_URL="https://al-quran-ai.vercel.app"
+   LLM_BASE_URL="https://api.openai.com/v1"          # Example: OpenAI-compatible endpoint
+   LLM_MODEL_NAME="gpt-4"                           # Example: model name
+   LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" # Your API key
+   ```
+
+3. Install Dependencies
+   ```bash
+   npm install
+   ```
+
+4. Run the Development Server
+   ```bash
+   npm run dev
    ```
