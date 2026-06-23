@@ -32,7 +32,7 @@ export default function AISearchInfo() {
       <p className="text-[#555] mb-4">
         Discover verses in the Quran related to specific topics, concepts, or
         themes using our AI-powered search. This feature helps you find relevant
-        verses even when you don't know the exact words or surah numbers.
+        verses even when you don&apos;t know the exact words or surah numbers.
       </p>
 
       <Accordion type="single" collapsible className="mb-4">
@@ -51,7 +51,7 @@ export default function AISearchInfo() {
               even if they use different wording.
             </p>
             <p>
-              For each result, you'll see the verse in Arabic, its English
+              For each result, you&apos;ll see the verse in Arabic, its English
               translation, and a link to view it in context within its surah.
             </p>
           </AccordionContent>
@@ -69,7 +69,7 @@ export default function AISearchInfo() {
               </li>
               <li>
                 • <span className="font-medium">Forgiveness</span> - Discover
-                verses about Allah's forgiveness
+                verses about Allah&apos;s forgiveness
               </li>
               <li>
                 • <span className="font-medium">Dealing with hardship</span> -
@@ -99,11 +99,11 @@ export default function AISearchInfo() {
             <ul className="space-y-2">
               <li>• Be specific in your search to get more relevant results</li>
               <li>
-                • Use natural language questions like "How should I treat my
-                parents?"
+                • Use natural language questions like &quot;How should I treat my
+                parents?&quot;
               </li>
               <li>
-                • Try different phrasings if you don't get the results you
+                • Try different phrasings if you don&apos;t get the results you
                 expect
               </li>
               <li>

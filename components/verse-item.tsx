@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAudio } from "@/context/audio-context";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   addBookmark,
   removeBookmark,
@@ -140,18 +141,7 @@ export default function VerseItem({
         await navigator.clipboard.writeText(
           `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`
         );
-
-        // Show a temporary message
-        const message = document.createElement("div");
-        message.textContent = "Link copied to clipboard!";
-        message.className =
-          "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg";
-        document.body.appendChild(message);
-
-        // Remove the message after 2 seconds
-        setTimeout(() => {
-          document.body.removeChild(message);
-        }, 2000);
+        toast.success("Link copied to clipboard!");
       }
     } catch (error) {
       console.error("Error sharing verse:", error);
@@ -165,18 +155,7 @@ export default function VerseItem({
     try {
       // Copy to clipboard
       await navigator.clipboard.writeText(textToCopy);
-
-      // Show a temporary message
-      const message = document.createElement("div");
-      message.textContent = "Verse copied to clipboard!";
-      message.className =
-        "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-      document.body.appendChild(message);
-
-      // Remove the message after 2 seconds
-      setTimeout(() => {
-        document.body.removeChild(message);
-      }, 2000);
+      toast.success("Verse copied to clipboard!");
     } catch (error) {
       console.error("Error copying verse:", error);
     }

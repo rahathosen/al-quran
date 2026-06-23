@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -101,24 +102,29 @@ export default async function SurahPage({
   }
 
   // Get settings from cookies if available (fallback to defaults)
-  const cookieStore = cookies();
-  const settingsCookie = cookieStore.get("quran-settings");
-  let settings = {
+  const settingsSchema = z.object({
+    reciterId: z.string().default("alafasy"),
+    translationId: z.string().default("en.asad"),
+    quranFont: z.string().default("uthmani"),
+  });
+
+  const defaultSettings = {
     reciterId: "alafasy",
     translationId: "en.asad",
     quranFont: "uthmani",
   };
 
+  const cookieStore = cookies();
+  const settingsCookie = cookieStore.get("quran-settings");
+  let settings = defaultSettings;
+
   if (settingsCookie?.value) {
     try {
-      const parsedSettings = JSON.parse(settingsCookie.value);
-      settings = {
-        reciterId: parsedSettings.reciterId || "alafasy",
-        translationId: parsedSettings.translationId || "en.asad",
-        quranFont: parsedSettings.quranFont || "uthmani",
-      };
-    } catch (e) {
-      console.error("Error parsing settings cookie:", e);
+      const decoded = decodeURIComponent(settingsCookie.value);
+      const parsed = JSON.parse(decoded);
+      settings = settingsSchema.parse(parsed);
+    } catch {
+      settings = defaultSettings;
     }
   }
 

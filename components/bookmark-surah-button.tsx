@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { toast } from "sonner";
 import {
   isSurahBookmarked,
   addSurahBookmark,
@@ -47,17 +48,8 @@ export default function BookmarkSurahButton({
     setIsBookmarked(!isBookmarked);
   };
 
-  // Show toast notification
   const showToast = (message: string) => {
-    const toast = document.createElement("div");
-    toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 2000);
+    toast.success(message);
   };
 
   return (
