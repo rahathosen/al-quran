@@ -180,7 +180,7 @@ export default function VerseMetadata({
       if (verseElements.length === 0) return;
 
       // Find which verse is most visible in the viewport
-      let mostVisibleVerse = null;
+      let mostVisibleVerse: Element | null = null;
       let maxVisibleArea = 0;
 
       verseElements.forEach((verse) => {
@@ -199,9 +199,10 @@ export default function VerseMetadata({
         }
       });
 
-      if (mostVisibleVerse) {
+      const visibleVerse = mostVisibleVerse as Element | null;
+      if (visibleVerse) {
         // Extract verse number from the ID
-        const verseId = mostVisibleVerse.id;
+        const verseId = visibleVerse.id;
         const verseNum = Number.parseInt(verseId.replace("verse-", ""), 10);
 
         // Update current verse
@@ -210,7 +211,7 @@ export default function VerseMetadata({
         }
 
         // Find the page number for this verse
-        const pageElement = mostVisibleVerse.querySelector(".verse-page");
+        const pageElement = visibleVerse.querySelector(".verse-page");
         if (pageElement && pageElement.textContent) {
           const newPage = Number.parseInt(pageElement.textContent, 10);
           if (!isNaN(newPage) && newPage !== currentPage) {
@@ -218,7 +219,7 @@ export default function VerseMetadata({
           }
         } else {
           // Alternative: look for page info in a data attribute
-          const pageAttr = mostVisibleVerse.getAttribute("data-page");
+          const pageAttr = visibleVerse.getAttribute("data-page");
           if (pageAttr) {
             const newPage = Number.parseInt(pageAttr, 10);
             if (!isNaN(newPage) && newPage !== currentPage) {

@@ -70,11 +70,12 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         body: JSON.stringify({ query: searchTerm }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "An unexpected error occurred. Please try again.");
+        return;
+      }
 
       if (data.results && Array.isArray(data.results)) {
         if (data.results.length === 0) {
@@ -97,11 +98,11 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
           );
         }
       } else {
-        setError("No results found or invalid response format");
+        setError("No results found. Please try a different query.");
       }
     } catch (err) {
       console.error("Search error:", err);
-      setError("An error occurred while searching. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -204,10 +205,8 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         <div className="flex-1 overflow-y-auto p-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-              <p className="font-medium">
-                High Traffic or Rate limit exceeded for Today
-              </p>
-              <p>Thanks for your patience. Please try again later.</p>
+              <p className="font-medium">Search Error</p>
+              <p>{error}</p>
             </div>
           )}
 
