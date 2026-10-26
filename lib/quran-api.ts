@@ -69,7 +69,9 @@ export async function getAllSurahs(): Promise<Surah[]> {
   }
 
   try {
-    const response = await fetch("https://api.alquran.cloud/v1/surah");
+    const response = await fetch("https://api.alquran.cloud/v1/surah", {
+      cache: "force-cache",
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch surahs: ${response.status}`);
@@ -85,7 +87,6 @@ export async function getAllSurahs(): Promise<Surah[]> {
     return data.data;
   } catch (error) {
     console.error("Error fetching surahs:", error);
-    // Return empty array or throw error based on your error handling strategy
     return [];
   }
 }
@@ -104,9 +105,9 @@ export async function getSurahById(
   }
 
   try {
-    // Using specified reciter
     const response = await fetch(
       `https://api.alquran.cloud/v1/surah/${id}/${reciterId}`,
+      { cache: "force-cache" }
     );
 
     if (!response.ok) {
@@ -141,9 +142,9 @@ export async function getSurahTranslation(
   }
 
   try {
-    // Using specified translation
     const response = await fetch(
       `https://api.alquran.cloud/v1/surah/${id}/${translationId}`,
+      { cache: "force-cache" }
     );
 
     if (!response.ok) {
@@ -174,12 +175,9 @@ export function getVerseAudioUrl(
   verseNumber: number,
   reciterId = "alafasy",
 ): string {
-  // Format surah number (e.g., 1 -> "001", 10 -> "010")
   const formattedSurahNumber = surahId.toString().padStart(3, "0");
-  // Format verse number (e.g., 1 -> "001", 10 -> "010")
   const formattedVerseNumber = verseNumber.toString().padStart(3, "0");
 
-  // Map reciter IDs to their respective audio sources
   const reciterMap: Record<string, string> = {
     alafasy: "Alafasy_128kbps",
     minshawi: "Minshawy_Murattal_128kbps",
@@ -192,8 +190,6 @@ export function getVerseAudioUrl(
   };
 
   const reciterPath = reciterMap[reciterId] || "Alafasy_128kbps";
-
-  // Use the everyayah.com API which is more reliable for audio
   return `https://everyayah.com/data/${reciterPath}/${formattedSurahNumber}${formattedVerseNumber}.mp3`;
 }
 
@@ -223,12 +219,12 @@ export async function getAyah(
   edition = "quran-uthmani",
 ): Promise<AyahData | null> {
   const cacheKey = `ayah-${edition}-${surahId}-${verseNumber}`;
-  // Reuse a simple in‑memory cache if you like
   if (ayahCache.has(cacheKey)) return ayahCache.get(cacheKey)!;
 
   try {
     const response = await fetch(
       `https://api.alquran.cloud/v1/ayah/${surahId}:${verseNumber}/${edition}`,
+      { cache: "force-cache" }
     );
     if (!response.ok)
       throw new Error(`Failed to fetch ayah: ${response.status}`);
@@ -266,9 +262,9 @@ async function getFullSurahData(surahId: number) {
   if (fullSurahCache.has(key)) return fullSurahCache.get(key)!;
 
   const [arabic, english, bengali] = await Promise.all([
-    getSurahById(surahId, "ar.alafasy"), // Arabic (you can use "quran-uthmani" if you prefer)
-    getSurahTranslation(surahId, "en.asad"), // English
-    getSurahTranslation(surahId, "bn.bengali"), // Bengali
+    getSurahById(surahId, "ar.alafasy"),
+    getSurahTranslation(surahId, "en.asad"),
+    getSurahTranslation(surahId, "bn.bengali"),
   ]);
 
   if (!arabic || !english || !bengali) {
@@ -279,8 +275,3 @@ async function getFullSurahData(surahId: number) {
   fullSurahCache.set(key, data);
   return data;
 }
-
-/**
- * Returns the verse text and surah info for a given surah/verse,
- * by extracting from the locally cached full surah data.
- */

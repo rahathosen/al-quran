@@ -23,7 +23,7 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
   const [showVolumeControl, setShowVolumeControl] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     if (audioRef.current) {

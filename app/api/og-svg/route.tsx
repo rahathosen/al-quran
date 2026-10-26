@@ -1,12 +1,11 @@
 import { getSurahById } from "@/lib/quran-api";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
-    const surahId = Number.parseInt(params.id);
+    const { searchParams } = new URL(request.url);
+    const surahParam = searchParams.get("surah") || searchParams.get("id") || "1";
+    const surahId = Number.parseInt(surahParam);
 
     if (isNaN(surahId) || surahId < 1 || surahId > 114) {
       return new NextResponse("Invalid surah ID", { status: 400 });
@@ -63,7 +62,7 @@ export async function GET(
     return new NextResponse(svg, {
       headers: {
         "Content-Type": "image/svg+xml",
-        "Cache-Control": "public, max-age=86400, s-maxage=86400", // Cache for 24 hours
+        "Cache-Control": "public, max-age=86400, s-maxage=86400",
       },
     });
   } catch (error) {

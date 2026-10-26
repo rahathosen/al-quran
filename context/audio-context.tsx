@@ -154,7 +154,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentVerseData, setCurrentVerseData] = useState<Verse | undefined>(undefined);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const remainingVerseRepeats = useRef<number>(getRepeatTarget(repeatMode));
 
   // Initialize global variables if needed

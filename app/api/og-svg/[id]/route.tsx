@@ -3,10 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const surahId = Number.parseInt(params.id);
+    const { id } = await params;
+    const surahId = Number.parseInt(id);
 
     if (isNaN(surahId) || surahId < 1 || surahId > 114) {
       return new NextResponse("Invalid surah ID", { status: 400 });

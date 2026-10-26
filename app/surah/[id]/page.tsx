@@ -21,15 +21,16 @@ import ViewToggle from "@/components/view-toggle";
 import type { Metadata, ResolvingMetadata } from "next";
 
 type Props = {
-  params: { id: string };
-  searchParams: { view?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ view?: string }>;
 };
 
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const surahId = Number.parseInt(params.id);
+  const { id } = await params;
+  const surahId = Number.parseInt(id);
   const surah = await getSurahById(surahId);
 
   if (!surah) {
@@ -82,12 +83,10 @@ export async function generateMetadata(
 export default async function SurahPage({
   params,
   searchParams,
-}: {
-  params: { id: string };
-  searchParams: { view?: string };
-}) {
-  const surahId = Number.parseInt(params.id);
-  const viewMode = searchParams.view || "default";
+}: Props) {
+  const [{ id }, { view }] = await Promise.all([params, searchParams]);
+  const surahId = Number.parseInt(id);
+  const viewMode = view || "default";
 
   if (isNaN(surahId) || surahId < 1 || surahId > 114) {
     notFound();
@@ -106,7 +105,7 @@ export default async function SurahPage({
     quranFont: "uthmani",
   };
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const settingsCookie = cookieStore.get("quran-settings");
   let settings = defaultSettings;
 

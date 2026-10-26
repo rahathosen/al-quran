@@ -1,27 +1,27 @@
 import { NextResponse } from "next/server";
-import { QURAN_SEARCH_PROMPT } from "@/lib/prompts";
-import { getAyah, getAllSurahs } from "@/lib/quran-api";
 import OpenAI from "openai";
+import { getAllSurahs, getAyah } from "@/lib/quran-api";
+import { QURAN_SEARCH_PROMPT } from "@/lib/prompts";
 import { headers } from "next/headers";
 
 const openai = new OpenAI({
-  baseURL: process.env.LLM_BASE_URL || "",
   apiKey: process.env.LLM_API_KEY || "",
+  baseURL: process.env.LLM_BASE_URL || "https://api.groq.com/openai/v1",
   defaultHeaders: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "",
-    "X-Title": "Al-Quran Al-Kareem",
+    "User-Agent": "Al-Quran-App/1.0",
   },
 });
 
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_PER_IP = 10;
-const RATE_LIMIT_MAX_GLOBAL = 60;
-const MAX_QUERY_LENGTH = 500;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+const GLOBAL_MAX_REQUESTS_PER_WINDOW = 60;
+const MAX_QUERY_LENGTH = 200;
+
 const requestLog = new Map<string, number[]>();
 const globalRequestLog: number[] = [];
 
-function getClientIp(): string {
-  const hdrs = headers();
+async function getClientIp(): Promise<string> {
+  const hdrs = await headers();
   return (
     hdrs.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ??
     hdrs.get("cf-connecting-ip") ??
@@ -40,17 +40,25 @@ function isRateLimited(ip: string): boolean {
   globalRecent.push(now);
   globalRequestLog.length = 0;
   globalRequestLog.push(...globalRecent);
-  if (globalRecent.length > RATE_LIMIT_MAX_GLOBAL) return true;
 
-  const timestamps = requestLog.get(ip) ?? [];
-  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  recent.push(now);
-  requestLog.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX_PER_IP;
+  if (globalRecent.length > GLOBAL_MAX_REQUESTS_PER_WINDOW) {
+    return true;
+  }
+
+  const clientRecent = (requestLog.get(ip) || []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS,
+  );
+  clientRecent.push(now);
+  requestLog.set(ip, clientRecent);
+
+  return clientRecent.length > MAX_REQUESTS_PER_WINDOW;
 }
 
-function sanitizeQuery(raw: string): string {
-  return raw.replace(/[\x00-\x1f]/g, "").trim();
+function sanitizeQuery(query: string): string {
+  return query
+    .replace(/[<>{}[\]\\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 const referenceCache = new Map<
@@ -66,7 +74,7 @@ const referenceCache = new Map<
 
 export async function POST(request: Request) {
   try {
-    const ip = getClientIp();
+    const ip = await getClientIp();
 
     if (isRateLimited(ip)) {
       return NextResponse.json(

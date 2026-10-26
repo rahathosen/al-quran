@@ -1,13 +1,9 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const surahId = searchParams.get("surah");
-
-    // If it's for the canvas page
 
     // If no surah ID is provided, return a generic image
     if (!surahId) {

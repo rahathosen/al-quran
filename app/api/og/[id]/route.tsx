@@ -2,28 +2,25 @@ import { ImageResponse } from "next/og";
 import { getSurahById } from "@/lib/quran-api";
 import type { NextRequest } from "next/server";
 
-export const runtime = "edge";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Parse the surah ID from the URL
-    const surahId = Number.parseInt(params.id);
+    const { id } = await params;
+    const surahId = Number.parseInt(id);
 
     if (isNaN(surahId) || surahId < 1 || surahId > 114) {
       return new Response("Invalid surah ID", { status: 400 });
     }
 
-    // Fetch the surah data
     const surah = await getSurahById(surahId);
 
     if (!surah) {
       return new Response("Surah not found", { status: 404 });
     }
 
-    // Create the SVG image with the surah details
     return new ImageResponse(
       (
         <div
