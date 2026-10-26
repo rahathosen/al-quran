@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Search, BookOpen, FileText, Loader2 } from "lucide-react";
+import { X, Search, BookOpen, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getAllSurahs } from "@/lib/quran-api";
 import { useRouter } from "next/navigation";
 import {
@@ -200,9 +201,21 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Results Area */}
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {isLoading ? (
-            <div className="flex items-center justify-center p-8 text-muted-foreground gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span className="text-sm">Searching...</span>
+            <div className="space-y-2 p-1">
+
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={`search-skeleton-${i}`}
+                  className="w-full p-3 rounded-xl border border-border/50 flex items-center gap-3 bg-muted/20"
+                >
+                  <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    <Skeleton className="h-4 w-1/3 rounded" />
+                    <Skeleton className="h-3 w-2/3 rounded" />
+                  </div>
+                  <Skeleton className="h-5 w-12 rounded-md shrink-0" />
+                </div>
+              ))}
             </div>
           ) : results.length > 0 ? (
             <div className="space-y-1">

@@ -10,15 +10,47 @@ import {
 } from "@/lib/local-storage";
 import { BookmarkIcon, Book } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BookmarkedVerses() {
   const [verseBookmarks, setVerseBookmarks] = useState<BookmarkedVerse[]>([]);
   const [surahBookmarks, setSurahBookmarks] = useState<BookmarkedSurah[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setVerseBookmarks(getBookmarks());
     setSurahBookmarks(getBookmarkedSurahs());
+    setIsLoaded(true);
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-lg max-w-xs">
+          <Skeleton className="h-8 rounded-md" />
+          <Skeleton className="h-8 rounded-md" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div
+              key={`bookmark-skeleton-${i}`}
+              className="bg-card rounded-xl p-3.5 border border-border/60 flex items-start gap-3"
+            >
+              <Skeleton className="w-7 h-7 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2 min-w-0">
+                <div className="flex justify-between gap-2">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const hasBookmarks = verseBookmarks.length > 0 || surahBookmarks.length > 0;
 

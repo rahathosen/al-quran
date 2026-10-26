@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
-import { Clock, MapPin, Sun, Moon, Loader2, Navigation } from "lucide-react";
+import { Clock, MapPin, Sun, Moon, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PrayerTime {
@@ -224,10 +224,21 @@ export default function PrayerTimesWidget() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="text-center">
-            <Loader2 className="h-6 w-6 text-white animate-spin mx-auto mb-2" />
-            <p className="text-white/80 text-xs">Loading prayer times...</p>
+        <div className="p-4">
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`prayer-skeleton-${i}`}
+                className="bg-primary-foreground/15 rounded-lg p-3 text-center space-y-2 animate-pulse"
+              >
+                <div className="h-3.5 w-14 bg-primary-foreground/20 rounded mx-auto" />
+                <div className="h-4 w-12 bg-primary-foreground/25 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          <div className="bg-white/10 rounded-lg p-3 text-center animate-pulse space-y-1.5">
+            <div className="h-3.5 w-44 bg-white/20 rounded mx-auto" />
+            <div className="h-2.5 w-28 bg-white/15 rounded mx-auto" />
           </div>
         </div>
       ) : error ? (

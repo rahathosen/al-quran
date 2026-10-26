@@ -4,13 +4,35 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getRecentSurahs, type RecentSurah } from "@/lib/local-storage";
 import { Clock } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RecentSurahs() {
   const [recentSurahs, setRecentSurahs] = useState<RecentSurah[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setRecentSurahs(getRecentSurahs());
+    setIsLoaded(true);
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={`recent-skeleton-${i}`}
+            className="bg-card rounded-xl p-3.5 md:p-4 border border-border/60 flex items-center gap-3"
+          >
+            <Skeleton className="w-9 h-9 rounded-full shrink-0" />
+            <div className="flex-1 space-y-2 min-w-0">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (recentSurahs.length === 0) {
     return (

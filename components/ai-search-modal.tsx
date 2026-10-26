@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles, Loader2, BookOpen, Eraser } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -173,7 +174,31 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
             </div>
           )}
 
-          {results.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-4 w-52 rounded" />
+              </div>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`ai-skeleton-${index}`}
+                  className="bg-muted/30 p-4 rounded-xl border border-border/70 space-y-3"
+                >
+                  <Skeleton className="h-10 w-full rounded-lg border-l-2 border-primary/40 bg-muted/60" />
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-40 rounded" />
+                    <Skeleton className="h-4 w-20 rounded" />
+                  </div>
+                  <Skeleton className="h-7 w-4/5 ml-auto rounded" />
+                  <div className="space-y-1.5 pt-1">
+                    <Skeleton className="h-4 w-full rounded" />
+                    <Skeleton className="h-4 w-5/6 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : results.length > 0 ? (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-primary">
                 Found {results.length} relevant verses:

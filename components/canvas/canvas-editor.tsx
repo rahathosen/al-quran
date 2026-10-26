@@ -1679,9 +1679,13 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
           <CardContent className="p-0">
             <div className="relative w-full h-full flex items-center justify-center bg-muted/40 min-h-[500px]">
               {!canvasRef ? (
-                <div className="text-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Preparing canvas...</p>
+                <div className="w-full h-full flex flex-col items-center justify-center p-8 space-y-4">
+                  <div className="w-full max-w-sm aspect-[4/5] rounded-xl bg-muted animate-pulse flex flex-col items-center justify-center p-6 space-y-3 border border-border/50">
+                    <div className="h-4 w-32 bg-muted-foreground/20 rounded" />
+                    <div className="h-6 w-48 bg-muted-foreground/20 rounded" />
+                    <div className="h-3 w-40 bg-muted-foreground/20 rounded" />
+                  </div>
+                  <p className="text-muted-foreground text-xs animate-pulse">Preparing canvas preview...</p>
                 </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
