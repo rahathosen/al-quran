@@ -5,12 +5,15 @@ import { PlayCircle, PauseCircle, Loader2 } from "lucide-react";
 import { useAudio } from "@/context/audio-context";
 import { useEffect } from "react";
 import { updateRecentSurah } from "@/lib/local-storage";
+import { cn } from "@/lib/utils";
 
 interface SurahAudioPlayerProps {
   surahId: number;
   verses: any[];
   surahName: string;
   englishName?: string;
+  size?: "default" | "sm";
+  className?: string;
 }
 
 export default function SurahAudioPlayer({
@@ -18,6 +21,8 @@ export default function SurahAudioPlayer({
   verses,
   surahName,
   englishName,
+  size = "default",
+  className,
 }: SurahAudioPlayerProps) {
   const { isPlaying, isLoading, currentSurah, currentVerse, playSurah, pauseAudio } = useAudio();
 
@@ -56,7 +61,11 @@ export default function SurahAudioPlayer({
   return (
     <Button
       onClick={handlePlayClick}
-      className="w-full sm:w-auto gap-2"
+      size={size}
+      className={cn(
+        "w-full sm:w-auto gap-1.5 sm:gap-2 text-xs sm:text-sm h-8.5 sm:h-9 px-2.5 sm:px-3",
+        className
+      )}
       disabled={isLoadingThisSurah}
       aria-label={
         isLoadingThisSurah

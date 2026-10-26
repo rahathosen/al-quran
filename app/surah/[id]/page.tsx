@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home } from "lucide-react";
 import {
   getSurahById,
   getSurahTranslation,
@@ -180,24 +180,24 @@ export default async function SurahPage({
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
       <JsonLd data={[surahSchema, breadcrumbSchema]} />
-      <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
-        <div className="container mx-auto px-4 flex flex-col gap-3">
-          {/* Top navigation row: Back icon & Desktop search on left, action buttons on right */}
+      <header className="bg-primary text-primary-foreground py-3 sm:py-4 border-b border-primary-foreground/10 shadow-sm">
+        <div className="container mx-auto px-4 flex flex-col gap-2.5 sm:gap-3">
+          {/* Top navigation row: Home icon & Desktop search on left, action buttons on right */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 md:flex-initial">
-              <Link href="/" aria-label="Back to all Surahs">
+              <Link href="/" aria-label="Go to Home" title="Home">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-primary-foreground hover:bg-primary-foreground/15 h-9 w-9 rounded-full shrink-0 active:scale-95 transition-all"
-                  title="Back to all Surahs"
+                  className="text-primary-foreground hover:bg-primary-foreground/15 h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-full shrink-0 active:scale-95 transition-all"
+                  title="Home"
                 >
-                  <ChevronLeft className="h-5 w-5" />
-                  <span className="sr-only">Back to all Surahs</span>
+                  <Home className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                  <span className="sr-only">Home</span>
                 </Button>
               </Link>
 
-              {/* Desktop search buttons - placed right alongside the Back icon */}
+              {/* Desktop search buttons - placed right alongside the Home icon */}
               <div className="hidden md:flex items-center gap-2">
                 <SearchButton size="sm" className="h-9" />
                 <AISearchButton size="sm" className="h-9" />
@@ -219,46 +219,57 @@ export default async function SurahPage({
             </div>
           </div>
 
-          {/* Mobile search buttons - shown only on small screens (< md) */}
-          <div className="w-full flex flex-col sm:flex-row gap-2 md:hidden">
-            <SearchButton size="sm" className="h-9" />
-            <AISearchButton size="sm" className="h-9" />
+          {/* Mobile search buttons - compact 2-column grid shown only on small screens (< md) */}
+          <div className="w-full grid grid-cols-2 gap-2 md:hidden">
+            <SearchButton size="sm" className="h-8.5 text-xs w-full justify-start px-2.5" />
+            <AISearchButton size="sm" className="h-8.5 text-xs w-full justify-start px-2.5" />
           </div>
 
-          {/* Bottom row: Surah info with metadata */}
-          <div className="text-center pb-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex flex-wrap justify-center items-center gap-2">
-              <span>{surah.englishName}</span>
-              <span className="opacity-80">({surah.number})</span>
-              <span className="opacity-60">:</span>
-              <span dir="rtl" lang="ar" className="font-amiri text-2xl sm:text-3xl">
+          {/* Bottom row: Surah info with harmonious typography & metadata */}
+          <div className="text-center pb-0.5 sm:pb-1">
+            <h1 className="flex flex-col items-center justify-center">
+              <span
+                dir="rtl"
+                lang="ar"
+                className="font-amiri text-2xl sm:text-3xl md:text-4xl text-primary-foreground font-bold tracking-normal leading-tight"
+              >
                 {surah.name}
               </span>
+              <span className="flex items-center justify-center gap-1.5 flex-wrap text-sm sm:text-base md:text-lg font-semibold text-primary-foreground/95 mt-0.5 sm:mt-1">
+                <span>
+                  {surah.number}. {surah.englishName}
+                </span>
+                <span className="opacity-50 text-xs">•</span>
+                <span className="text-xs sm:text-sm font-normal text-primary-foreground/80 italic">
+                  "{surah.englishNameTranslation}"
+                </span>
+              </span>
             </h1>
-            <div className="flex flex-wrap justify-center items-center gap-2 mt-1 text-xs sm:text-sm font-normal text-primary-foreground/80">
+
+            <div className="flex items-center justify-center gap-2 mt-1 text-[11px] sm:text-xs font-normal text-primary-foreground/80">
               <span>{surah.numberOfAyahs} Verses</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/40" />
+              <span className="w-1 h-1 rounded-full bg-primary-foreground/40" />
               <span>{surah.revelationType} Revelation</span>
             </div>
 
-            {/* Metadata information */}
-            <div className="mt-2.5 flex flex-wrap justify-center items-center gap-2 text-xs">
-              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+            {/* Metadata information pills - balanced wrap */}
+            <div className="mt-2 flex flex-wrap justify-center items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs">
+              <div className="bg-primary-foreground/15 border border-primary-foreground/10 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 <span className="opacity-75">Juz:</span> {surah.ayahs[0]?.juz || 1}
               </div>
-              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+              <div className="bg-primary-foreground/15 border border-primary-foreground/10 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 <span className="opacity-75">Hizb:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) * 2)}
               </div>
-              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+              <div className="bg-primary-foreground/15 border border-primary-foreground/10 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 <span className="opacity-75">Manzil:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) / 7)}
               </div>
-              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+              <div className="bg-primary-foreground/15 border border-primary-foreground/10 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 <span className="opacity-75">Ruku:</span>{" "}
                 {Math.ceil(((surah.ayahs[0]?.juz || 1) * 8) / 30)}
               </div>
-              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+              <div className="bg-primary-foreground/15 border border-primary-foreground/10 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 <span className="opacity-75">Sajda:</span>{" "}
                 {[7, 13, 15, 16, 19, 22, 25, 27, 32, 38, 41, 53, 84].includes(
                   surahId
@@ -271,7 +282,7 @@ export default async function SurahPage({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8 pb-32">
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8 pb-32">
         {/* Verse Metadata - Sticky bar */}
         <VerseMetadata
           surahName={surah.englishName}
@@ -280,41 +291,42 @@ export default async function SurahPage({
           page={surah.ayahs[0]?.page}
         />
 
-        <div className="bg-card text-card-foreground rounded-2xl shadow-sm p-4 sm:p-6 md:p-8 mb-6 border border-border relative overflow-hidden">
-          {/* Controls header */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 relative z-10">
-            <div className="text-sm font-medium text-muted-foreground">
+        <div className="bg-card text-card-foreground rounded-2xl shadow-sm p-3.5 sm:p-6 md:p-8 mb-6 border border-border relative overflow-hidden">
+          {/* Controls header - single clean row on mobile and desktop */}
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 relative z-10">
+            <div className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
               {viewMode === "arabic-only"
                 ? "Arabic-only Mode"
                 : viewMode === "compact"
                 ? "Compact Reading Mode"
                 : "Standard Reading Mode"}
             </div>
-            <div className="flex items-center gap-2.5">
-              <ViewToggle currentView={viewMode} surahId={surahId} />
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              <ViewToggle currentView={viewMode} surahId={surahId} size="sm" />
               <SurahAudioPlayer
                 surahId={surahId}
                 verses={verses}
                 surahName={surah.name}
                 englishName={surah.englishName}
+                size="sm"
               />
             </div>
           </div>
 
           {/* Bismillah Banner */}
           {surah.number !== 9 && (
-            <div className="bg-muted/40 p-4 sm:p-6 rounded-xl border border-border mb-8 shadow-xs text-center relative z-10">
+            <div className="bg-muted/40 p-3.5 sm:p-6 rounded-xl border border-border mb-5 sm:mb-8 shadow-xs text-center relative z-10">
               <p
                 dir="rtl"
                 lang="ar"
-                className={`font-amiri text-lg md:text-xl text-muted-foreground quran-${settings.quranFont} mb-2`}
+                className={`font-amiri text-sm sm:text-base md:text-xl text-muted-foreground quran-${settings.quranFont} mb-1 sm:mb-2 leading-relaxed`}
               >
                 أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
               </p>
               <p
                 dir="rtl"
                 lang="ar"
-                className={`font-amiri text-2xl md:text-3xl lg:text-4xl text-foreground quran-${settings.quranFont} font-medium`}
+                className={`font-amiri text-xl sm:text-2xl md:text-3xl lg:text-4xl text-foreground quran-${settings.quranFont} font-medium leading-relaxed`}
               >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>

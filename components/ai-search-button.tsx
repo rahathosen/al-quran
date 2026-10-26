@@ -28,7 +28,8 @@ export default function AISearchButton({ className, size = "default" }: AISearch
         )}
       >
         <Sparkles className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left truncate">AI Quran Search</span>
+        <span className="hidden sm:inline flex-1 text-left truncate">AI Quran Search</span>
+        <span className="sm:hidden flex-1 text-left truncate">AI Search</span>
       </Button>
 
       <AISearchModal isOpen={isSearchOpen} onClose={closeSearch} />

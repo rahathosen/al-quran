@@ -22,41 +22,44 @@ export default function Loading() {
             </div>
           </div>
 
-          {/* Mobile search buttons - only on small screens (< md) */}
-          <div className="w-full flex flex-col sm:flex-row gap-2 md:hidden">
-            <Skeleton className="h-9 bg-primary-foreground/20 rounded-md w-full" />
-            <Skeleton className="h-9 bg-primary-foreground/20 rounded-md w-full sm:w-auto sm:min-w-[180px]" />
+          {/* Mobile search buttons - 2-column grid on small screens (< md) */}
+          <div className="w-full grid grid-cols-2 gap-2 md:hidden">
+            <Skeleton className="h-8.5 bg-primary-foreground/20 rounded-md w-full" />
+            <Skeleton className="h-8.5 bg-primary-foreground/20 rounded-md w-full" />
           </div>
 
           {/* Bottom row: Surah title & metadata */}
-          <div className="text-center pb-1 space-y-2">
-            <div className="flex justify-center items-center gap-2">
-              <Skeleton className="h-8 w-36 bg-primary-foreground/20 rounded-md" />
-              <Skeleton className="h-8 w-28 bg-primary-foreground/20 rounded-md" />
-            </div>
-            <Skeleton className="h-4 w-48 bg-primary-foreground/20 rounded-md mx-auto" />
-            <div className="flex justify-center gap-2 pt-1 flex-wrap">
-              <Skeleton className="h-6 w-16 bg-primary-foreground/20 rounded-md" />
-              <Skeleton className="h-6 w-16 bg-primary-foreground/20 rounded-md" />
-              <Skeleton className="h-6 w-16 bg-primary-foreground/20 rounded-md" />
-              <Skeleton className="h-6 w-16 bg-primary-foreground/20 rounded-md" />
+          <div className="text-center pb-0.5 sm:pb-1 space-y-1.5">
+            <Skeleton className="h-8 w-40 bg-primary-foreground/20 rounded-md mx-auto" />
+            <Skeleton className="h-4 w-52 bg-primary-foreground/20 rounded-md mx-auto" />
+            <Skeleton className="h-3 w-36 bg-primary-foreground/20 rounded-md mx-auto" />
+            <div className="flex justify-center gap-1.5 pt-1 flex-wrap">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton
+                  key={`meta-pill-${i}`}
+                  className="h-5 w-14 bg-primary-foreground/20 rounded-full"
+                />
+              ))}
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8 pb-32">
-        {/* View Mode & Audio Player Bar Skeleton */}
-        <div className="h-12 bg-muted/60 rounded-xl mb-6 flex items-center justify-between px-4 border border-border">
-          <Skeleton className="h-8 w-32 rounded-lg" />
-          <Skeleton className="h-8 w-24 rounded-lg" />
-        </div>
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8 pb-32">
+        <div className="bg-card text-card-foreground rounded-2xl shadow-sm p-3.5 sm:p-6 md:p-8 mb-6 border border-border">
+          {/* Controls header skeleton */}
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6">
+            <Skeleton className="h-4 w-32 rounded" />
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Skeleton className="h-8.5 w-16 sm:w-24 rounded-md" />
+              <Skeleton className="h-8.5 w-18 sm:w-24 rounded-md" />
+            </div>
+          </div>
 
-        <div className="bg-card text-card-foreground rounded-2xl shadow-sm p-4 md:p-6 mb-6 md:mb-8 border border-border">
           {/* Bismillah skeleton */}
-          <div className="bg-muted/30 p-4 rounded-xl border border-border/80 mb-6 text-center space-y-2">
-            <Skeleton className="h-7 w-64 mx-auto rounded" />
-            <Skeleton className="h-4 w-48 mx-auto rounded" />
+          <div className="bg-muted/30 p-3.5 sm:p-5 rounded-xl border border-border/80 mb-5 sm:mb-8 text-center space-y-2">
+            <Skeleton className="h-4 w-44 mx-auto rounded" />
+            <Skeleton className="h-7 w-60 mx-auto rounded" />
           </div>
 
           {/* Verses Skeletons */}
