@@ -8,6 +8,7 @@ import {
   addSurahBookmark,
   removeSurahBookmark,
 } from "@/lib/local-storage";
+import { toast } from "sonner";
 
 interface BookmarkSurahButtonProps {
   surahId: number;
@@ -29,47 +30,35 @@ export default function BookmarkSurahButton({
 
   const toggleBookmark = () => {
     if (isBookmarked) {
-      // Remove from bookmarks
       removeSurahBookmark(surahId);
-      showToast("Surah removed from bookmarks");
+      setIsBookmarked(false);
+      toast.info(`Removed Surah ${englishName || surahName} from bookmarks`);
     } else {
-      // Add to bookmarks
       addSurahBookmark({
         surahId,
         surahName,
         englishName: englishName || surahName,
         timestamp: Date.now(),
       });
-      showToast("Surah added to bookmarks");
+      setIsBookmarked(true);
+      toast.success(`Bookmarked Surah ${englishName || surahName}`);
     }
-
-    // Update state
-    setIsBookmarked(!isBookmarked);
-  };
-
-  // Show toast notification
-  const showToast = (message: string) => {
-    const toast = document.createElement("div");
-    toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 2000);
   };
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="text-white hover:text-[#d4af37] h-8 w-8 sm:h-10 sm:w-10"
+      className="text-white hover:text-white/80 hover:bg-white/10 h-8 w-8 sm:h-9 sm:w-9"
       onClick={toggleBookmark}
-      aria-label={isBookmarked ? "Remove from bookmarks" : "Add to bookmarks"}
+      aria-label={
+        isBookmarked
+          ? `Remove Surah ${englishName || surahName} from bookmarks`
+          : `Bookmark Surah ${englishName || surahName}`
+      }
     >
       {isBookmarked ? (
-        <BookmarkCheck className="h-4 w-4 sm:h-5 sm:w-5 fill-[#d4af37]" />
+        <BookmarkCheck className="h-4 w-4 sm:h-5 sm:w-5 fill-primary-foreground text-primary-foreground" />
       ) : (
         <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
       )}

@@ -18,16 +18,7 @@ import {
   isVerseBookmarked,
   type BookmarkedVerse,
 } from "@/lib/local-storage";
-
-// Convert numbers to Arabic numerals
-function convertToArabicNumeral(num: number): string {
-  const arabicNumerals = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-  return num
-    .toString()
-    .split("")
-    .map((digit) => arabicNumerals[Number.parseInt(digit)])
-    .join("");
-}
+import { toast } from "sonner";
 
 interface VerseItemProps {
   verse: {
@@ -90,6 +81,7 @@ export default function VerseItem({
     if (bookmarked) {
       removeBookmark(surahId, verse.number);
       setBookmarked(false);
+      toast.info(`Removed verse ${verse.number} from bookmarks`);
     } else {
       const newBookmark: BookmarkedVerse = {
         surahId,
@@ -101,13 +93,13 @@ export default function VerseItem({
       };
       addBookmark(newBookmark);
       setBookmarked(true);
+      toast.success(`Bookmarked verse ${verse.number}`);
     }
   };
 
   // Scroll to this verse if it's currently playing
   useEffect(() => {
     if (isCurrentVerse && isPlaying && verseRef.current) {
-      // Use a small timeout to ensure DOM is ready
       const timeoutId = setTimeout(() => {
         verseRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -121,10 +113,10 @@ export default function VerseItem({
 
   // Handle verse sharing
   const handleShareVerse = async () => {
-    // Create the share URL with verse information
-    const verseUrl = `${window.location.origin}/surah/${surahId}#verse-${verse.number}`;
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "";
+    const verseUrl = `${origin}/surah/${surahId}#verse-${verse.number}`;
 
-    // Prepare share data with proper metadata
     const shareData = {
       title: `Surah ${surahName} (${englishName}) - Verse ${verse.number}`,
       text: `${verse.arabic}\n\n${verse.translation}`,
@@ -132,86 +124,66 @@ export default function VerseItem({
     };
 
     try {
-      // Use Web Share API if available
-      if (navigator.share) {
+      if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share(shareData);
-      } else {
-        // Fallback to clipboard copy
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(
           `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`
         );
-
-        // Show a temporary message
-        const message = document.createElement("div");
-        message.textContent = "Link copied to clipboard!";
-        message.className =
-          "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg";
-        document.body.appendChild(message);
-
-        // Remove the message after 2 seconds
-        setTimeout(() => {
-          document.body.removeChild(message);
-        }, 2000);
+        toast.success("Link copied to clipboard!");
       }
     } catch (error) {
-      console.error("Error sharing verse:", error);
+      // User cancelling native share is not an error to display
+      if ((error as any)?.name !== "AbortError") {
+        console.error("Error sharing verse:", error);
+      }
     }
   };
 
   const handleCopyVerse = async () => {
-    // Prepare the text to copy
-    const textToCopy = `${verse.arabic}\n\n${verse.translation}\n\nSurah ${englishName} (${verse.number})`;
+    const textToCopy = `${verse.arabic}\n\n${verse.translation}\n\n— Surah ${englishName} [${surahId}:${verse.number}]`;
 
     try {
-      // Copy to clipboard
-      await navigator.clipboard.writeText(textToCopy);
-
-      // Show a temporary message
-      const message = document.createElement("div");
-      message.textContent = "Verse copied to clipboard!";
-      message.className =
-        "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-      document.body.appendChild(message);
-
-      // Remove the message after 2 seconds
-      setTimeout(() => {
-        document.body.removeChild(message);
-      }, 2000);
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(textToCopy);
+        toast.success("Verse copied to clipboard!");
+      }
     } catch (error) {
       console.error("Error copying verse:", error);
+      toast.error("Failed to copy verse text");
     }
   };
 
   // Determine border and padding based on view mode
   const borderClass =
     viewMode === "arabic-only"
-      ? "border-b border-[#d4af37]/5 pb-2"
+      ? "border-b border-border/50 pb-2"
       : viewMode === "compact"
-      ? "border-b border-[#d4af37]/10 pb-3"
-      : "border-b border-[#d4af37]/10 pb-4";
+      ? "border-b border-border/60 pb-3"
+      : "border-b border-border/70 pb-4";
 
   // Determine verse number size based on view mode
   const verseNumberSize =
     viewMode === "arabic-only"
-      ? "w-6 h-6 text-sm"
+      ? "w-6 h-6 text-xs"
       : viewMode === "compact"
-      ? "w-7 h-7 text-sm"
-      : "w-8 h-8 text-base";
+      ? "w-7 h-7 text-xs"
+      : "w-8 h-8 text-sm";
 
   // Determine Arabic text size based on view mode
   const arabicTextSize =
     viewMode === "arabic-only"
-      ? "text-xl"
+      ? "text-xl sm:text-2xl"
       : viewMode === "compact"
-      ? "text-xl"
-      : "text-2xl";
+      ? "text-xl sm:text-2xl"
+      : "text-2xl sm:text-3xl";
 
   return (
     <div
       ref={verseRef}
-      className={`${borderClass} transition-all duration-300 ${
+      className={`${borderClass} transition-colors duration-200 ${
         isCurrentVerse
-          ? "bg-[#f8f5f0] rounded-lg p-4 -mx-4 shadow-md sticky top-14 z-10"
+          ? "bg-primary/10 rounded-lg p-4 -mx-2 sm:-mx-4 shadow-sm border border-primary/20 sticky top-14 z-10 backdrop-blur-md"
           : ""
       }`}
       id={`verse-${verse.number}`}
@@ -223,30 +195,39 @@ export default function VerseItem({
           viewMode === "arabic-only"
             ? "mb-1"
             : viewMode === "compact"
-            ? "mb-1.5"
-            : "mb-2"
+            ? "mb-2"
+            : "mb-3"
         }`}
       >
         <div className="flex items-center gap-2">
           <div
             className={`${verseNumberSize} rounded-full ${
-              isCurrentVerse ? "bg-[#d4af37]" : "bg-[#1a5e63]"
-            } text-white flex items-center justify-center`}
+              isCurrentVerse
+                ? "bg-primary text-primary-foreground font-bold ring-2 ring-primary/40"
+                : "bg-muted text-muted-foreground font-semibold"
+            } flex items-center justify-center tabular-nums`}
           >
             {verse.number}
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-[#1a5e63]"
+              className="h-8 w-8 text-muted-foreground hover:text-primary active:scale-95 transition-transform"
               onClick={handlePlayClick}
               disabled={isLoadingThisVerse}
+              aria-label={
+                isLoadingThisVerse
+                  ? `Loading verse ${verse.number} audio`
+                  : isCurrentVerse && isPlaying
+                  ? `Pause verse ${verse.number}`
+                  : `Play verse ${verse.number}`
+              }
             >
               {isLoadingThisVerse ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
               ) : isCurrentVerse && isPlaying ? (
-                <PauseCircle className="h-4 w-4" />
+                <PauseCircle className="h-4 w-4 text-primary" />
               ) : (
                 <PlayCircle className="h-4 w-4" />
               )}
@@ -254,11 +235,16 @@ export default function VerseItem({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-[#1a5e63]"
+              className="h-8 w-8 text-muted-foreground hover:text-primary active:scale-95 transition-transform"
               onClick={toggleBookmark}
+              aria-label={
+                bookmarked
+                  ? `Remove bookmark for verse ${verse.number}`
+                  : `Bookmark verse ${verse.number}`
+              }
             >
               {bookmarked ? (
-                <BookmarkCheck className="h-4 w-4 fill-[#1a5e63]" />
+                <BookmarkCheck className="h-4 w-4 text-primary fill-primary" />
               ) : (
                 <Bookmark className="h-4 w-4" />
               )}
@@ -266,61 +252,54 @@ export default function VerseItem({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-[#1a5e63]"
+              className="h-8 w-8 text-muted-foreground hover:text-primary active:scale-95 transition-transform"
               onClick={handleShareVerse}
+              aria-label={`Share verse ${verse.number}`}
             >
               <Share2 className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-[#1a5e63]"
+              className="h-8 w-8 text-muted-foreground hover:text-primary active:scale-95 transition-transform"
               onClick={handleCopyVerse}
+              aria-label={`Copy verse ${verse.number} text`}
             >
               <Copy className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
+
       <p
-        className={`font-amiri text-right ${arabicTextSize} leading-loose ${
-          viewMode === "arabic-only" || viewMode === "compact" ? "mb-1" : "mb-4"
+        dir="rtl"
+        lang="ar"
+        className={`font-amiri text-right ${arabicTextSize} leading-[2.2] sm:leading-[2.4] ${
+          viewMode === "arabic-only" || viewMode === "compact"
+            ? "mb-1.5"
+            : "mb-4"
         } quran-${quranFont} ${
-          isCurrentVerse ? "text-[#1a5e63]" : "text-[#333]"
-        } relative`}
+          isCurrentVerse
+            ? "text-primary font-medium"
+            : "text-foreground"
+        } relative select-text`}
       >
         {(() => {
-          // Debug log to check the verse number and surah ID
-          // console.log(`Verse Number: ${verse.number}, Surah ID: ${surahId}`);
-
-          // Check if this is the first verse, not Surah 1 (Al-Fatiha), and not Surah 9 (At-Tawbah)
           if (verse.number === 1 && surahId !== 1 && surahId !== 9) {
-            // Debug log to check the original Arabic text
-            // console.log(`Original Arabic Text: ${verse.arabic}`);
-
-            // Remove "Bismillah" from the first verse
-            const modifiedText = verse.arabic.replace(
+            return verse.arabic.replace(
               "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
               ""
             );
-
-            // Debug log to check the modified Arabic text
-            // console.log(`Modified Arabic Text: ${modifiedText}`);
-
-            return modifiedText;
           }
-
-          // Debug log for non-first verses, Surah 1, or Surah 9
-          // console.log(`No modification needed for this verse.`);
-
           return verse.arabic;
         })()}
       </p>
+
       {(viewMode === "default" || viewMode === "compact") && (
         <p
           className={`verse-translation ${
             viewMode === "compact" ? "text-sm" : "text-base"
-          } text-[#555]`}
+          } text-muted-foreground leading-relaxed text-balance`}
         >
           {verse.translation}
         </p>

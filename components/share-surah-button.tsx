@@ -1,14 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Share2, Copy, Facebook, Twitter } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Copy, Facebook, Twitter } from "lucide-react";
+import { toast } from "sonner";
 
 interface ShareSurahButtonProps {
   surahId: number;
@@ -19,31 +19,37 @@ export default function ShareSurahButton({
   surahId,
   surahName,
 }: ShareSurahButtonProps) {
-  const shareUrl =
-    typeof window !== "undefined"
+  const getShareUrl = () => {
+    return typeof window !== "undefined"
       ? `${window.location.origin}/surah/${surahId}`
       : `/surah/${surahId}`;
+  };
 
   const shareTitle = `Surah ${surahName} - Al-Quran`;
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      showToast("Link copied to clipboard");
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(getShareUrl());
+        toast.success("Link copied to clipboard!");
+      }
     } catch (error) {
       console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
     }
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
+  const handleNativeShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
           title: shareTitle,
-          url: shareUrl,
+          url: getShareUrl(),
         });
       } catch (error) {
-        console.error("Error sharing:", error);
+        if ((error as any)?.name !== "AbortError") {
+          console.error("Error sharing:", error);
+        }
       }
     } else {
       handleCopyLink();
@@ -53,7 +59,7 @@ export default function ShareSurahButton({
   const handleFacebookShare = () => {
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        shareUrl
+        getShareUrl()
       )}`,
       "_blank"
     );
@@ -63,53 +69,28 @@ export default function ShareSurahButton({
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         shareTitle
-      )}&url=${encodeURIComponent(shareUrl)}`,
+      )}&url=${encodeURIComponent(getShareUrl())}`,
       "_blank"
     );
   };
 
-  // Show toast notification
-  const showToast = (message: string) => {
-    const toast = document.createElement("div");
-    toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 2000);
-  };
-
-  // If Web Share API is available, use it directly
-  if (typeof navigator !== "undefined" && navigator.share) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-white hover:text-[#d4af37] h-8 w-8 sm:h-10 sm:w-10"
-        onClick={handleShare}
-        aria-label="Share"
-      >
-        <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
-      </Button>
-    );
-  }
-
-  // Otherwise use dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
-          className="text-white hover:text-[#d4af37] h-8 w-8 sm:h-10 sm:w-10"
-          aria-label="Share"
+          className="text-white hover:text-white/80 hover:bg-white/10 h-8 w-8 sm:h-9 sm:w-9"
+          aria-label={`Share Surah ${surahName}`}
         >
           <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={handleNativeShare} className="cursor-pointer">
+          <Share2 className="mr-2 h-4 w-4" />
+          <span>Share</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer">
           <Copy className="mr-2 h-4 w-4" />
           <span>Copy Link</span>

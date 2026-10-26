@@ -1,6 +1,9 @@
 import CanvasEditor from "@/components/canvas/canvas-editor";
 import { getAllSurahs } from "@/lib/quran-api";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Create Quran Verse Cards | Al-Quran",
@@ -41,20 +44,32 @@ export const metadata: Metadata = {
 };
 
 export default async function CanvasPage() {
-  // Fetch all surahs for the selection dropdown
   const surahs = await getAllSurahs();
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0]">
-      <header className="bg-[#1a5e63] text-white py-4 md:py-6 border-b border-[#d4af37]">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
-              Quran Verse Cards
-              <span className="block text-lg font-normal text-[#d4af37]">
-                Create & Share Beautiful Verses
-              </span>
-            </h1>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary-foreground hover:bg-primary-foreground/15 px-2"
+                  aria-label="Back to home"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <span>Home</span>
+                </Button>
+              </Link>
+              <h1 className="text-xl sm:text-2xl font-bold">
+                Verse Cards Creator
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-primary-foreground/80">
+              Create & Share Beautiful Ayahs
+            </p>
           </div>
         </div>
       </header>

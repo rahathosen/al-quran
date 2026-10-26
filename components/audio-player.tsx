@@ -26,23 +26,15 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
   const animationRef = useRef<number>()
 
   useEffect(() => {
-    // Clean up any existing audio element first
     if (audioRef.current) {
       audioRef.current.pause()
-      audioRef.current.src = "" // Clear the source
-      audioRef.current.load() // Reset the audio element
-      audioRef.current.removeEventListener("loadstart", () => {})
-      audioRef.current.removeEventListener("canplay", () => {})
-      audioRef.current.removeEventListener("loadedmetadata", () => {})
-      audioRef.current.removeEventListener("ended", () => {})
-      audioRef.current.removeEventListener("error", () => {})
+      audioRef.current.src = ""
+      audioRef.current.load()
     }
 
-    // Create audio element
     const audio = new Audio(audioUrls[currentTrack])
     audioRef.current = audio
 
-    // Define named event handlers for proper cleanup
     const handleLoadStart = () => setIsLoading(true)
     const handleCanPlay = () => setIsLoading(false)
     const handleLoadedMetadata = () => setDuration(audio.duration)
@@ -52,38 +44,29 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
       console.error("Error loading audio file")
     }
 
-    // Set up event listeners
     audio.addEventListener("loadstart", handleLoadStart)
     audio.addEventListener("canplay", handleCanPlay)
     audio.addEventListener("loadedmetadata", handleLoadedMetadata)
     audio.addEventListener("ended", handleNext)
     audio.addEventListener("error", handleError)
 
-    // Set volume
     audio.volume = volume
 
     return () => {
-      // Clean up
       audio.pause()
-      audio.src = "" // Clear the source
-      audio.load() // Reset the audio element
+      audio.src = ""
+      audio.load()
       audio.removeEventListener("loadstart", handleLoadStart)
       audio.removeEventListener("canplay", handleCanPlay)
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
       audio.removeEventListener("ended", handleNext)
       audio.removeEventListener("error", handleError)
-      cancelAnimationFrame(animationRef.current!)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
     }
   }, [audioUrls, currentTrack])
 
-  // Handle audio loading errors
-  const handleAudioError = () => {
-    setIsLoading(false)
-    setIsPlaying(false)
-    console.error("Error loading audio file")
-  }
-
-  // Update progress bar
   const updateProgress = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime)
@@ -91,13 +74,12 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     }
   }
 
-  // Play/pause toggle
   const togglePlay = () => {
     if (isLoading) return
 
     if (isPlaying) {
       audioRef.current?.pause()
-      cancelAnimationFrame(animationRef.current!)
+      if (animationRef.current) cancelAnimationFrame(animationRef.current)
     } else {
       audioRef.current?.play().catch((error) => {
         console.error("Error playing audio:", error)
@@ -109,34 +91,29 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     setIsPlaying(!isPlaying)
   }
 
-  // Handle next track
   const handleNext = () => {
     if (currentTrack < audioUrls.length - 1) {
       setCurrentTrack((prev) => prev + 1)
       setCurrentTime(0)
 
-      // If was playing, continue playing the next track
       if (isPlaying) {
         setTimeout(() => {
           audioRef.current?.play().catch(console.error)
         }, 100)
       }
     } else {
-      // End of playlist
       setIsPlaying(false)
       setCurrentTime(0)
       setCurrentTrack(0)
-      cancelAnimationFrame(animationRef.current!)
+      if (animationRef.current) cancelAnimationFrame(animationRef.current)
     }
   }
 
-  // Handle previous track
   const handlePrev = () => {
     if (currentTrack > 0) {
       setCurrentTrack((prev) => prev - 1)
       setCurrentTime(0)
 
-      // If was playing, continue playing the previous track
       if (isPlaying) {
         setTimeout(() => {
           audioRef.current?.play().catch(console.error)
@@ -145,7 +122,6 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     }
   }
 
-  // Handle seeking
   const handleSeek = (value: number[]) => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0]
@@ -153,7 +129,6 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     }
   }
 
-  // Handle volume change
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0]
     setVolume(newVolume)
@@ -162,14 +137,9 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
       audioRef.current.volume = newVolume
     }
 
-    if (newVolume === 0) {
-      setIsMuted(true)
-    } else {
-      setIsMuted(false)
-    }
+    setIsMuted(newVolume === 0)
   }
 
-  // Toggle mute
   const toggleMute = () => {
     if (audioRef.current) {
       if (isMuted) {
@@ -182,19 +152,29 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     }
   }
 
-  // Format time (seconds to MM:SS)
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "00:00"
-
+    if (isNaN(time) || !isFinite(time)) return "00:00"
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
   }
 
-  // For single verse player, render a simplified version
   if (isVersePlayer) {
     return (
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-[#1a5e63]" onClick={togglePlay} disabled={isLoading}>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-primary hover:bg-primary/10"
+        onClick={togglePlay}
+        disabled={isLoading}
+        aria-label={
+          isLoading
+            ? "Loading audio"
+            : isPlaying
+            ? "Pause verse recitation"
+            : "Play verse recitation"
+        }
+      >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : isPlaying ? (
@@ -206,14 +186,20 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
     )
   }
 
-  // For full surah player
   return (
-    <div className="flex flex-col gap-2 w-full max-w-xs">
+    <div className="flex flex-col gap-2 w-full max-w-xs bg-card text-card-foreground p-3 rounded-xl border border-border shadow-xs">
       <div className="flex items-center gap-2">
         <Button
           onClick={togglePlay}
-          className="bg-[#1a5e63] hover:bg-[#134548] h-10 w-10 rounded-full p-0 flex items-center justify-center"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-10 rounded-full p-0 flex items-center justify-center shrink-0"
           disabled={isLoading}
+          aria-label={
+            isLoading
+              ? "Loading recitation"
+              : isPlaying
+              ? "Pause recitation"
+              : "Play recitation"
+          }
         >
           {isLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -230,8 +216,9 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
               onClick={handlePrev}
               variant="ghost"
               size="icon"
-              className="text-[#1a5e63]"
+              className="text-foreground hover:bg-muted"
               disabled={currentTrack === 0 || isLoading}
+              aria-label="Previous track"
             >
               <SkipBack className="h-4 w-4" />
             </Button>
@@ -240,8 +227,9 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
               onClick={handleNext}
               variant="ghost"
               size="icon"
-              className="text-[#1a5e63]"
+              className="text-foreground hover:bg-muted"
               disabled={currentTrack === audioUrls.length - 1 || isLoading}
+              aria-label="Next track"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
@@ -254,14 +242,15 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
             onMouseEnter={() => setShowVolumeControl(true)}
             variant="ghost"
             size="icon"
-            className="text-[#1a5e63]"
+            className="text-foreground hover:bg-muted"
+            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
           >
-            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            {isMuted ? <VolumeX className="h-4 w-4 text-red-500" /> : <Volume2 className="h-4 w-4" />}
           </Button>
 
           {showVolumeControl && (
             <div
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white p-3 rounded-lg shadow-lg border border-[#d4af37]/20 w-32"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-card p-3 rounded-xl shadow-lg border border-border w-32"
               onMouseEnter={() => setShowVolumeControl(true)}
               onMouseLeave={() => setShowVolumeControl(false)}
             >
@@ -271,30 +260,31 @@ export default function AudioPlayer({ audioUrls, surahName, verseNumber, isVerse
                 step={0.01}
                 onValueChange={handleVolumeChange}
                 className="w-full"
+                aria-label="Volume slider"
               />
             </div>
           )}
         </div>
 
-        <div className="text-xs text-[#1a5e63] font-medium">
-          {surahName ? `Playing Surah ${surahName}` : verseNumber ? `Verse ${verseNumber}` : "Playing"}
+        <div className="text-xs text-primary font-medium truncate">
+          {surahName ? `Surah ${surahName}` : verseNumber ? `Verse ${verseNumber}` : "Playing"}
         </div>
       </div>
 
       {audioUrls.length > 1 && (
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[#666]">{formatTime(currentTime)}</span>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="tabular-nums font-mono">{formatTime(currentTime)}</span>
           <Slider
             value={[currentTime]}
             max={duration || 100}
             step={0.01}
             onValueChange={handleSeek}
             className="flex-1"
+            aria-label="Seek track"
           />
-          <span className="text-xs text-[#666]">{formatTime(duration)}</span>
+          <span className="tabular-nums font-mono">{formatTime(duration)}</span>
         </div>
       )}
     </div>
   )
 }
-

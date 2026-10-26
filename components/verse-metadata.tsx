@@ -142,102 +142,76 @@ export default function VerseMetadata({
   surahNumber = 1,
   page = 1,
 }: VerseMetadataProps) {
-  const [isSticky, setIsSticky] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(page);
   const [currentVerse, setCurrentVerse] = useState(verseNumber);
   const [totalVerses, setTotalVerses] = useState(0);
   const metadataRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const [currentSurah, setCurrentSurah] = useState(surahNumber);
 
-  // Set up scroll event listener to detect when to show the component
+  // Use IntersectionObserver to efficiently track visible verses without scroll layout thrashing
   useEffect(() => {
-    // Get total number of verses
-    const verseElements = document.querySelectorAll('[id^="verse-"]');
+    const verseElements = document.querySelectorAll<HTMLElement>('[id^="verse-"]');
     setTotalVerses(verseElements.length);
 
-    const handleScroll = () => {
-      // Get header height (assuming the header has a fixed height or we can get it)
-      const headerHeight =
-        document.querySelector("header")?.getBoundingClientRect().height || 200;
+    if (verseElements.length === 0) return;
 
-      // Show component when scrolled past header
-      if (window.scrollY > headerHeight && !isVisible) {
-        setIsVisible(true);
-      } else if (window.scrollY <= headerHeight && isVisible) {
-        setIsVisible(false);
-      }
+    // Observe verses entering/exiting viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const verseId = el.id;
+            const verseNum = Number.parseInt(verseId.replace("verse-", ""), 10);
+            if (!isNaN(verseNum)) {
+              setCurrentVerse(verseNum);
+            }
 
-      // Check if component is sticky
-      if (metadataRef.current && isVisible) {
-        const rect = metadataRef.current.getBoundingClientRect();
-        setIsSticky(rect.top === 0);
-      }
-
-      // Find the current verse in view and update page number
-      const verseElements = document.querySelectorAll('[id^="verse-"]');
-      if (verseElements.length === 0) return;
-
-      // Find which verse is most visible in the viewport
-      let mostVisibleVerse = null;
-      let maxVisibleArea = 0;
-
-      verseElements.forEach((verse) => {
-        const rect = verse.getBoundingClientRect();
-
-        // Calculate how much of the element is visible in the viewport
-        const visibleTop = Math.max(0, rect.top);
-        const visibleBottom = Math.min(window.innerHeight, rect.bottom);
-
-        if (visibleBottom > visibleTop) {
-          const visibleArea = visibleBottom - visibleTop;
-          if (visibleArea > maxVisibleArea) {
-            maxVisibleArea = visibleArea;
-            mostVisibleVerse = verse;
-          }
-        }
-      });
-
-      if (mostVisibleVerse) {
-        // Extract verse number from the ID
-        const verseId = mostVisibleVerse.id;
-        const verseNum = Number.parseInt(verseId.replace("verse-", ""), 10);
-
-        // Update current verse
-        if (!isNaN(verseNum) && verseNum !== currentVerse) {
-          setCurrentVerse(verseNum);
-        }
-
-        // Find the page number for this verse
-        const pageElement = mostVisibleVerse.querySelector(".verse-page");
-        if (pageElement && pageElement.textContent) {
-          const newPage = Number.parseInt(pageElement.textContent, 10);
-          if (!isNaN(newPage) && newPage !== currentPage) {
-            setCurrentPage(newPage);
-          }
-        } else {
-          // Alternative: look for page info in a data attribute
-          const pageAttr = mostVisibleVerse.getAttribute("data-page");
-          if (pageAttr) {
-            const newPage = Number.parseInt(pageAttr, 10);
-            if (!isNaN(newPage) && newPage !== currentPage) {
-              setCurrentPage(newPage);
+            const pageAttr = el.getAttribute("data-page");
+            if (pageAttr) {
+              const newPage = Number.parseInt(pageAttr, 10);
+              if (!isNaN(newPage)) {
+                setCurrentPage(newPage);
+              }
             }
           }
-        }
+        });
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0,
+      }
+    );
+
+    verseElements.forEach((el) => observer.observe(el));
+
+    // Handle visibility of floating bar
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const headerHeight =
+            document.querySelector("header")?.getBoundingClientRect().height || 180;
+          setIsVisible(window.scrollY > headerHeight);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isVisible, currentPage, currentVerse]);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // Handle verse selection
   const handleVerseSelect = (value: string) => {
     const verseNum = Number.parseInt(value, 10);
     if (!isNaN(verseNum)) {
-      // Scroll to the selected verse
       const verseElement = document.getElementById(`verse-${verseNum}`);
       if (verseElement) {
         verseElement.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -250,7 +224,6 @@ export default function VerseMetadata({
   const handleSurahSelect = (value: string) => {
     const surahNum = Number.parseInt(value, 10);
     if (!isNaN(surahNum)) {
-      // Navigate to the selected surah
       router.push(`/surah/${surahNum}`);
     }
   };
@@ -260,21 +233,22 @@ export default function VerseMetadata({
   return (
     <div
       ref={metadataRef}
-      className={`sticky top-0 z-20 flex items-center justify-between bg-[#1a5e63]/90 backdrop-blur-sm rounded-lg p-2 text-xs text-white border-b border-[#d4af37]/30 mb-4 shadow-md transition-all duration-300 ${
-        isSticky ? "py-3" : ""
-      }`}
+      className="sticky top-2 z-20 flex items-center justify-between bg-card/90 text-card-foreground backdrop-blur-md rounded-xl px-3 py-2 text-xs border border-border shadow-md mb-4 transition-all duration-200"
     >
-      <div className="text-center">
+      <div className="flex items-center gap-2">
         <Select
           value={currentVerse.toString()}
           onValueChange={handleVerseSelect}
         >
-          <SelectTrigger className="h-6  text-xs min-w-[80px] bg-white/10 border-none text-white">
-            <span className="font-semibold">Verse {currentVerse}</span>
+          <SelectTrigger
+            className="h-8 text-xs min-w-[90px] bg-muted/60 border border-border hover:bg-muted font-medium rounded-lg px-2.5 transition-colors"
+            aria-label="Select verse number"
+          >
+            <span>Verse {currentVerse}</span>
           </SelectTrigger>
           <SelectContent>
             <ScrollArea className="h-[200px]">
-              {Array.from({ length: totalVerses }, (_, i) => (
+              {Array.from({ length: totalVerses || 1 }, (_, i) => (
                 <SelectItem key={i + 1} value={(i + 1).toString()}>
                   Verse {i + 1}
                 </SelectItem>
@@ -282,14 +256,16 @@ export default function VerseMetadata({
             </ScrollArea>
           </SelectContent>
         </Select>
-      </div>
-      <div className="flex items-center">
+
         <Select
-          value={currentSurah.toString()}
+          value={surahNumber.toString()}
           onValueChange={handleSurahSelect}
         >
-          <SelectTrigger className="h-6 min-w-[100px] bg-white/10 border-none text-white">
-            <span className="truncate text-xs font-semibold"> {surahName}</span>
+          <SelectTrigger
+            className="h-8 min-w-[110px] sm:min-w-[130px] bg-muted/60 border border-border hover:bg-muted font-medium rounded-lg px-2.5 transition-colors"
+            aria-label="Select Surah"
+          >
+            <span className="truncate">{surahName}</span>
           </SelectTrigger>
           <SelectContent>
             <ScrollArea className="h-[300px]">
@@ -302,9 +278,10 @@ export default function VerseMetadata({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex text-xs items-center gap-1 px-2 py-1 bg-white/10 rounded-md">
-        <span className="font-semibold">Page:</span>
-        <span>{currentPage}</span>
+
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/60 border border-border/50 rounded-lg text-xs font-medium">
+        <span className="text-muted-foreground">Page:</span>
+        <span className="tabular-nums font-semibold">{currentPage}</span>
       </div>
     </div>
   );

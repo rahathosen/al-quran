@@ -19,42 +19,35 @@ import VerseMetadata from "@/components/verse-metadata";
 import ViewToggle from "@/components/view-toggle";
 import type { Metadata, ResolvingMetadata } from "next";
 
-// Add this type for the generateMetadata function params
 type Props = {
   params: { id: string };
   searchParams: { view?: string };
 };
 
-// Add this generateMetadata function before the default export
 export async function generateMetadata(
-  { params, searchParams }: Props,
+  { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  // Get the surah ID from params
   const surahId = Number.parseInt(params.id);
-
-  // Fetch surah data
   const surah = await getSurahById(surahId);
 
   if (!surah) {
     return {
-      title: "Surah Not Found | Al-Quran Al-Kareem",
+      title: "Surah Not Found | Al-Quran",
       description: "The requested Surah could not be found.",
     };
   }
 
-  // Create metadata with surah details
   return {
-    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
+    title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran`,
     description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
     openGraph: {
-      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran Al-Kareem`,
-      description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses, ${surah.revelationType} revelation.`,
+      title: `Surah ${surah.englishName} (${surah.name}) | Al-Quran`,
+      description: `Read and listen to Surah ${surah.englishName} (${surah.name}) - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
       type: "article",
       url: `${
         process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
       }/surah/${surahId}`,
-      // Use the dynamic SVG API route
       images: [
         {
           url: `${
@@ -68,9 +61,8 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: `Surah ${surah.englishName} | Al-Quran Al-Kareem`,
+      title: `Surah ${surah.englishName} | Al-Quran`,
       description: `Read and listen to Surah ${surah.englishName} - ${surah.englishNameTranslation}. ${surah.numberOfAyahs} verses.`,
-      // Use the same dynamic SVG
       images: [
         `${
           process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
@@ -94,7 +86,7 @@ export default async function SurahPage({
   searchParams: { view?: string };
 }) {
   const surahId = Number.parseInt(params.id);
-  const viewMode = searchParams.view || "default"; // Can be "default", "compact", or "arabic-only"
+  const viewMode = searchParams.view || "default";
 
   if (isNaN(surahId) || surahId < 1 || surahId > 114) {
     notFound();
@@ -122,7 +114,6 @@ export default async function SurahPage({
     }
   }
 
-  // Use the reciter and translation from settings
   const [surah, translation] = await Promise.all([
     getSurahById(surahId, `ar.${settings.reciterId}`),
     getSurahTranslation(surahId, settings.translationId),
@@ -132,7 +123,6 @@ export default async function SurahPage({
     notFound();
   }
 
-  // Combine Arabic text with translation and add audio URLs
   const verses = surah.ayahs.map((ayah, index) => ({
     number: ayah.numberInSurah,
     arabic: ayah.text,
@@ -143,15 +133,15 @@ export default async function SurahPage({
   }));
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0]">
-      <header className="bg-[#1a5e63] text-white py-4 border-b border-[#d4af37]">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4 flex flex-col gap-3">
           {/* Top row: Back button on left, action buttons on right */}
           <div className="flex justify-between items-center">
-            <Link href="/">
+            <Link href="/" aria-label="Back to all Surahs">
               <Button
                 variant="ghost"
-                className="text-white hover:text-[#d4af37] px-2"
+                className="text-primary-foreground hover:bg-primary-foreground/15 px-2.5 h-9"
               >
                 <ChevronLeft className="mr-1 h-4 w-4" />
                 <span className="hidden sm:inline">Back to Surahs</span>
@@ -159,7 +149,7 @@ export default async function SurahPage({
               </Button>
             </Link>
 
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
               <SurahPageClient surahId={surahId} />
               <ShareSurahButton
                 surahId={surahId}
@@ -181,36 +171,39 @@ export default async function SurahPage({
 
           {/* Bottom row: Surah info with metadata */}
           <div className="text-center pb-1">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
-              {surah.englishName} ({surah.number}) : {surah.name}
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex flex-wrap justify-center items-center gap-2">
+              <span>{surah.englishName}</span>
+              <span className="opacity-80">({surah.number})</span>
+              <span className="opacity-60">:</span>
+              <span dir="rtl" lang="ar" className="font-amiri text-2xl sm:text-3xl">
+                {surah.name}
+              </span>
             </h1>
-            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm font-normal text-[#d4af37]">
-              {/* <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span> */}
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-1 text-xs sm:text-sm font-normal text-primary-foreground/80">
               <span>{surah.numberOfAyahs} Verses</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]/50"></span>
-              <span>{surah.revelationType}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/40" />
+              <span>{surah.revelationType} Revelation</span>
             </div>
 
             {/* Metadata information */}
-            <div className="mt-2 flex flex-wrap justify-center items-center gap-2 text-xs text-white/90">
-              <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Juz:</span>{" "}
-                {surah.ayahs[0]?.juz || 1}
+            <div className="mt-2.5 flex flex-wrap justify-center items-center gap-2 text-xs">
+              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+                <span className="opacity-75">Juz:</span> {surah.ayahs[0]?.juz || 1}
               </div>
-              <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Hizb:</span>{" "}
+              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+                <span className="opacity-75">Hizb:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) * 2)}
               </div>
-              <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Manzil:</span>{" "}
+              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+                <span className="opacity-75">Manzil:</span>{" "}
                 {Math.ceil((surah.ayahs[0]?.juz || 1) / 7)}
               </div>
-              <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Ruku:</span>{" "}
+              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+                <span className="opacity-75">Ruku:</span>{" "}
                 {Math.ceil(((surah.ayahs[0]?.juz || 1) * 8) / 30)}
               </div>
-              <div className="bg-white/10 px-2 py-1 rounded-md">
-                <span className="font-semibold">Sajda:</span>{" "}
+              <div className="bg-primary-foreground/15 px-2.5 py-1 rounded-md font-medium">
+                <span className="opacity-75">Sajda:</span>{" "}
                 {[7, 13, 15, 16, 19, 22, 25, 27, 32, 38, 41, 53, 84].includes(
                   surahId
                 )
@@ -222,24 +215,26 @@ export default async function SurahPage({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8 pb-32 transition-colors duration-300 dark:bg-gray-900">
-        {/* Verse Metadata - Sticky at top of page */}
+      <main className="container mx-auto px-4 py-6 md:py-8 pb-32">
+        {/* Verse Metadata - Sticky bar */}
         <VerseMetadata
           surahName={surah.englishName}
+          surahNumber={surahId}
           juz={surah.ayahs[0]?.juz}
           page={surah.ayahs[0]?.page}
         />
 
-        <div className="bg-gradient-to-b from-white to-[#f8f5f0]/50 rounded-xl shadow-xl p-4 md:p-8 mb-6 md:mb-8 border border-[#d4af37]/30 relative overflow-hidden dark:from-gray-800 dark:to-gray-900/90 dark:border-gray-700 dark:text-white theme-sepia:from-amber-50 theme-sepia:to-amber-100/30 theme-sepia:border-amber-200">
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a5e63]/5 rounded-br-full dark:bg-[#4db6bd]/10 theme-sepia:bg-amber-700/5"></div>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/5 rounded-bl-full dark:bg-[#d4af37]/10 theme-sepia:bg-amber-500/10"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 bg-[#1a5e63]/5 rounded-tl-full dark:bg-[#4db6bd]/10 theme-sepia:bg-amber-700/5"></div>
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#d4af37]/5 rounded-tr-full dark:bg-[#d4af37]/10 theme-sepia:bg-amber-500/10"></div>
-
-          {/* Mobile header - Stack everything vertically with better spacing */}
-          <div className="flex flex-col gap-4 mb-8 sm:hidden relative z-10">
-            <div className="flex justify-center items-center gap-3">
+        <div className="bg-card text-card-foreground rounded-2xl shadow-sm p-4 sm:p-6 md:p-8 mb-6 border border-border relative overflow-hidden">
+          {/* Controls header */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 relative z-10">
+            <div className="text-sm font-medium text-muted-foreground">
+              {viewMode === "arabic-only"
+                ? "Arabic-only Mode"
+                : viewMode === "compact"
+                ? "Compact Reading Mode"
+                : "Standard Reading Mode"}
+            </div>
+            <div className="flex items-center gap-2.5">
               <ViewToggle currentView={viewMode} surahId={surahId} />
               <SurahAudioPlayer
                 surahId={surahId}
@@ -249,43 +244,34 @@ export default async function SurahPage({
             </div>
           </div>
 
-          {/* Tablet/Desktop header - Side by side with better alignment */}
-          <div className="hidden sm:flex sm:flex-row justify-between items-center gap-4 mb-8 relative z-10">
-            <div className="text-center"></div>
-            <div className="flex items-center gap-3">
-              <ViewToggle currentView={viewMode} surahId={surahId} />
-              <SurahAudioPlayer
-                surahId={surahId}
-                verses={verses}
-                surahName={surah.englishName}
-              />
-            </div>
-          </div>
-
+          {/* Bismillah Banner */}
           {surah.number !== 9 && (
-            <div className="bg-gradient-to-r from-[#f8f5f0]/80 via-[#f8f5f0] to-[#f8f5f0]/80 p-4 md:p-6 rounded-lg border border-[#d4af37]/30 mb-8 shadow-sm relative z-10 dark:from-gray-800/80 dark:via-gray-800 dark:to-gray-800/80 dark:border-gray-700 theme-sepia:from-amber-50/80 theme-sepia:via-amber-50 theme-sepia:to-amber-50/80 theme-sepia:border-amber-200">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent dark:via-[#d4af37]/20 theme-sepia:via-amber-300/40"></div>
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent dark:via-[#d4af37]/20 theme-sepia:via-amber-300/40"></div>
+            <div className="bg-muted/40 p-4 sm:p-6 rounded-xl border border-border mb-8 shadow-xs text-center relative z-10">
               <p
-                className={`text-center font-amiri text-lg md:text-xl text-[#555] quran-${settings.quranFont} mb-3 dark:text-gray-300 theme-sepia:text-amber-900`}
+                dir="rtl"
+                lang="ar"
+                className={`font-amiri text-lg md:text-xl text-muted-foreground quran-${settings.quranFont} mb-2`}
               >
                 أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
               </p>
               <p
-                className={`text-center font-amiri text-xl md:text-2xl lg:text-3xl text-[#333] quran-${settings.quranFont} dark:text-white theme-sepia:text-amber-950`}
+                dir="rtl"
+                lang="ar"
+                className={`font-amiri text-2xl md:text-3xl lg:text-4xl text-foreground quran-${settings.quranFont} font-medium`}
               >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
             </div>
           )}
 
+          {/* Verses Container */}
           <div
             className={`${
               viewMode === "compact"
                 ? "space-y-4"
                 : viewMode === "arabic-only"
                 ? "space-y-3"
-                : "space-y-8"
+                : "space-y-6"
             } relative z-10`}
           >
             {verses.map((verse, index) => (
@@ -293,8 +279,8 @@ export default async function SurahPage({
                 key={verse.number}
                 className={
                   index % 2 === 0
-                    ? "bg-[#f8f5f0]/50 rounded-lg p-2 dark:bg-gray-800/50 theme-sepia:bg-amber-50/50"
-                    : "p-2"
+                    ? "bg-muted/20 rounded-xl p-2 sm:p-3"
+                    : "p-2 sm:p-3"
                 }
               >
                 <VerseItem
@@ -311,35 +297,36 @@ export default async function SurahPage({
           </div>
         </div>
 
-        <div className="flex justify-between mt-6">
+        {/* Previous / Next Surah Navigation */}
+        <div className="flex justify-between items-center gap-4 mt-6">
           {surahId > 1 ? (
             <Link href={`/surah/${surahId - 1}`}>
               <Button
                 variant="outline"
-                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4 dark:border-[#4db6bd] dark:text-[#4db6bd] theme-sepia:border-amber-700 theme-sepia:text-amber-700"
+                className="text-foreground hover:bg-muted text-sm sm:text-base px-3 sm:px-4"
               >
-                <ChevronLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                <ChevronLeft className="mr-1.5 h-4 w-4" />
                 <span className="hidden sm:inline">Previous Surah</span>
                 <span className="sm:hidden">Previous</span>
               </Button>
             </Link>
           ) : (
-            <div></div>
+            <div className="w-1" />
           )}
 
           {surahId < 114 ? (
             <Link href={`/surah/${surahId + 1}`}>
               <Button
                 variant="outline"
-                className="border-[#1a5e63] text-[#1a5e63] text-sm sm:text-base px-2 sm:px-4 dark:border-[#4db6bd] dark:text-[#4db6bd] theme-sepia:border-amber-700 theme-sepia:text-amber-700"
+                className="text-foreground hover:bg-muted text-sm sm:text-base px-3 sm:px-4"
               >
                 <span className="hidden sm:inline">Next Surah</span>
                 <span className="sm:hidden">Next</span>
-                <ChevronRight className="ml-1 sm:ml-2 h-4 w-4" />
+                <ChevronRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
           ) : (
-            <div></div>
+            <div className="w-1" />
           )}
         </div>
       </main>

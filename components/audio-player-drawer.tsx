@@ -18,6 +18,7 @@ import {
   Rewind,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 // Convert numbers to Arabic numerals
 function convertToArabicNumeral(num: number): string {
@@ -25,18 +26,12 @@ function convertToArabicNumeral(num: number): string {
   return num
     .toString()
     .split("")
-    .map((digit) => arabicNumerals[Number.parseInt(digit)])
+    .map((digit) => arabicNumerals[Number.parseInt(digit, 10)])
     .join("");
 }
 
-// Initialize global variables if they don't exist
-if (typeof window !== "undefined") {
-  window.audioRepeatCount = window.audioRepeatCount || 0;
-  window.audioVolume = window.audioVolume || 1;
-  window.audioIsMuted = window.audioIsMuted || false;
-}
-
 export default function AudioPlayerDrawer() {
+  const router = useRouter();
   const {
     isPlaying,
     isLoading,
@@ -63,10 +58,12 @@ export default function AudioPlayerDrawer() {
   } = useAudio();
 
   const [volume, setVolume] = useState(
-    typeof window !== "undefined" && window.audioVolume ? window.audioVolume : 1
+    typeof window !== "undefined" && window.audioVolume !== undefined
+      ? window.audioVolume
+      : 1
   );
   const [isMuted, setIsMuted] = useState(
-    typeof window !== "undefined" && window.audioIsMuted
+    typeof window !== "undefined" && window.audioIsMuted !== undefined
       ? window.audioIsMuted
       : false
   );
@@ -75,12 +72,10 @@ export default function AudioPlayerDrawer() {
   const [repeatMode, setRepeatMode] = useState<
     "off" | "once" | "twice" | "thrice" | "infinite"
   >("off");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Format time (seconds to MM:SS)
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "00:00";
-
+    if (isNaN(time) || !isFinite(time)) return "00:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes.toString().padStart(2, "0")}:${seconds
@@ -88,9 +83,8 @@ export default function AudioPlayerDrawer() {
       .padStart(2, "0")}`;
   };
 
-  // Find the active audio element
   const getActiveAudioElement = () => {
-    // Try to find the audio element that's currently playing
+    if (typeof document === "undefined") return null;
     const audioElements = document.querySelectorAll("audio");
     for (let i = 0; i < audioElements.length; i++) {
       const audio = audioElements[i] as HTMLAudioElement;
@@ -98,24 +92,17 @@ export default function AudioPlayerDrawer() {
         return audio;
       }
     }
-
-    // If no playing audio is found, return the first audio element or null
-    return audioElements.length > 0
-      ? (audioElements[0] as HTMLAudioElement)
-      : null;
+    return audioElements.length > 0 ? (audioElements[0] as HTMLAudioElement) : null;
   };
 
-  // Handle volume change
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
 
-    // Save to global state
     if (typeof window !== "undefined") {
       window.audioVolume = newVolume;
     }
 
-    // Apply to audio element
     const audioElement = getActiveAudioElement();
     if (audioElement) {
       audioElement.volume = newVolume;
@@ -134,24 +121,20 @@ export default function AudioPlayerDrawer() {
     }
   };
 
-  // Toggle mute
   const toggleMute = () => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
 
-    // Save to global state
     if (typeof window !== "undefined") {
       window.audioIsMuted = newMutedState;
     }
 
-    // Apply to audio element
     const audioElement = getActiveAudioElement();
     if (audioElement) {
       audioElement.muted = newMutedState;
     }
   };
 
-  // Toggle play/pause
   const togglePlay = () => {
     if (isPlaying) {
       pauseAudio();
@@ -160,12 +143,10 @@ export default function AudioPlayerDrawer() {
     }
   };
 
-  // Handle repeat mode
   const handleRepeat = () => {
     let newRepeatCount = 0;
-    let newRepeatMode = "off";
+    let newRepeatMode: "off" | "once" | "twice" | "thrice" | "infinite" = "off";
 
-    // Cycle through repeat modes
     if (repeatMode === "off") {
       newRepeatMode = "once";
       newRepeatCount = 1;
@@ -177,31 +158,23 @@ export default function AudioPlayerDrawer() {
       newRepeatCount = 3;
     } else if (repeatMode === "thrice") {
       newRepeatMode = "infinite";
-      newRepeatCount = -1; // -1 means infinite
+      newRepeatCount = -1;
     } else {
       newRepeatMode = "off";
       newRepeatCount = 0;
     }
 
-    // Update state
-    setRepeatMode(newRepeatMode as any);
+    setRepeatMode(newRepeatMode);
     setContextRepeatEnabled(newRepeatCount !== 0);
 
-    // Save to global state
     if (typeof window !== "undefined") {
       window.audioRepeatCount = newRepeatCount;
-      console.log(
-        `Repeat mode set to: ${newRepeatMode}, count: ${newRepeatCount}`
-      );
     }
   };
 
-  // Initialize repeat mode from global state
   useEffect(() => {
     if (typeof window !== "undefined") {
       const count = window.audioRepeatCount || 0;
-
-      // Set the appropriate repeat mode based on count
       if (count === 0) {
         setRepeatMode("off");
         setContextRepeatEnabled(false);
@@ -221,35 +194,22 @@ export default function AudioPlayerDrawer() {
     }
   }, [setContextRepeatEnabled]);
 
-  // Apply settings to audio element whenever it changes
   useEffect(() => {
-    // Function to apply settings to audio element
     const applySettingsToAudio = () => {
       const audioElement = getActiveAudioElement();
       if (audioElement) {
-        // Apply volume and mute settings
         audioElement.volume = volume;
         audioElement.muted = isMuted;
-
-        console.log(
-          `Applied settings to audio: volume=${volume}, muted=${isMuted}`
-        );
       }
     };
 
-    // Apply settings immediately
     applySettingsToAudio();
-
-    // Set up a periodic check to apply settings to new audio elements
-    const intervalId = setInterval(applySettingsToAudio, 1000);
-
+    const intervalId = setInterval(applySettingsToAudio, 1500);
     return () => clearInterval(intervalId);
   }, [volume, isMuted]);
 
-  // Update repeat mode when it changes in context
   useEffect(() => {
     if (contextRepeatEnabled && repeatMode === "off") {
-      // Default to "once" if enabled but mode is off
       setRepeatMode("once");
       if (typeof window !== "undefined" && window.audioRepeatCount === 0) {
         window.audioRepeatCount = 1;
@@ -262,7 +222,6 @@ export default function AudioPlayerDrawer() {
     }
   }, [contextRepeatEnabled, repeatMode]);
 
-  // Animation class for expanding/collapsing
   useEffect(() => {
     if (isPlayerExpanded) {
       setAnimationClass("player-expanding");
@@ -271,42 +230,31 @@ export default function AudioPlayerDrawer() {
     }
   }, [isPlayerExpanded, isPlayerVisible]);
 
-  // Listen for new audio elements and apply settings
   useEffect(() => {
-    // Function to handle new audio elements
     const handleNewAudio = (mutations: MutationRecord[]) => {
       for (const mutation of mutations) {
         if (mutation.type === "childList") {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeName === "AUDIO") {
               const audioElement = node as HTMLAudioElement;
-
-              // Apply current settings
               audioElement.volume = volume;
               audioElement.muted = isMuted;
 
-              console.log("Applied settings to new audio element");
-
-              // Add ended event listener for repeat functionality
               audioElement.addEventListener("ended", () => {
                 if (
                   typeof window !== "undefined" &&
+                  window.audioRepeatCount !== undefined &&
                   window.audioRepeatCount !== 0
                 ) {
                   const repeatCount = window.audioRepeatCount;
-
-                  // Handle repeat based on count
                   if (repeatCount === -1) {
-                    // Infinite repeat
                     audioElement.currentTime = 0;
                     audioElement.play().catch(console.error);
-                  } else if (repeatCount > 0) {
-                    // Decrement count and repeat if still positive
+                  } else if (repeatCount !== undefined && repeatCount > 0) {
                     window.audioRepeatCount = repeatCount - 1;
                     audioElement.currentTime = 0;
                     audioElement.play().catch(console.error);
                   }
-                  // If count reaches 0, let the normal ended behavior happen
                 }
               });
             }
@@ -315,14 +263,9 @@ export default function AudioPlayerDrawer() {
       }
     };
 
-    // Set up mutation observer to watch for new audio elements
-    if (
-      typeof window !== "undefined" &&
-      typeof MutationObserver !== "undefined"
-    ) {
+    if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {
       const observer = new MutationObserver(handleNewAudio);
       observer.observe(document.body, { childList: true, subtree: true });
-
       return () => observer.disconnect();
     }
   }, [volume, isMuted]);
@@ -330,35 +273,28 @@ export default function AudioPlayerDrawer() {
   const rewind = () => {
     const audioElement = getActiveAudioElement();
     if (audioElement) {
-      // Calculate new time (current time - 10 seconds, but not less than 0)
       const newTime = Math.max(0, audioElement.currentTime - 10);
-
-      // Update audio element time
       audioElement.currentTime = newTime;
-
-      // Also update the progress in the context to keep UI in sync
       setProgress(newTime);
-
-      console.log(`Rewind to: ${newTime}s`);
     }
   };
 
   const fastForward = () => {
     const audioElement = getActiveAudioElement();
     if (audioElement) {
-      // Calculate new time (current time + 10 seconds)
       const newTime = Math.min(
-        audioElement.duration,
+        audioElement.duration || 0,
         audioElement.currentTime + 10
       );
-
-      // Update audio element time
       audioElement.currentTime = newTime;
-
-      // Also update the progress in the context to keep UI in sync
       setProgress(newTime);
+    }
+  };
 
-      console.log(`Fast forward to: ${newTime}s`);
+  const navigateToCurrentVerse = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentSurah && currentVerse) {
+      router.push(`/surah/${currentSurah}#verse-${currentVerse}`);
     }
   };
 
@@ -366,7 +302,6 @@ export default function AudioPlayerDrawer() {
     return null;
   }
 
-  // Get the repeat mode display text
   const getRepeatModeText = () => {
     switch (repeatMode) {
       case "once":
@@ -383,55 +318,49 @@ export default function AudioPlayerDrawer() {
   };
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4">
+    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
       <div
-        className={`bg-black/90 backdrop-blur-lg shadow-lg transition-all duration-300 ease-in-out ${animationClass}
-        ${
+        className={`pointer-events-auto bg-neutral-950/95 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-[max-width,border-radius,padding] duration-300 ease-out ${animationClass} ${
           isPlayerExpanded
-            ? "w-full max-w-3xl rounded-2xl p-4"
-            : "w-auto max-w-md p-2 pr-4 rounded-full"
+            ? "w-full max-w-2xl rounded-2xl p-4 sm:p-5"
+            : "w-auto max-w-md p-2.5 pr-4 rounded-full"
         }`}
         onClick={() => !isPlayerExpanded && setIsPlayerExpanded(true)}
       >
         {isPlayerExpanded ? (
-          // Expanded view
-          <div className="text-white">
-            <div className="flex items-center justify-between mb-3">
+          <div className="text-white space-y-3">
+            {/* Header row */}
+            <div className="flex items-center justify-between">
               <div
-                className="flex items-center gap-2 cursor-pointer hover:bg-white/10 p-1 rounded-md transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (currentSurah && currentVerse) {
-                    window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`;
-                  }
-                }}
-                title="Go to this verse"
+                className="flex items-center gap-3 cursor-pointer hover:bg-white/10 p-1.5 rounded-xl transition-colors"
+                onClick={navigateToCurrentVerse}
+                title="Go to verse in Surah"
               >
-                <div className="w-10 h-10 rounded-full bg-[#d4af37] text-black flex items-center justify-center overflow-hidden">
-                  <span
-                    className="font-amiri quran-uthmani text-lg"
-                    style={{ textShadow: "0 0 1px rgba(0,0,0,0.3)" }}
-                  >
+                <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
+                  <span className="font-amiri text-base">
                     {currentVerse && convertToArabicNumeral(currentVerse)}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium">Surah {surahName}</h3>
+                  <h3 className="text-sm font-semibold leading-tight">
+                    Surah {surahName}
+                  </h3>
                   <p className="text-xs text-white/70">
                     Verse {currentVerse} of {verses.length}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsPlayerExpanded(false);
                   }}
+                  aria-label="Collapse player"
                 >
                   <svg
                     width="14"
@@ -439,64 +368,61 @@ export default function AudioPlayerDrawer() {
                     viewBox="0 0 14 2"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
                   >
-                    <rect width="14" height="2" rx="1" fill="white" />
+                    <rect width="14" height="2" rx="1" fill="currentColor" />
                   </svg>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
                   onClick={(e) => {
                     e.stopPropagation();
                     closePlayer();
                   }}
+                  aria-label="Close audio player"
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
-              {/* Controls for repeat only */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`text-white hover:bg-white/10 rounded-md flex items-center gap-1 ${
-                      repeatMode !== "off" ? "bg-white/20" : ""
-                    }`}
-                    onClick={handleRepeat}
-                  >
-                    <Repeat
-                      className={`h-4 w-4 mr-1 ${
-                        repeatMode !== "off" ? "text-[#d4af37]" : ""
-                      }`}
-                    />
-                    Repeat: {getRepeatModeText()}
-                  </Button>
-                </div>
-              </div>
+            {/* Time & progress bar */}
+            <div className="flex items-center gap-2.5 text-xs text-white/70">
+              <span className="tabular-nums font-mono min-w-[36px]">
+                {formatTime(currentTime)}
+              </span>
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={0.01}
+                onValueChange={(value) => setProgress(value[0])}
+                className="flex-1 cursor-pointer"
+                aria-label="Recitation progress"
+              />
+              <span className="tabular-nums font-mono min-w-[36px] text-right">
+                {formatTime(duration)}
+              </span>
+            </div>
 
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-white/70">
-                  {formatTime(currentTime)}
-                </span>
-                <Slider
-                  value={[currentTime]}
-                  max={duration || 100}
-                  step={0.01}
-                  onValueChange={(value) => setProgress(value[0])}
-                  className="flex-1"
-                />
-                <span className="text-xs text-white/70">
-                  {formatTime(duration)}
-                </span>
-              </div>
+            {/* Controls */}
+            <div className="flex items-center justify-between pt-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-white hover:bg-white/15 rounded-lg text-xs h-8 px-2.5 flex items-center gap-1.5 ${
+                  repeatMode !== "off" ? "bg-white/20 text-white font-medium" : ""
+                }`}
+                onClick={handleRepeat}
+                aria-label={`Repeat mode: ${getRepeatModeText()}`}
+              >
+                <Repeat className="h-3.5 w-3.5" />
+                <span>{getRepeatModeText()}</span>
+              </Button>
 
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -504,8 +430,8 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
-                  title="Go to first verse"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  aria-label="Restart from first verse"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>
@@ -517,10 +443,11 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
                   disabled={!currentVerse || currentVerse <= 1 || isLoading}
+                  aria-label="Previous verse"
                 >
-                  <SkipBack className="h-5 w-5" />
+                  <SkipBack className="h-4 w-4" />
                 </Button>
 
                 <Button
@@ -530,7 +457,8 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  aria-label="Rewind 10 seconds"
                 >
                   <Rewind className="h-4 w-4" />
                 </Button>
@@ -540,15 +468,22 @@ export default function AudioPlayerDrawer() {
                     e.stopPropagation();
                     togglePlay();
                   }}
-                  className="bg-[#d4af37] hover:bg-[#c9a431] h-10 w-10 rounded-full p-0 flex items-center justify-center"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-10 rounded-full p-0 flex items-center justify-center shrink-0 shadow-sm"
                   disabled={isLoading}
+                  aria-label={
+                    isLoading
+                      ? "Loading audio"
+                      : isPlaying
+                      ? "Pause recitation"
+                      : "Play recitation"
+                  }
                 >
                   {isLoading ? (
-                    <Loader2 className="h-5 w-5 text-black animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : isPlaying ? (
-                    <PauseCircle className="h-5 w-5 text-black" />
+                    <PauseCircle className="h-5 w-5" />
                   ) : (
-                    <PlayCircle className="h-5 w-5 text-black" />
+                    <PlayCircle className="h-5 w-5" />
                   )}
                 </Button>
 
@@ -559,7 +494,8 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  aria-label="Fast forward 10 seconds"
                 >
                   <FastForward className="h-4 w-4" />
                 </Button>
@@ -571,74 +507,85 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
                   disabled={
                     !currentVerse || currentVerse >= verses.length || isLoading
                   }
+                  aria-label="Next verse"
                 >
-                  <SkipForward className="h-5 w-5" />
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Volume Popover */}
+              <div className="relative">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowVolumeControl(!showVolumeControl);
+                  }}
+                  onMouseEnter={() => setShowVolumeControl(true)}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-4 w-4 text-red-400" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
                 </Button>
 
-                <div className="relative">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleMute();
-                    }}
+                {showVolumeControl && (
+                  <div
+                    className="absolute bottom-full right-0 mb-3 bg-neutral-900 border border-white/15 p-3 rounded-xl shadow-xl w-32 flex flex-col gap-2"
                     onMouseEnter={() => setShowVolumeControl(true)}
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/10 rounded-full"
+                    onMouseLeave={() => setShowVolumeControl(false)}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {isMuted ? (
-                      <VolumeX className="h-5 w-5" />
-                    ) : (
-                      <Volume2 className="h-5 w-5" />
-                    )}
-                  </Button>
-
-                  {showVolumeControl && (
-                    <div
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black/90 p-3 rounded-lg shadow-lg border border-white/10 w-32"
-                      onMouseEnter={() => setShowVolumeControl(true)}
-                      onMouseLeave={() => setShowVolumeControl(false)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Slider
-                        value={[isMuted ? 0 : volume]}
-                        max={1}
-                        step={0.01}
-                        onValueChange={handleVolumeChange}
-                        className="w-full"
-                      />
+                    <div className="flex justify-between items-center text-[10px] text-white/70">
+                      <span>Volume</span>
+                      <button
+                        onClick={toggleMute}
+                        className="hover:underline text-xs"
+                      >
+                        {isMuted ? "Unmute" : "Mute"}
+                      </button>
                     </div>
-                  )}
-                </div>
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={1}
+                      step={0.01}
+                      onValueChange={handleVolumeChange}
+                      className="w-full cursor-pointer"
+                      aria-label="Volume slider"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
         ) : (
-          // Collapsed view (Dynamic Island style) - with added metadata
+          /* Collapsed Mini Island */
           <div className="flex items-center gap-3 text-white">
-            {/* Progress circle with percentage */}
-            <div className="relative w-8 h-8">
-              <svg className="w-8 h-8" viewBox="0 0 36 36">
-                {/* Background circle */}
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill="#d4af37"
-                  className="stroke-none"
-                />
-
-                {/* Progress circle - stroke-dasharray is the circumference of the circle (2πr) */}
+            {/* Circular Progress */}
+            <div className="relative w-8 h-8 shrink-0">
+              <svg className="w-8 h-8" viewBox="0 0 36 36" aria-hidden="true">
                 <circle
                   cx="18"
                   cy="18"
                   r="16"
                   fill="transparent"
-                  stroke="white"
+                  stroke="rgba(255,255,255,0.15)"
+                  strokeWidth="3"
+                />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="transparent"
+                  stroke="currentColor"
                   strokeWidth="3"
                   strokeDasharray="100.53"
                   strokeDashoffset={
@@ -650,20 +597,18 @@ export default function AudioPlayerDrawer() {
                       : calculateProgress()) *
                       100.53
                   }
-                  className="transition-all duration-500 ease-in-out"
+                  className="text-primary transition-[stroke-dashoffset] duration-300"
                   transform="rotate(-90 18 18)"
                 />
-
-                {/* Percentage text */}
                 <text
                   x="18"
                   y="18"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fill="black"
-                  fontSize="10"
+                  fill="white"
+                  fontSize="9"
                   fontWeight="bold"
-                  className="font-medium"
+                  className="font-mono"
                 >
                   {currentVerse &&
                   verses.length &&
@@ -675,40 +620,15 @@ export default function AudioPlayerDrawer() {
             </div>
 
             <div
-              className="flex-1 min-w-0 cursor-pointer hover:bg-white/10 rounded-md px-2 py-1 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (currentSurah && currentVerse) {
-                  window.location.href = `/surah/${currentSurah}#verse-${currentVerse}`;
-                }
-              }}
-              title="Go to this verse"
+              className="flex-1 min-w-0 cursor-pointer hover:bg-white/10 rounded-lg px-2 py-0.5 transition-colors"
+              onClick={navigateToCurrentVerse}
+              title="Go to verse"
             >
-              <div className="flex items-center justify-between">
-                {/* <p className="text-sm font-medium truncate">
-                  Surah {surahName}
-                </p> */}
-                {currentVerseData?.juz && (
-                  <div className="text-xs text-white/70 bg-white/10 px-1.5 py-0.5 rounded-sm hidden sm:flex items-center gap-1.5">
-                    <span>Juz: {currentVerseData.juz}</span>
-                    <span>Hizb: {Math.ceil(currentVerseData.juz * 2)}</span>
-                    {/* <span>Manzil:{Math.ceil((currentVerseData.juz || 1) / 7)}</span> */}
-                    {/* <span>P:{currentVerseData.page}</span> */}
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-white/70 truncate flex items-center gap-1">
-                <span>
-                  Verse {currentVerse} of {verses.length}
-                </span>
-                {currentVerseData?.juz && (
-                  <span className="sm:hidden bg-white/10 px-1 rounded-sm text-[10px]">
-                    Juz: {currentVerseData.juz} Hizb:{" "}
-                    {Math.ceil(currentVerseData.juz * 2)}
-                    {/* P:
-                    {currentVerseData.page} */}
-                  </span>
-                )}
+              <p className="text-xs font-semibold truncate leading-tight">
+                Surah {surahName}
+              </p>
+              <p className="text-[11px] text-white/70 truncate">
+                Verse {currentVerse} of {verses.length}
               </p>
             </div>
 
@@ -719,11 +639,18 @@ export default function AudioPlayerDrawer() {
               }}
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-white hover:bg-white/10 rounded-full"
+              className="h-8 w-8 text-white hover:bg-white/15 rounded-full shrink-0"
               disabled={isLoading}
+              aria-label={
+                isLoading
+                  ? "Loading audio"
+                  : isPlaying
+                  ? "Pause playback"
+                  : "Start playback"
+              }
             >
               {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
               ) : isPlaying ? (
                 <PauseCircle className="h-5 w-5" />
               ) : (

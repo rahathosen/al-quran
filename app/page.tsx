@@ -44,17 +44,20 @@ export const metadata: Metadata = {
     ],
   },
 };
+
 export default async function Home() {
   const surahs = await getAllSurahs();
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0]">
-      <header className="bg-[#1a5e63] text-white py-4 md:py-6 border-b border-[#d4af37]">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <header className="bg-primary text-primary-foreground py-4 md:py-6 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
-              القرآن
-              <span className="block text-lg font-normal text-[#d4af37]">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-center md:text-left">
+              <span dir="rtl" lang="ar" className="font-amiri inline-block mr-2 text-3xl">
+                القرآن
+              </span>
+              <span className="block text-lg font-normal text-primary-foreground/80 tracking-wide">
                 Al-Quran
               </span>
             </h1>
@@ -67,40 +70,32 @@ export default async function Home() {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-8">
-        {/* <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 md:mb-8 border border-[#d4af37]/20">
-          <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4">Welcome to Al-Quran</h2>
-          <p className="text-[#555] mb-4">
-            Read and explore the Holy Quran with beautiful Arabic text and translations. Navigate through all 114
-            Surahs.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button className="bg-[#1a5e63] hover:bg-[#134548]">Start Reading</Button>
-            <Button variant="outline" className="border-[#1a5e63] text-[#1a5e63]">
-              Bookmarks
-            </Button>
-          </div>
-        </div> */}
-
         {/* AI Search Info Section */}
         <AISearchInfo />
 
         {/* Recent Surahs Section */}
-        <div className="mb-8">
-          <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4 flex items-center">
-            <Clock className="w-6 h-6 mr-2" />
+        <section className="mb-8" aria-labelledby="recent-surahs-heading">
+          <h2
+            id="recent-surahs-heading"
+            className="text-primary text-xl md:text-2xl font-semibold mb-4 flex items-center"
+          >
+            <Clock className="w-5 h-5 mr-2 shrink-0" aria-hidden="true" />
             Recently Read
           </h2>
           <RecentSurahs />
-        </div>
+        </section>
 
         {/* Bookmarks Section */}
-        <div className="mb-8">
-          <h2 className="text-[#1a5e63] text-xl md:text-2xl font-semibold mb-4 flex items-center">
-            <BookmarkIcon className="w-6 h-6 mr-2" />
+        <section className="mb-8" aria-labelledby="bookmarks-heading">
+          <h2
+            id="bookmarks-heading"
+            className="text-primary text-xl md:text-2xl font-semibold mb-4 flex items-center"
+          >
+            <BookmarkIcon className="w-5 h-5 mr-2 shrink-0" aria-hidden="true" />
             Bookmarked Verses
           </h2>
           <BookmarkedVerses />
-        </div>
+        </section>
 
         <SurahList surahs={surahs} />
       </main>

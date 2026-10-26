@@ -3,9 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Search, Sparkles, Loader2, BookOpen, Eraser } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Search, Sparkles, Loader2, BookOpen, Eraser } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AISearchModalProps {
   isOpen: boolean;
@@ -30,9 +35,7 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
-  // Load recent searches on mount
   useEffect(() => {
     const savedSearches = localStorage.getItem("quran-ai-recent-searches");
     if (savedSearches) {
@@ -44,16 +47,15 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
     }
   }, []);
 
-  // Focus input when modal opens
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
         inputRef.current?.focus();
-      }, 100);
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
-  // Handle search submission
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
 
@@ -79,12 +81,11 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
       if (data.results && Array.isArray(data.results)) {
         if (data.results.length === 0) {
           setError(
-            "No verses found for this search term. Please try a different query.",
+            "No verses found for this query. Please try phrasing your search differently."
           );
         } else {
           setResults(data.results);
 
-          // Save to recent searches
           const newRecentSearches = [
             searchTerm.trim(),
             ...recentSearches.filter((s) => s !== searchTerm.trim()),
@@ -93,11 +94,11 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
           setRecentSearches(newRecentSearches);
           localStorage.setItem(
             "quran-ai-recent-searches",
-            JSON.stringify(newRecentSearches),
+            JSON.stringify(newRecentSearches)
           );
         }
       } else {
-        setError("No results found or invalid response format");
+        setError("No results found or invalid response format.");
       }
     } catch (err) {
       console.error("Search error:", err);
@@ -107,173 +108,133 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
     }
   };
 
-  // Handle recent search click
   const handleRecentSearchClick = (term: string) => {
     setSearchTerm(term);
-    // Auto-search when clicking a recent search
     setTimeout(() => {
       handleSearch();
     }, 100);
   };
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-
-      // Enter to submit search
-      if (e.key === "Enter" && searchTerm.trim()) {
-        e.preventDefault();
-        handleSearch();
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose, searchTerm]);
-
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={onClose}
-      />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md sm:max-w-2xl p-0 gap-0 overflow-hidden bg-card text-card-foreground border-border shadow-2xl">
+        <DialogHeader className="p-4 pb-2 border-b border-border/80">
+          <DialogTitle className="text-base font-semibold flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span>AI-Powered Quran Search</span>
+          </DialogTitle>
+        </DialogHeader>
 
-      {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[80vh] bg-white rounded-lg shadow-xl z-50 flex flex-col">
-        {/* Search header */}
-        <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-[#d4af37]" />
+        {/* Input Bar */}
+        <div className="p-3 border-b border-border/60 flex items-center gap-2 bg-muted/20">
           <Input
             ref={inputRef}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search Quran with AI (e.g., 'patience', 'gratitude', 'forgiveness')"
-            className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800"
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Search concepts (e.g. 'patience in hardship', 'gratitude')"
+            className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0 text-sm h-9"
+            aria-label="AI search query"
           />
-
-          {/* Ensure Erase button is fully visible */}
           {searchTerm && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSearchTerm("")}
-              className="text-gray-600 hover:text-gray-800"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+              aria-label="Clear query input"
             >
               <Eraser className="h-4 w-4" />
             </Button>
           )}
-
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5 text-gray-600 hover:text-gray-800" />
-          </Button>
-        </div>
-
-        {/* Search button */}
-        <div className="p-4 border-b border-gray-200">
           <Button
+            size="sm"
             onClick={handleSearch}
-            className="w-full bg-[#1a5e63] hover:bg-[#134548]"
             disabled={isLoading || !searchTerm.trim()}
+            className="h-9 gap-1.5"
+            aria-label="Submit AI search"
           >
             {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Searching...
-              </>
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                Search with AI
-              </>
+              <Search className="h-4 w-4" />
             )}
+            <span className="hidden sm:inline">Search</span>
           </Button>
         </div>
 
-        {/* Search results */}
-        <div className="flex-1 overflow-y-auto p-4">
+        {/* Content Area */}
+        <div className="max-h-[60vh] overflow-y-auto p-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-              <p className="font-medium">
-                High Traffic or Rate limit exceeded for Today
-              </p>
-              <p>Thanks for your patience. Please try again later.</p>
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3.5 rounded-xl text-sm mb-4">
+              <p className="font-semibold">{error}</p>
             </div>
           )}
 
           {results.length > 0 ? (
             <div className="space-y-4">
-              <h3 className="text-[#1a5e63] font-medium">
+              <h3 className="text-sm font-semibold text-primary">
                 Found {results.length} relevant verses:
               </h3>
 
               {results.map((result, index) => (
                 <div
                   key={`${result.surahNumber}-${result.verseNumber}-${index}`}
-                  className="bg-[#f8f5f0] p-4 rounded-lg border border-[#d4af37]/20"
+                  className="bg-muted/30 p-4 rounded-xl border border-border/70 space-y-2.5"
                 >
                   {result.explanation && (
-                    <p className="text-sm text-[#1a5e63] italic mb-2 border-l-4 border-[#d4af37] pl-3">
+                    <p className="text-xs sm:text-sm text-foreground/85 italic border-l-2 border-primary pl-3 py-0.5">
                       {result.explanation}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between">
                     <Link
                       href={`/surah/${result.surahNumber}#verse-${result.verseNumber}`}
-                      className="text-[#1a5e63] font-medium hover:underline flex items-center"
+                      onClick={onClose}
+                      className="text-primary font-semibold text-sm hover:underline flex items-center gap-1.5"
                     >
-                      <BookOpen className="h-4 w-4 mr-1" />
-                      Surah {result.englishName} ({result.surahNumber}:
-                      {result.verseNumber})
+                      <BookOpen className="h-4 w-4 shrink-0" />
+                      <span>
+                        Surah {result.englishName} ({result.surahNumber}:{result.verseNumber})
+                      </span>
                     </Link>
-                    <span className="text-sm text-[#666]">
+                    <span dir="rtl" lang="ar" className="font-amiri text-base text-foreground font-semibold">
                       {result.surahName}
                     </span>
                   </div>
 
-                  <p className="font-amiri text-[#555] text-right text-lg mb-2 leading-relaxed">
+                  <p
+                    dir="rtl"
+                    lang="ar"
+                    className="font-amiri text-right text-lg sm:text-xl text-foreground leading-loose"
+                  >
                     {result.verseText}
                   </p>
-                  <p className="text-sm text-[#555] mb-2">
+                  <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
                     {result.translation}
                   </p>
 
-                  {/* Add Bengali translation if available */}
                   {result.bengaliTranslation && (
-                    <div className="mt-2 pt-2 border-t border-[#d4af37]/10">
-                      <p className="text-sm text-[#555] font-medium">
-                        Bengali Translation:
-                      </p>
-                      <p className="text-sm text-[#555]">
-                        {result.bengaliTranslation}
-                      </p>
+                    <div className="pt-2 border-t border-border/40 text-xs sm:text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Bengali: </span>
+                      {result.bengaliTranslation}
                     </div>
                   )}
                 </div>
               ))}
             </div>
           ) : (
-            <div className="p-4">
+            <div className="space-y-4">
               {recentSearches.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                     Recent AI Searches
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
                     {recentSearches.map((term, index) => (
                       <button
-                        key={`recent-${index}`}
-                        className="text-sm bg-[#f8f5f0] hover:bg-[#e8e5e0] text-[#1a5e63] px-3 py-1 rounded-full"
+                        key={`recent-ai-${index}`}
+                        className="text-xs bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1 rounded-full transition-colors"
                         onClick={() => handleRecentSearchClick(term)}
                       >
                         {term}
@@ -283,34 +244,32 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                 </div>
               )}
 
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#f8f5f0] mb-4">
-                  <Sparkles className="h-8 w-8 text-[#d4af37]" />
+              <div className="text-center py-6">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-medium text-[#1a5e63] mb-2">
-                  AI-Powered Quran Search
-                </h3>
-                <p className="text-[#555] mb-4">
-                  Search for concepts, topics, or words in the Quran using
-                  natural language. Results include Arabic text with English and
-                  Bengali translations.
+                <h4 className="font-semibold text-foreground text-base mb-1">
+                  Ask about themes, virtues, and life questions
+                </h4>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto mb-4 text-pretty">
+                  Enter questions or topics in plain English. The AI matches conceptual meaning across all 6,236 Ayahs.
                 </p>
-                <div className="bg-[#f8f5f0] p-4 rounded-md text-left">
-                  <h4 className="font-medium text-[#1a5e63] mb-2">
-                    Example searches:
-                  </h4>
-                  <ul className="text-sm text-[#555] space-y-1">
-                    <li>• Verses about patience and perseverance</li>
-                    <li>• Mentions of forgiveness in the Quran</li>
-                    <li>• Guidance on dealing with hardship</li>
-                    <li>• Verses about gratitude to Allah</li>
-                  </ul>
+                <div className="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto text-xs">
+                  {["Patience in trials", "Mercy and forgiveness", "Honoring parents", "Gratitude in ease"].map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => handleRecentSearchClick(prompt)}
+                      className="bg-muted/60 hover:bg-muted border border-border px-3 py-1.5 rounded-lg text-foreground transition-colors"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           )}
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }

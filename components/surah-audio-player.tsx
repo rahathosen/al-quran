@@ -18,7 +18,6 @@ export default function SurahAudioPlayer({ surahId, verses, surahName }: SurahAu
   const isCurrentSurah = currentSurah === surahId
   const isLoadingThisSurah = isLoading && isCurrentSurah
 
-  // Update recent surahs when playing
   useEffect(() => {
     if (isCurrentSurah && isPlaying) {
       updateRecentSurah({
@@ -37,7 +36,6 @@ export default function SurahAudioPlayer({ surahId, verses, surahName }: SurahAu
     } else {
       playSurah(surahId, verses, surahName)
 
-      // Update recent surahs immediately when starting playback
       updateRecentSurah({
         surahId,
         surahName,
@@ -51,26 +49,32 @@ export default function SurahAudioPlayer({ surahId, verses, surahName }: SurahAu
   return (
     <Button
       onClick={handlePlayClick}
-      className="bg-[#1a5e63] hover:bg-[#134548] w-full sm:w-auto"
+      className="w-full sm:w-auto gap-2"
       disabled={isLoadingThisSurah}
+      aria-label={
+        isLoadingThisSurah
+          ? `Loading Surah ${surahName} audio`
+          : isCurrentSurah && isPlaying
+          ? `Pause Surah ${surahName} recitation`
+          : `Listen to Surah ${surahName}`
+      }
     >
       {isLoadingThisSurah ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Loading...</span>
         </>
       ) : isCurrentSurah && isPlaying ? (
         <>
-          <PauseCircle className="mr-2 h-4 w-4" />
-          Pause
+          <PauseCircle className="h-4 w-4" />
+          <span>Pause</span>
         </>
       ) : (
         <>
-          <PlayCircle className="mr-2 h-4 w-4" />
-          Listen
+          <PlayCircle className="h-4 w-4" />
+          <span>Listen</span>
         </>
       )}
     </Button>
   )
 }
-

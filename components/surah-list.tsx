@@ -17,9 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define the Surah type
 type Surah = {
   number: number;
   name: string;
@@ -30,176 +28,83 @@ type Surah = {
   juz?: number;
 };
 
-// Group surahs by juz
-const groupByJuz = (surahs: Surah[]) => {
-  // In a real implementation, we would have juz data for each surah
-  // For this example, we'll simulate it by assigning juz based on surah number
-  const surahsWithJuz = surahs.map((surah) => ({
-    ...surah,
-    juz: Math.ceil(surah.number / 4), // This is just a simulation, not accurate
-  }));
-
-  const juzGroups: Record<number, Surah[]> = {};
-
-  surahsWithJuz.forEach((surah) => {
-    const juz = surah.juz || 1;
-    if (!juzGroups[juz]) {
-      juzGroups[juz] = [];
-    }
-    juzGroups[juz].push(surah);
-  });
-
-  return juzGroups;
-};
-
 interface SurahListProps {
   surahs: Surah[];
 }
 
 export default function SurahList({ surahs }: SurahListProps) {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Sort surahs based on current sort order
   const sortedSurahs = [...surahs].sort((a, b) => {
     return sortOrder === "asc" ? a.number - b.number : b.number - a.number;
   });
 
-  // Group surahs by juz
-  const juzGroups = groupByJuz(surahs);
-  const juzNumbers = Object.keys(juzGroups)
-    .map(Number)
-    .sort((a, b) => a - b);
-
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-        <h2 className="text-[#1a5e63] text-xl md:text-2xl lg:text-3xl font-semibold flex items-center gap-4 py-1">
-          <span className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a5e63] text-white flex items-center justify-center flex-shrink-0 shadow-sm text-base md:text-lg font-bold">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+        <h2 className="text-foreground text-xl md:text-2xl font-bold flex items-center gap-3">
+          <span className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm md:text-base font-bold tabular-nums">
             114
           </span>
-          <span className="relative">
-            Surahs (Chapters)
-            {/* <span className="absolute -bottom-1 left-0 w-3/4 h-0.5 bg-[#d4af37]/30 rounded-full"></span> */}
-          </span>
+          <span>Surahs (Chapters)</span>
         </h2>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="border-[#1a5e63] text-[#1a5e63]"
+                size="sm"
+                className="h-9 gap-1.5"
+                aria-label="Sort Surahs"
               >
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                Sort
-                <ChevronDown className="ml-2 h-4 w-4" />
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                <span>Sort</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => setSortOrder("asc")}
-                className={sortOrder === "asc" ? "bg-[#1a5e63]/10" : ""}
+                className={sortOrder === "asc" ? "bg-accent font-medium" : ""}
               >
                 <SortAsc className="mr-2 h-4 w-4" />
-                Ascending (1-114)
+                Ascending (1–114)
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setSortOrder("desc")}
-                className={sortOrder === "desc" ? "bg-[#1a5e63]/10" : ""}
+                className={sortOrder === "desc" ? "bg-accent font-medium" : ""}
               >
                 <SortDesc className="mr-2 h-4 w-4" />
-                Descending (114-1)
+                Descending (114–1)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button
-            variant="outline"
-            className={`border-[#1a5e63] ${
-              viewMode === "grid" ? "bg-[#1a5e63] text-white" : "text-[#1a5e63]"
-            }`}
+            variant={viewMode === "grid" ? "default" : "outline"}
+            size="sm"
+            className="h-9"
             onClick={() => setViewMode("grid")}
+            aria-label="Grid view"
           >
-            <Layers className="mr-2 h-4 w-4" />
+            <Layers className="mr-1.5 h-3.5 w-3.5" />
             Grid
           </Button>
 
           <Button
-            variant="outline"
-            className={`border-[#1a5e63] ${
-              viewMode === "list" ? "bg-[#1a5e63] text-white" : "text-[#1a5e63]"
-            }`}
+            variant={viewMode === "list" ? "default" : "outline"}
+            size="sm"
+            className="h-9"
             onClick={() => setViewMode("list")}
+            aria-label="List view"
           >
-            <BookOpen className="mr-2 h-4 w-4" />
+            <BookOpen className="mr-1.5 h-3.5 w-3.5" />
             List
           </Button>
         </div>
       </div>
-
-      {/* <Tabs defaultValue="all">
-        <TabsList className="bg-[#f0ebe0] mb-4 overflow-x-auto flex-nowrap w-full justify-start">
-          <TabsTrigger value="all" className="flex-shrink-0">
-            All Surahs
-          </TabsTrigger>
-          {juzNumbers.map((juz) => (
-            <TabsTrigger
-              key={juz}
-              value={`juz-${juz}`}
-              className="flex-shrink-0"
-            >
-              Juz {juz}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="all">
-          {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {sortedSurahs.map((surah) => (
-                <SurahCard key={surah.number} surah={surah} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {sortedSurahs.map((surah) => (
-                <SurahListItem key={surah.number} surah={surah} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {juzNumbers.map((juz) => (
-          <TabsContent key={juz} value={`juz-${juz}`}>
-            {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                {juzGroups[juz]
-                  .sort((a, b) =>
-                    sortOrder === "asc"
-                      ? a.number - b.number
-                      : b.number - a.number
-                  )
-                  .map((surah) => (
-                    <SurahCard key={surah.number} surah={surah} />
-                  ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {juzGroups[juz]
-                  .sort((a, b) =>
-                    sortOrder === "asc"
-                      ? a.number - b.number
-                      : b.number - a.number
-                  )
-                  .map((surah) => (
-                    <SurahListItem key={surah.number} surah={surah} />
-                  ))}
-              </div>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs> */}
 
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -222,31 +127,35 @@ function SurahCard({ surah }: { surah: Surah }) {
   return (
     <Link
       href={`/surah/${surah.number}`}
-      className="bg-white rounded-lg shadow-md p-3 md:p-4 border border-[#d4af37]/20 hover:shadow-lg transition-shadow group"
+      className="bg-card text-card-foreground rounded-xl p-3.5 md:p-4 border border-border/80 hover:border-primary/40 hover:shadow-md transition-all duration-200 active:scale-[0.98] group flex flex-col justify-between"
     >
       <div className="flex items-center">
-        <div className="w-10 h-10 rounded-full bg-[#1a5e63] text-white flex items-center justify-center mr-3 flex-shrink-0 group-hover:bg-[#d4af37] transition-colors">
+        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3 shrink-0 group-hover:bg-primary group-hover:text-primary-foreground font-bold text-sm transition-colors tabular-nums">
           {surah.number}
         </div>
-        <div className="min-w-0">
-          <div className="flex items-center">
-            <h3 className="font-amiri text-lg md:text-xl text-[#333] truncate">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1">
+            <h3
+              dir="rtl"
+              lang="ar"
+              className="font-amiri text-lg md:text-xl text-foreground font-semibold truncate group-hover:text-primary transition-colors"
+            >
               {surah.name}
             </h3>
             {surah.revelationType === "Meccan" ? (
-              <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-amber-100 text-amber-800">
+              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">
                 Meccan
               </span>
             ) : (
-              <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800">
+              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
                 Medinan
               </span>
             )}
           </div>
-          <p className="text-xs md:text-sm text-[#666] truncate">
+          <p className="text-xs md:text-sm text-muted-foreground truncate">
             {surah.englishName} • {surah.numberOfAyahs} Verses
           </p>
-          <p className="text-xs text-[#1a5e63] italic truncate mt-0.5">
+          <p className="text-xs text-primary font-medium truncate mt-0.5 opacity-90">
             "{surah.englishNameTranslation}"
           </p>
         </div>
@@ -259,37 +168,41 @@ function SurahListItem({ surah }: { surah: Surah }) {
   return (
     <Link
       href={`/surah/${surah.number}`}
-      className="bg-white rounded-lg shadow-sm p-3 border border-[#d4af37]/20 hover:shadow-md transition-shadow flex items-center group"
+      className="bg-card text-card-foreground rounded-xl p-3 border border-border/80 hover:border-primary/40 hover:shadow-sm transition-all duration-200 active:scale-[0.99] flex items-center group"
     >
-      <div className="w-8 h-8 rounded-full bg-[#1a5e63] text-white flex items-center justify-center mr-3 flex-shrink-0 group-hover:bg-[#d4af37] transition-colors">
+      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3 shrink-0 group-hover:bg-primary group-hover:text-primary-foreground font-bold text-xs transition-colors tabular-nums">
         {surah.number}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center">
-          <h3 className="font-amiri text-lg text-[#333] truncate">
+        <div className="flex items-center gap-2">
+          <h3
+            dir="rtl"
+            lang="ar"
+            className="font-amiri text-base md:text-lg text-foreground font-semibold truncate group-hover:text-primary transition-colors"
+          >
             {surah.name}
           </h3>
-          <span className="mx-2 text-[#666]">•</span>
-          <p className="text-sm text-[#666] truncate">{surah.englishName}</p>
+          <span className="text-muted-foreground/60">•</span>
+          <p className="text-sm font-medium text-foreground truncate">{surah.englishName}</p>
 
           {surah.revelationType === "Meccan" ? (
-            <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-amber-100 text-amber-800">
+            <span className="ml-auto px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">
               Meccan
             </span>
           ) : (
-            <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800">
+            <span className="ml-auto px-1.5 py-0.5 text-[10px] font-medium rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
               Medinan
             </span>
           )}
         </div>
 
-        <p className="text-xs text-[#1a5e63] italic truncate">
+        <p className="text-xs text-muted-foreground truncate mt-0.5">
           "{surah.englishNameTranslation}" • {surah.numberOfAyahs} Verses
         </p>
       </div>
 
-      <div className="ml-2 text-[#1a5e63]">
+      <div className="ml-3 text-muted-foreground group-hover:text-primary transition-colors">
         <BookOpen className="h-4 w-4" />
       </div>
     </Link>

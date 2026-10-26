@@ -19,18 +19,18 @@
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 210 20% 93%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 184 30% 92%;
+    --accent-foreground: 184 57% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214.3 20% 88%;
+    --input: 214.3 20% 88%;
+    --ring: 184 57% 24%;
 
     --radius: 0.5rem;
 
@@ -54,102 +54,84 @@
     --secondary-foreground: 210 40% 98%;
     --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 32% 17%;
+    --accent: 217 32% 20%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
+    --border: 217 32% 20%;
+    --input: 217 32% 20%;
     --ring: 186 79% 45%;
   }
 
-  /* Sepia Theme - More refined */
+  /* Sepia Theme */
   .theme-sepia {
     --background: 43 100% 95%;
     --foreground: 20 30% 20%;
-    --card: 43 100% 97%;
+    --card: 43 60% 98%;
     --card-foreground: 20 30% 20%;
-    --popover: 43 100% 97%;
+    --popover: 43 60% 98%;
     --popover-foreground: 20 30% 20%;
     --primary: 36 100% 40%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 36 50% 90%;
-    --secondary-foreground: 36 50% 30%;
+    --secondary: 36 40% 90%;
+    --secondary-foreground: 36 50% 25%;
     --muted: 36 30% 90%;
-    --muted-foreground: 36 30% 40%;
+    --muted-foreground: 36 25% 42%;
     --accent: 36 50% 90%;
-    --accent-foreground: 36 50% 30%;
+    --accent-foreground: 36 50% 25%;
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 36 30% 80%;
-    --input: 36 30% 80%;
+    --border: 36 30% 82%;
+    --input: 36 30% 82%;
     --ring: 36 100% 40%;
     --radius: 0.5rem;
   }
 
-  /* Green Theme - Softer and more elegant */
+  /* Green Theme */
   .theme-green {
     --background: 150 25% 97%;
     --foreground: 150 30% 15%;
-
     --card: 150 25% 99%;
     --card-foreground: 150 30% 15%;
-
     --popover: 150 25% 99%;
     --popover-foreground: 150 30% 15%;
-
-    --primary: 150 35% 35%;
+    --primary: 150 45% 30%;
     --primary-foreground: 150 25% 97%;
-
     --secondary: 150 15% 92%;
     --secondary-foreground: 150 30% 15%;
-
     --muted: 150 15% 92%;
-    --muted-foreground: 150 30% 35%;
-
-    --accent: 150 15% 92%;
-    --accent-foreground: 150 30% 15%;
-
+    --muted-foreground: 150 20% 40%;
+    --accent: 150 20% 90%;
+    --accent-foreground: 150 45% 25%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 150 15% 87%;
-    --input: 150 15% 87%;
-    --ring: 150 30% 15%;
-
+    --border: 150 15% 85%;
+    --input: 150 15% 85%;
+    --ring: 150 45% 30%;
     --radius: 0.5rem;
   }
 
-  /* Blue Theme - Calming and professional */
+  /* Blue Theme */
   .theme-blue {
     --background: 210 25% 97%;
     --foreground: 210 30% 15%;
-
     --card: 210 25% 99%;
     --card-foreground: 210 30% 15%;
-
     --popover: 210 25% 99%;
     --popover-foreground: 210 30% 15%;
-
-    --primary: 210 35% 40%;
+    --primary: 210 55% 35%;
     --primary-foreground: 210 25% 97%;
-
     --secondary: 210 15% 92%;
     --secondary-foreground: 210 30% 15%;
-
     --muted: 210 15% 92%;
-    --muted-foreground: 210 30% 35%;
-
-    --accent: 210 15% 92%;
-    --accent-foreground: 210 30% 15%;
-
+    --muted-foreground: 210 20% 40%;
+    --accent: 210 25% 90%;
+    --accent-foreground: 210 55% 25%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 210 15% 87%;
-    --input: 210 15% 87%;
-    --ring: 210 30% 15%;
-
+    --border: 210 15% 85%;
+    --input: 210 15% 85%;
+    --ring: 210 55% 35%;
     --radius: 0.5rem;
   }
 }
@@ -159,140 +141,138 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
 /* Quran Font Styles */
 .quran-uthmani {
   font-family: "Amiri", serif;
-  /* Standard Uthmani script - default */
 }
 
 .quran-indopak {
   font-family: "Scheherazade New", serif;
   letter-spacing: 0.5px;
-  /* Indo-Pakistani style has slightly different letter shapes */
 }
 
 .quran-tajweed {
   font-family: "Amiri", serif;
-  /* Tajweed rules with colors */
-  color: #000;
-  text-shadow: 0 0 1px rgba(26, 94, 99, 0.2), 0 0 1px rgba(212, 175, 55, 0.2);
+  color: inherit;
 }
 
 .quran-naskh {
   font-family: "Noto Naskh Arabic", serif;
   letter-spacing: 0.25px;
-  /* Clear Naskh style for easy reading */
 }
 
 .quran-quran {
   font-family: "Amiri Quran", serif;
-  /* Specialized for Quran text */
 }
 
 .quran-hafs {
   font-family: "Scheherazade New", serif;
   font-weight: 700;
   letter-spacing: 0.5px;
-  /* Traditional Hafs typography with heavier weight */
 }
 
 .quran-madani {
   font-family: "Amiri", serif;
   font-weight: 700;
-  /* Medina Mushaf style with bolder text */
 }
 
-/* Tajweed color rules - simplified version */
+/* Tajweed color rules */
 .quran-tajweed .tajweed-idgham,
 .quran-tajweed .tajweed-idgham-shafawi {
-  color: #169200; /* Green */
+  color: #169200;
 }
-
 .quran-tajweed .tajweed-ikhfa,
 .quran-tajweed .tajweed-ikhfa-shafawi {
-  color: #9400a8; /* Purple */
+  color: #9400a8;
 }
-
 .quran-tajweed .tajweed-iqlab {
-  color: #5e00ff; /* Blue */
+  color: #5e00ff;
 }
-
 .quran-tajweed .tajweed-qalqalah {
-  color: #dd0008; /* Red */
+  color: #dd0008;
 }
-
 .quran-tajweed .tajweed-madda-necessary {
-  color: #ff7e1e; /* Orange */
+  color: #ff7e1e;
 }
-
 .quran-tajweed .tajweed-madda-permissible {
-  color: #b1a8b4; /* Gray */
+  color: #71717a;
 }
 
-/* Add smooth transition for the dynamic island */
+.dark .quran-tajweed .tajweed-idgham,
+.dark .quran-tajweed .tajweed-idgham-shafawi {
+  color: #4ade80;
+}
+.dark .quran-tajweed .tajweed-ikhfa,
+.dark .quran-tajweed .tajweed-ikhfa-shafawi {
+  color: #c084fc;
+}
+.dark .quran-tajweed .tajweed-iqlab {
+  color: #818cf8;
+}
+.dark .quran-tajweed .tajweed-qalqalah {
+  color: #f87171;
+}
+.dark .quran-tajweed .tajweed-madda-necessary {
+  color: #fb923c;
+}
+.dark .quran-tajweed .tajweed-madda-permissible {
+  color: #a1a1aa;
+}
+
+/* Valid CSS Animation keyframes for the player */
 @keyframes expandPlayer {
   from {
-    max-width: md;
+    max-width: 28rem;
     border-radius: 9999px;
   }
   to {
-    max-width: 3xl;
+    max-width: 48rem;
     border-radius: 1rem;
   }
 }
 
 @keyframes collapsePlayer {
   from {
-    max-width: 3xl;
+    max-width: 48rem;
     border-radius: 1rem;
   }
   to {
-    max-width: md;
+    max-width: 28rem;
     border-radius: 9999px;
   }
 }
 
 .player-expanding {
-  animation: expandPlayer 0.3s ease-in-out forwards;
+  animation: expandPlayer 0.25s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 .player-collapsing {
-  animation: collapsePlayer 0.3s ease-in-out forwards;
+  animation: collapsePlayer 0.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
-/* Add styles for sticky verse */
+/* Sticky verse styling */
 .verse-sticky {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f8f5f0;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   margin: -1rem;
   padding: 1rem;
   border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
 }
 
-/* Dark mode sticky verse */
-.dark .verse-sticky {
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2);
-}
-
-/* Theme-specific sticky verse */
-.theme-sepia .verse-sticky {
-  background-color: #f8f3e9;
-}
-
-.theme-green .verse-sticky {
-  background-color: #f0f8f4;
-}
-
-.theme-blue .verse-sticky {
-  background-color: #f0f4f8;
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
