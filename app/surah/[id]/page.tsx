@@ -182,20 +182,30 @@ export default async function SurahPage({
       <JsonLd data={[surahSchema, breadcrumbSchema]} />
       <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4 flex flex-col gap-3">
-          {/* Top row: Back button on left, action buttons on right */}
-          <div className="flex justify-between items-center">
-            <Link href="/" aria-label="Back to all Surahs">
-              <Button
-                variant="ghost"
-                className="text-primary-foreground hover:bg-primary-foreground/15 px-2.5 h-9"
-              >
-                <ChevronLeft className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Back to Surahs</span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-            </Link>
+          {/* Top navigation row: Back icon & Desktop search on left, action buttons on right */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 md:flex-initial">
+              <Link href="/" aria-label="Back to all Surahs">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary-foreground hover:bg-primary-foreground/15 h-9 w-9 rounded-full shrink-0 active:scale-95 transition-all"
+                  title="Back to all Surahs"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                  <span className="sr-only">Back to all Surahs</span>
+                </Button>
+              </Link>
 
-            <div className="flex items-center gap-1">
+              {/* Desktop search buttons - placed right alongside the Back icon */}
+              <div className="hidden md:flex items-center gap-2">
+                <SearchButton size="sm" className="h-9" />
+                <AISearchButton size="sm" className="h-9" />
+              </div>
+            </div>
+
+            {/* Right side: Surah actions */}
+            <div className="flex items-center gap-1 shrink-0">
               <SurahPageClient surahId={surahId} />
               <ShareSurahButton
                 surahId={surahId}
@@ -209,10 +219,10 @@ export default async function SurahPage({
             </div>
           </div>
 
-          {/* Middle row: Search */}
-          <div className="w-full flex flex-col sm:flex-row gap-2">
-            <SearchButton />
-            <AISearchButton />
+          {/* Mobile search buttons - shown only on small screens (< md) */}
+          <div className="w-full flex flex-col sm:flex-row gap-2 md:hidden">
+            <SearchButton size="sm" className="h-9" />
+            <AISearchButton size="sm" className="h-9" />
           </div>
 
           {/* Bottom row: Surah info with metadata */}

@@ -6,20 +6,26 @@ export default function Loading() {
       {/* Header Skeleton */}
       <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4 flex flex-col gap-3">
-          {/* Top row */}
-          <div className="flex justify-between items-center">
-            <Skeleton className="w-28 h-9 bg-primary-foreground/20 rounded-md" />
-            <div className="flex gap-1.5">
+          {/* Top navigation row: Back icon & Desktop search on left, action buttons on right */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 md:flex-initial">
+              <Skeleton className="w-9 h-9 rounded-full bg-primary-foreground/20 shrink-0" />
+              <div className="hidden md:flex items-center gap-2">
+                <Skeleton className="h-9 w-48 bg-primary-foreground/20 rounded-md" />
+                <Skeleton className="h-9 w-36 bg-primary-foreground/20 rounded-md" />
+              </div>
+            </div>
+            <div className="flex gap-1.5 shrink-0">
               <Skeleton className="w-9 h-9 bg-primary-foreground/20 rounded-md" />
               <Skeleton className="w-9 h-9 bg-primary-foreground/20 rounded-md" />
               <Skeleton className="w-9 h-9 bg-primary-foreground/20 rounded-md" />
             </div>
           </div>
 
-          {/* Middle row: Search buttons */}
-          <div className="w-full flex flex-col sm:flex-row gap-2">
-            <Skeleton className="h-10 bg-primary-foreground/20 rounded-md w-full" />
-            <Skeleton className="h-10 bg-primary-foreground/20 rounded-md w-full sm:w-auto sm:min-w-[180px]" />
+          {/* Mobile search buttons - only on small screens (< md) */}
+          <div className="w-full flex flex-col sm:flex-row gap-2 md:hidden">
+            <Skeleton className="h-9 bg-primary-foreground/20 rounded-md w-full" />
+            <Skeleton className="h-9 bg-primary-foreground/20 rounded-md w-full sm:w-auto sm:min-w-[180px]" />
           </div>
 
           {/* Bottom row: Surah title & metadata */}

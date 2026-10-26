@@ -4,8 +4,14 @@ import { useState } from "react"
 import { Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import AISearchModal from "@/components/ai-search-modal"
+import { cn } from "@/lib/utils"
 
-export default function AISearchButton() {
+interface AISearchButtonProps {
+  className?: string
+  size?: "default" | "sm"
+}
+
+export default function AISearchButton({ className, size = "default" }: AISearchButtonProps = {}) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   const openSearch = () => setIsSearchOpen(true)
@@ -15,10 +21,14 @@ export default function AISearchButton() {
     <>
       <Button
         onClick={openSearch}
-        className="bg-[#d4af37] hover:bg-[#c9a431] text-[#1a5e63] border-none flex items-center gap-2 w-full md:w-auto"
+        size={size}
+        className={cn(
+          "bg-[#d4af37] hover:bg-[#c9a431] text-[#1a5e63] font-medium border-none flex items-center gap-2 w-full md:w-auto transition-colors",
+          className
+        )}
       >
-        <Sparkles className="h-4 w-4" />
-        <span className="flex-1 text-left">AI Quran Search</span>
+        <Sparkles className="h-4 w-4 shrink-0" />
+        <span className="flex-1 text-left truncate">AI Quran Search</span>
       </Button>
 
       <AISearchModal isOpen={isSearchOpen} onClose={closeSearch} />
