@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AudioProvider } from "@/context/audio-context";
 import AudioPlayerDrawer from "@/components/audio-player-drawer";
 import Footer from "@/components/footer";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
@@ -42,11 +43,6 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap"
         />
       </head>
-      <script
-        defer
-        src="https://cloud.umami.is/script.js"
-        data-website-id="231fe015-6997-42ba-bd51-ba761d2b558c"
-      ></script>
       <body className="font-sans">
         <ThemeProvider
           attribute="class"
@@ -59,6 +55,7 @@ export default function RootLayout({
             <Analytics />
             <Footer />
             <AudioPlayerDrawer />
+            <Toaster />
           </AudioProvider>
         </ThemeProvider>
       </body>

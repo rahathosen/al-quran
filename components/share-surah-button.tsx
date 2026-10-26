@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,21 +69,12 @@ export default function ShareSurahButton({
     );
   };
 
-  // Show toast notification
   const showToast = (message: string) => {
-    const toast = document.createElement("div");
-    toast.className =
-      "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#1a5e63] text-white px-4 py-2 rounded-lg shadow-lg z-50";
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 2000);
+    toast.success(message);
   };
 
   // If Web Share API is available, use it directly
-  if (typeof navigator !== "undefined" && navigator.share) {
+  if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     return (
       <Button
         variant="ghost"

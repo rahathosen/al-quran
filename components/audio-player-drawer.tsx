@@ -300,7 +300,7 @@ export default function AudioPlayerDrawer() {
                     // Infinite repeat
                     audioElement.currentTime = 0;
                     audioElement.play().catch(console.error);
-                  } else if (repeatCount > 0) {
+                  } else if (repeatCount !== undefined && repeatCount > 0) {
                     // Decrement count and repeat if still positive
                     window.audioRepeatCount = repeatCount - 1;
                     audioElement.currentTime = 0;

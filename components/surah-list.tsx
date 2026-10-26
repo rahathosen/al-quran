@@ -247,7 +247,7 @@ function SurahCard({ surah }: { surah: Surah }) {
             {surah.englishName} • {surah.numberOfAyahs} Verses
           </p>
           <p className="text-xs text-[#1a5e63] italic truncate mt-0.5">
-            "{surah.englishNameTranslation}"
+            &quot;{surah.englishNameTranslation}&quot;
           </p>
         </div>
       </div>
@@ -285,7 +285,7 @@ function SurahListItem({ surah }: { surah: Surah }) {
         </div>
 
         <p className="text-xs text-[#1a5e63] italic truncate">
-          "{surah.englishNameTranslation}" • {surah.numberOfAyahs} Verses
+          &quot;{surah.englishNameTranslation}&quot; • {surah.numberOfAyahs} Verses
         </p>
       </div>
 
