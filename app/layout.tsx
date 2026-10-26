@@ -9,15 +9,102 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Al-Quran",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "Al-Quran - Read, Listen & Study the Holy Quran",
+    template: "%s | Al-Quran",
+  },
   description:
-    "Read and explore the Holy Quran with beautiful Arabic text and translations",
+    "Read, study, and listen to the Holy Quran with authentic Arabic text (Uthmani), multiple translations (English, Bengali, Urdu), audio recitations by world-class Qaris, AI semantic search, and verse card generator.",
+  applicationName: "Al-Quran",
+  authors: [{ name: "Al-Quran Team", url: baseUrl }],
+  generator: "Next.js",
+  keywords: [
+    "Quran",
+    "Holy Quran",
+    "Al-Quran",
+    "القرآن الكريم",
+    "Quran online",
+    "Quran audio",
+    "Quran translation",
+    "Quran English",
+    "Quran Bengali",
+    "Surah",
+    "Ayah",
+    "Mishary Rashid Alafasy",
+    "Abdul Basit",
+    "Islamic scripture",
+    "Quran AI search",
+    "Verse card maker",
+    "Prayer times",
+  ],
+  creator: "Rahat Hosen",
+  publisher: "Al-Quran",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: baseUrl,
+    languages: {
+      "en-US": baseUrl,
+      ar: `${baseUrl}?lang=ar`,
+      "bn-BD": `${baseUrl}?lang=bn`,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["ar_SA", "bn_BD"],
+    url: baseUrl,
+    siteName: "Al-Quran",
+    title: "Al-Quran - Read, Listen & Study the Holy Quran",
+    description:
+      "Explore the Holy Quran with beautiful Arabic text, synchronized audio recitations, AI-powered semantic search, and verse card generator.",
+    images: [
+      {
+        url: "/og-images/quran-og.svg",
+        width: 1200,
+        height: 630,
+        alt: "Al-Quran - The Holy Quran",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Al-Quran - Read, Listen & Study the Holy Quran",
+    description:
+      "Explore the Holy Quran with beautiful Arabic typography, multi-language translations, audio recitations, and AI search.",
+    images: ["/og-images/quran-og.svg"],
+    creator: "@rahathosen",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-icon.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
     shortcut: "/favicon-96x96.png",
   },
+  manifest: "/site.webmanifest",
+  category: "religion",
 };
 
 export default function RootLayout({

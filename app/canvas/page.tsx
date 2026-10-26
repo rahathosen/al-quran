@@ -4,24 +4,27 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import JsonLd from "@/components/json-ld";
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app";
 
 export const metadata: Metadata = {
   title: "Create Quran Verse Cards | Al-Quran",
   description:
-    "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
+    "Design and create beautiful Quran verse cards with custom backgrounds, authentic calligraphy, and typography. Share inspiring Ayahs directly to social media.",
+  alternates: {
+    canonical: `${baseUrl}/canvas`,
+  },
   openGraph: {
     title: "Create Quran Verse Cards | Al-Quran",
     description:
-      "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
+      "Design and create beautiful Quran verse cards with custom backgrounds, authentic calligraphy, and typography. Share inspiring Ayahs directly to social media.",
     type: "website",
-    url:
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://al-quran-ai.vercel.app/canvas",
+    url: `${baseUrl}/canvas`,
     images: [
       {
-        url: `${
-          process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-        }/og-images/verse-cards-og.svg`,
+        url: `${baseUrl}/og-images/verse-cards-og.svg`,
         width: 1200,
         height: 630,
         alt: "Quran Verse Cards Creator",
@@ -32,22 +35,54 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Create Quran Verse Cards | Al-Quran",
     description:
-      "Create beautiful Quran verse cards with custom backgrounds and share them on social media",
-    images: [
-      `${
-        process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-      }/og-images/verse-cards-og.svg`,
-    ],
+      "Design and create beautiful Quran verse cards with custom backgrounds and share them on social media.",
+    images: [`${baseUrl}/og-images/verse-cards-og.svg`],
   },
   keywords:
-    "Quran verses, Islamic quotes, Quran cards, verse creator, Islamic social media, Quran sharing",
+    "Quran verses, Islamic quotes, Quran cards, verse creator, Islamic social media, Quran sharing, Ayah designer",
 };
 
 export default async function CanvasPage() {
   const surahs = await getAllSurahs();
 
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Quran Verse Cards Creator",
+    url: `${baseUrl}/canvas`,
+    applicationCategory: "DesignApplication",
+    operatingSystem: "All",
+    description:
+      "Create beautiful social media cards from Quranic verses with customizable Arabic calligraphy, translations, and backgrounds.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Verse Cards Creator",
+        item: `${baseUrl}/canvas`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <JsonLd data={[webAppSchema, breadcrumbSchema]} />
       <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3">

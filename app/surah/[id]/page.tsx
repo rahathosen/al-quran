@@ -18,7 +18,11 @@ import BookmarkSurahButton from "@/components/bookmark-surah-button";
 import ShareSurahButton from "@/components/share-surah-button";
 import VerseMetadata from "@/components/verse-metadata";
 import ViewToggle from "@/components/view-toggle";
+import JsonLd from "@/components/json-ld";
 import type { Metadata, ResolvingMetadata } from "next";
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -137,8 +141,45 @@ export default async function SurahPage({
     page: ayah.page,
   }));
 
+  const surahSchema = {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    name: `Surah ${surah.englishName} (${surah.name})`,
+    headline: `${surah.englishName} - ${surah.englishNameTranslation}`,
+    position: surah.number,
+    inLanguage: ["ar", "en", "bn"],
+    numberOfPages: surah.numberOfAyahs,
+    isPartOf: {
+      "@type": "Book",
+      name: "The Holy Quran",
+      inLanguage: "ar",
+      url: baseUrl,
+    },
+    url: `${baseUrl}/surah/${surah.number}`,
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `Surah ${surah.englishName}`,
+        item: `${baseUrl}/surah/${surah.number}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <JsonLd data={[surahSchema, breadcrumbSchema]} />
       <header className="bg-primary text-primary-foreground py-4 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4 flex flex-col gap-3">
           {/* Top row: Back button on left, action buttons on right */}

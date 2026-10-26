@@ -7,12 +7,19 @@ import SearchButton from "@/components/search-button";
 import AISearchButton from "@/components/ai-search-button";
 import AISearchInfo from "@/components/ai-search-info";
 import SurahList from "@/components/surah-list";
+import JsonLd from "@/components/json-ld";
 import type { Metadata } from "next";
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app";
 
 export const metadata: Metadata = {
   title: "Al-Quran | Read and Listen to the Holy Quran",
   description:
     "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
+  alternates: {
+    canonical: baseUrl,
+  },
   keywords:
     "Quran, Holy Quran, Quran online, Quran reading, Quran listening, Islamic scripture, Quran translations",
   openGraph: {
@@ -20,12 +27,10 @@ export const metadata: Metadata = {
     description:
       "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
     type: "website",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app",
+    url: baseUrl,
     images: [
       {
-        url: `${
-          process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-        }/og-images/quran-og.svg`,
+        url: `${baseUrl}/og-images/quran-og.svg`,
         width: 1200,
         height: 630,
         alt: "Al-Quran",
@@ -37,19 +42,58 @@ export const metadata: Metadata = {
     title: "Al-Quran | Read and Listen to the Holy Quran",
     description:
       "Read, study, and listen to the Holy Quran with beautiful Arabic text, multiple translations, audio recitations, and AI-powered search.",
-    images: [
-      `${
-        process.env.NEXT_PUBLIC_APP_URL || "https://al-quran-ai.vercel.app"
-      }/og-images/quran-og.svg`,
-    ],
+    images: [`${baseUrl}/og-images/quran-og.svg`],
   },
 };
 
 export default async function Home() {
   const surahs = await getAllSurahs();
 
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Al-Quran",
+    alternateName: ["القرآن الكريم", "The Holy Quran"],
+    url: baseUrl,
+    description:
+      "Read, study, and listen to the Holy Quran with Arabic text, multiple translations, audio recitations, and AI semantic search.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${baseUrl}/?search={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Al-Quran",
+    url: baseUrl,
+    logo: `${baseUrl}/apple-icon.png`,
+    sameAs: ["https://github.com/rahathosen/al-quran"],
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Surahs of the Holy Quran",
+    description: "Complete list of 114 Surahs (chapters) of the Holy Quran.",
+    numberOfItems: surahs.length,
+    itemListElement: surahs.map((surah, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: `Surah ${surah.englishName} (${surah.name})`,
+      description: `${surah.englishNameTranslation} - ${surah.numberOfAyahs} verses, ${surah.revelationType}`,
+      url: `${baseUrl}/surah/${surah.number}`,
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <JsonLd data={[websiteSchema, organizationSchema, itemListSchema]} />
       <header className="bg-primary text-primary-foreground py-4 md:py-6 border-b border-primary-foreground/10 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">

@@ -1,6 +1,12 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Al-Quran - The Noble Quran",
+  "short_name": "Al-Quran",
+  "description": "Read, study, and listen to the Holy Quran with Arabic text, multiple translations, audio recitation, and verse card generator.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#1a5e63",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -13,9 +19,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "categories": ["education", "books", "religion"],
+  "lang": "en",
+  "dir": "ltr"
 }
