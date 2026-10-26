@@ -1,40 +1,46 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { useEffect } from "react"
+import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AlertCircle } from "lucide-react";
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-[#d4af37]/20 max-w-md w-full text-center">
-        <h2 className="text-2xl font-bold text-[#1a5e63] mb-4">Something went wrong</h2>
-        <p className="text-[#555] mb-6">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+      <div className="bg-card text-card-foreground p-8 rounded-2xl shadow-lg border border-border max-w-md w-full text-center">
+        <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="h-6 w-6" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Something went wrong</h2>
+        <p className="text-muted-foreground mb-6 text-sm">
           We couldn&apos;t load the Quran data. This might be due to a network issue or API limitation.
         </p>
-        <div className="flex gap-4 justify-center">
-          <Button onClick={reset} className="bg-[#1a5e63] hover:bg-[#134548]">
+        <div className="flex gap-3 justify-center">
+          <Button onClick={reset} className="flex-1">
             Try again
           </Button>
           <Button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => router.push("/")}
             variant="outline"
-            className="border-[#1a5e63] text-[#1a5e63]"
+            className="flex-1"
           >
             Go home
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

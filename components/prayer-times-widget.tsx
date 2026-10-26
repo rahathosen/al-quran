@@ -200,7 +200,7 @@ export default function PrayerTimesWidget() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#1a5e63]/90 to-[#1a5e63] rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-primary-foreground/10 border border-primary-foreground/15 rounded-xl shadow-sm overflow-hidden">
       <div className="p-4 border-b border-white/10 flex items-center justify-between">
         <h3 className="text-white text-sm font-medium flex items-center">
           <Clock className="h-4 w-4 mr-2" />
@@ -214,7 +214,7 @@ export default function PrayerTimesWidget() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 text-white"
+            className="h-7 w-7 rounded-full bg-white/10 hover:bg-primary/20 text-primary text-white"
             onClick={getCurrentLocation}
             title="Use current location"
           >
@@ -252,12 +252,12 @@ export default function PrayerTimesWidget() {
                 key={prayer.name}
                 className={`relative overflow-hidden rounded-lg ${
                   nextPrayerIndex === index
-                    ? "bg-[#d4af37] text-[#1a5e63]"
-                    : "bg-white/10 text-white"
+                    ? "bg-primary-foreground text-primary font-bold shadow-sm"
+                    : "bg-primary-foreground/15 text-primary-foreground"
                 } p-3 transition-all`}
               >
                 {nextPrayerIndex === index && (
-                  <div className="absolute top-0 right-0 bg-white/20 px-1.5 py-0.5 text-[8px] font-bold rounded-bl-md">
+                  <div className="absolute top-0 right-0 bg-primary/20 text-primary px-1.5 py-0.5 text-[8px] font-bold rounded-bl-md">
                     NEXT
                   </div>
                 )}
@@ -276,11 +276,11 @@ export default function PrayerTimesWidget() {
             <div className="bg-white/10 rounded-lg p-3 text-center">
               <p className="text-xs text-white/90">
                 Next prayer:{" "}
-                <span className="font-medium text-[#d4af37]">
+                <span className="font-semibold underline underline-offset-2">
                   {prayerTimes[nextPrayerIndex].name}
                 </span>{" "}
                 at{" "}
-                <span className="font-medium text-[#d4af37]">
+                <span className="font-semibold underline underline-offset-2">
                   {prayerTimes[nextPrayerIndex].time}
                 </span>
               </p>

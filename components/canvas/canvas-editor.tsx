@@ -990,7 +990,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
       {/* Left column - Settings */}
 
       <div className="lg:col-span-1">
-        <Card className="shadow-lg border-[#d4af37]/20">
+        <Card className="shadow-lg border-border">
           <CardContent className="p-4 sm:p-6">
             {/* this comments section is more advance feature */}
 
@@ -1453,7 +1453,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
                         key={option.id}
                         className={`h-8 rounded-md flex items-center justify-center ${
                           fontColor === option.id
-                            ? "ring-2 ring-offset-2 ring-[#1a5e63]"
+                            ? "ring-2 ring-offset-2 ring-primary"
                             : ""
                         }`}
                         style={{
@@ -1631,7 +1631,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
             <div className="mt-6 flex flex-col gap-2">
               <Button
                 onClick={generateImage}
-                className="bg-[#1a5e63] hover:bg-[#134548] w-full"
+                className="w-full"
                 disabled={!selectedBackground || isGenerating || isLoading}
               >
                 {isGenerating ? (
@@ -1650,7 +1650,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
-                  className="border-[#1a5e63] text-[#1a5e63]"
+                  className="border-primary/40 text-primary hover:bg-primary/10"
                   disabled={!generatedImage}
                   id="download-button"
                 >
@@ -1660,7 +1660,7 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
                 <Button
                   variant="outline"
-                  className="border-[#d4af37] text-[#d4af37]"
+                  className="border-primary/40 text-primary hover:bg-primary/10"
                   disabled={!generatedImage}
                   id="share-button"
                 >
@@ -1675,13 +1675,13 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
       {/* Right column - Preview */}
       <div className="lg:col-span-2">
-        <Card className="shadow-lg border-[#d4af37]/20 overflow-hidden">
+        <Card className="shadow-lg border-border overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative w-full h-full flex items-center justify-center bg-gray-100 min-h-[500px]">
+            <div className="relative w-full h-full flex items-center justify-center bg-muted/40 min-h-[500px]">
               {!canvasRef ? (
                 <div className="text-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#1a5e63] mx-auto mb-2" />
-                  <p className="text-gray-500">Preparing canvas...</p>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Preparing canvas...</p>
                 </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -1696,10 +1696,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
               )}
 
               {isGenerating && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-[#1a5e63] mb-2" />
-                    <p className="text-[#1a5e63] font-medium">
+                <div className="absolute inset-0 bg-background/60 backdrop-blur-xs flex items-center justify-center">
+                  <div className="bg-card text-card-foreground border border-border p-5 rounded-2xl shadow-xl flex flex-col items-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                    <p className="text-foreground font-medium">
                       Generating your verse card...
                     </p>
                   </div>
@@ -1721,10 +1721,10 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-sm font-medium text-[#1a5e63] mb-2">
+              <h3 className="text-sm font-semibold text-foreground mb-2">
                 Preview Information
               </h3>
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-muted-foreground space-y-1">
                 <p>
                   <span className="font-medium">Surah:</span>{" "}
                   {surahData?.englishName || "Loading..."}
@@ -1747,8 +1747,8 @@ export default function CanvasEditor({ surahs }: CanvasEditorProps) {
 
           <Card>
             <CardContent className="p-4">
-              <h3 className="text-sm font-medium text-[#1a5e63] mb-2">Tips</h3>
-              <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">Tips</h3>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
                 <li>Use the Layout tab to adjust text position</li>
                 <li>Try different frame styles for a unique look</li>
                 <li>Save your favorite settings as presets</li>

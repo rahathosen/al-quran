@@ -263,6 +263,8 @@ export default function AudioPlayerDrawer() {
                 value={[effectiveTime]}
                 max={duration > 0 ? duration : 100}
                 step={0.1}
+                trackClassName="bg-white/20"
+                thumbClassName="bg-white border-primary/50"
                 onValueChange={(val) => {
                   setIsScrubbing(true);
                   setScrubTime(val[0]);
@@ -447,6 +449,8 @@ export default function AudioPlayerDrawer() {
                       value={[isMuted ? 0 : volume]}
                       max={1}
                       step={0.05}
+                      trackClassName="bg-white/20"
+                      thumbClassName="bg-white border-primary/50"
                       onValueChange={(val) => setVolume(val[0])}
                       className="w-full cursor-pointer"
                       aria-label="Volume slider"

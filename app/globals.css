@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     --background: 36 30% 96%;
     --foreground: 222.2 84% 4.9%;
 
@@ -42,6 +43,7 @@
   }
 
   .dark {
+    color-scheme: dark;
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
     --card: 222 47% 13%;
@@ -65,6 +67,7 @@
 
   /* Sepia Theme */
   .theme-sepia {
+    color-scheme: light;
     --background: 43 100% 95%;
     --foreground: 20 30% 20%;
     --card: 43 60% 98%;
@@ -89,6 +92,7 @@
 
   /* Green Theme */
   .theme-green {
+    color-scheme: light;
     --background: 150 25% 97%;
     --foreground: 150 30% 15%;
     --card: 150 25% 99%;
@@ -113,6 +117,7 @@
 
   /* Blue Theme */
   .theme-blue {
+    color-scheme: light;
     --background: 210 25% 97%;
     --foreground: 210 30% 15%;
     --card: 210 25% 99%;
@@ -139,9 +144,31 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  /* Thin & Theme-Reactive Scrollbars for WebKit & Chromium */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--primary) / 0.65);
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background-color: hsl(var(--primary) / 0.9);
   }
 }
 

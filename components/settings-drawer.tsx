@@ -52,11 +52,11 @@ const QURAN_FONTS = [
 ];
 
 const THEMES = [
-  { id: "light", name: "Light", description: "Default clean light", icon: Sun },
-  { id: "dark", name: "Dark", description: "Night reading mode", icon: Moon },
-  { id: "theme-sepia", name: "Sepia", description: "Warm bookish tone", icon: Palette },
-  { id: "theme-green", name: "Emerald", description: "Soothing green", icon: Palette },
-  { id: "theme-blue", name: "Sapphire", description: "Calm sapphire", icon: Palette },
+  { id: "light", name: "Light", description: "Clean day mode", icon: Sun, bgPreview: "#faf7f2", accentPreview: "#1a5e63" },
+  { id: "dark", name: "Dark", description: "Night reading", icon: Moon, bgPreview: "#0f172a", accentPreview: "#22d3ee" },
+  { id: "theme-sepia", name: "Sepia", description: "Warm parchment", icon: Palette, bgPreview: "#fef6e4", accentPreview: "#c67d0a" },
+  { id: "theme-green", name: "Emerald", description: "Soothing sage", icon: Palette, bgPreview: "#f2f9f5", accentPreview: "#2d6a4f" },
+  { id: "theme-blue", name: "Sapphire", description: "Calm royal blue", icon: Palette, bgPreview: "#f0f6fc", accentPreview: "#2563eb" },
 ];
 
 export default function SettingsDrawer({
@@ -221,7 +221,7 @@ export default function SettingsDrawer({
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {THEMES.map((t) => {
-                      const Icon = t.icon;
+                      // selected state
                       const isSelected = selectedTheme === t.id;
                       return (
                         <button
@@ -233,10 +233,19 @@ export default function SettingsDrawer({
                               : "border-border hover:bg-muted text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center mr-2.5 shrink-0">
-                            <Icon className="h-3.5 w-3.5" />
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center mr-2.5 shrink-0 border border-border/80 shadow-2xs relative overflow-hidden"
+                            style={{ backgroundColor: t.bgPreview }}
+                          >
+                            <span
+                              className="w-2.5 h-2.5 rounded-full"
+                              style={{ backgroundColor: t.accentPreview }}
+                            />
                           </div>
-                          <span className="text-xs">{t.name}</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-xs font-medium block leading-tight">{t.name}</span>
+                            <span className="text-[10px] text-muted-foreground truncate block">{t.description}</span>
+                          </div>
                         </button>
                       );
                     })}

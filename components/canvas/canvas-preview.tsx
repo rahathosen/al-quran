@@ -234,10 +234,10 @@ export default function CanvasPreview({
   ]);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center bg-gray-100 min-h-[500px]">
+    <div className="relative w-full h-full flex items-center justify-center bg-muted/40 min-h-[500px]">
       {!backgroundImage ? (
         <div className="text-center p-8">
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Select a background image to preview your verse card
           </p>
         </div>
@@ -249,10 +249,10 @@ export default function CanvasPreview({
       )}
 
       {isGenerating && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[#1a5e63] mb-2" />
-            <p className="text-[#1a5e63] font-medium">
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-xs flex items-center justify-center">
+          <div className="bg-card text-card-foreground border border-border p-5 rounded-2xl shadow-xl flex flex-col items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+            <p className="text-foreground font-medium">
               Generating your verse card...
             </p>
           </div>
