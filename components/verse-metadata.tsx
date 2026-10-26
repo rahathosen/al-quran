@@ -8,6 +8,8 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // List of all surahs for the selector
@@ -236,60 +238,118 @@ export default function VerseMetadata({
     }
   };
 
+  const handlePrevSurah = () => {
+    if (surahNumber > 1) {
+      router.push(`/surah/${surahNumber - 1}`);
+    }
+  };
+
+  const handleNextSurah = () => {
+    if (surahNumber < 114) {
+      router.push(`/surah/${surahNumber + 1}`);
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
     <div
       ref={metadataRef}
-      className="sticky top-2 z-20 flex items-center justify-between bg-card/90 text-card-foreground backdrop-blur-md rounded-xl px-3 py-2 text-xs border border-border shadow-md mb-4 transition-all duration-200"
+      className="sticky top-0 sm:top-2 z-30 -mx-4 sm:mx-0 px-3 sm:px-4 py-2 sm:rounded-2xl bg-card/95 backdrop-blur-md border-b sm:border border-border/80 shadow-xs sm:shadow-md mb-4 sm:mb-6 transition-all duration-200"
     >
-      <div className="flex items-center gap-2">
-        <Select
-          value={currentVerse.toString()}
-          onValueChange={handleVerseSelect}
-        >
-          <SelectTrigger
-            className="h-8 text-xs min-w-[90px] bg-muted/60 border border-border hover:bg-muted font-medium rounded-lg px-2.5 transition-colors"
-            aria-label="Select verse number"
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2 w-full">
+        {/* Left group: Surah Navigation & Switcher */}
+        <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-lg shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none"
+            onClick={handlePrevSurah}
+            disabled={surahNumber <= 1}
+            title={
+              surahNumber > 1
+                ? `Previous: Surah ${surahNumber - 1} (${SURAHS[surahNumber - 2]?.name})`
+                : "First Surah"
+            }
+            aria-label="Previous Surah"
           >
-            <span>Verse {currentVerse}</span>
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-[200px]">
-              {Array.from({ length: totalVerses || 1 }, (_, i) => (
-                <SelectItem key={i + 1} value={(i + 1).toString()}>
-                  Verse {i + 1}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
 
-        <Select
-          value={surahNumber.toString()}
-          onValueChange={handleSurahSelect}
-        >
-          <SelectTrigger
-            className="h-8 min-w-[110px] sm:min-w-[130px] bg-muted/60 border border-border hover:bg-muted font-medium rounded-lg px-2.5 transition-colors"
-            aria-label="Select Surah"
+          <Select
+            value={surahNumber.toString()}
+            onValueChange={handleSurahSelect}
           >
-            <span className="truncate">{surahName}</span>
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-[300px]">
-              {SURAHS.map((surah) => (
-                <SelectItem key={surah.number} value={surah.number.toString()}>
-                  {surah.number}. {surah.name}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
+            <SelectTrigger
+              className="h-8 text-xs font-semibold bg-muted/60 border border-border/60 hover:bg-muted font-medium rounded-lg px-2 sm:px-2.5 max-w-[125px] sm:max-w-[170px] truncate transition-colors"
+              aria-label="Select Surah"
+            >
+              <span className="truncate">
+                {surahNumber}. {surahName}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <ScrollArea className="h-[300px]">
+                {SURAHS.map((surah) => (
+                  <SelectItem
+                    key={surah.number}
+                    value={surah.number.toString()}
+                  >
+                    {surah.number}. {surah.name}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
+            </SelectContent>
+          </Select>
 
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/60 border border-border/50 rounded-lg text-xs font-medium">
-        <span className="text-muted-foreground">Page:</span>
-        <span className="tabular-nums font-semibold">{currentPage}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-lg shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none"
+            onClick={handleNextSurah}
+            disabled={surahNumber >= 114}
+            title={
+              surahNumber < 114
+                ? `Next: Surah ${surahNumber + 1} (${SURAHS[surahNumber]?.name})`
+                : "Last Surah"
+            }
+            aria-label="Next Surah"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Right group: Verse Jump & Page Badge */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Select
+            value={currentVerse.toString()}
+            onValueChange={handleVerseSelect}
+          >
+            <SelectTrigger
+              className="h-8 text-xs min-w-[76px] sm:min-w-[85px] bg-muted/60 border border-border/60 hover:bg-muted font-medium rounded-lg px-2 sm:px-2.5 transition-colors"
+              aria-label="Select verse number"
+            >
+              <span>Verse {currentVerse}</span>
+            </SelectTrigger>
+            <SelectContent>
+              <ScrollArea className="h-[200px]">
+                {Array.from({ length: totalVerses || 1 }, (_, i) => (
+                  <SelectItem key={i + 1} value={(i + 1).toString()}>
+                    Verse {i + 1}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
+            </SelectContent>
+          </Select>
+
+          <div className="h-8 px-2 sm:px-2.5 flex items-center gap-1 bg-muted/50 border border-border/50 rounded-lg text-[11px] sm:text-xs font-medium text-muted-foreground whitespace-nowrap">
+            <span className="hidden sm:inline">Page</span>
+            <span className="sm:hidden">P.</span>
+            <span className="tabular-nums font-semibold text-foreground">
+              {currentPage}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

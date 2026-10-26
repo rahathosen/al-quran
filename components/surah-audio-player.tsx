@@ -63,7 +63,7 @@ export default function SurahAudioPlayer({
       onClick={handlePlayClick}
       size={size}
       className={cn(
-        "w-full sm:w-auto gap-1.5 sm:gap-2 text-xs sm:text-sm h-8.5 sm:h-9 px-2.5 sm:px-3",
+        "w-full sm:w-auto gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium h-9 px-3 rounded-lg",
         className
       )}
       disabled={isLoadingThisSurah}

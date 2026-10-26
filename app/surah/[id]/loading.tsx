@@ -24,8 +24,8 @@ export default function Loading() {
 
           {/* Mobile search buttons - 2-column grid on small screens (< md) */}
           <div className="w-full grid grid-cols-2 gap-2 md:hidden">
-            <Skeleton className="h-8.5 bg-primary-foreground/20 rounded-md w-full" />
-            <Skeleton className="h-8.5 bg-primary-foreground/20 rounded-md w-full" />
+            <Skeleton className="h-10 bg-primary-foreground/20 rounded-xl w-full" />
+            <Skeleton className="h-10 bg-primary-foreground/20 rounded-xl w-full" />
           </div>
 
           {/* Bottom row: Surah title & metadata */}

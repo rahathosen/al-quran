@@ -221,8 +221,8 @@ export default async function SurahPage({
 
           {/* Mobile search buttons - compact 2-column grid shown only on small screens (< md) */}
           <div className="w-full grid grid-cols-2 gap-2 md:hidden">
-            <SearchButton size="sm" className="h-8.5 text-xs w-full justify-start px-2.5" />
-            <AISearchButton size="sm" className="h-8.5 text-xs w-full justify-start px-2.5" />
+            <SearchButton size="sm" className="h-10 text-xs sm:text-sm font-medium w-full justify-center rounded-xl px-3" />
+            <AISearchButton size="sm" className="h-10 text-xs sm:text-sm font-medium w-full justify-center rounded-xl px-3" />
           </div>
 
           {/* Bottom row: Surah info with harmonious typography & metadata */}

@@ -27,7 +27,7 @@ export default function ViewToggle({ currentView, surahId, size = "default", cla
           variant="outline"
           size={size}
           className={cn(
-            "border-primary/40 text-primary hover:bg-primary/10 hover:text-primary transition-colors text-xs sm:text-sm h-8.5 sm:h-9 px-2.5 sm:px-3",
+            "border-primary/40 text-primary hover:bg-primary/10 hover:text-primary transition-colors text-xs sm:text-sm font-medium h-9 px-3 rounded-lg",
             className
           )}
         >
