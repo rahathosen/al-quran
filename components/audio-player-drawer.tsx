@@ -18,7 +18,7 @@ import {
   Rewind,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 // Convert numbers to Arabic numerals
 function convertToArabicNumeral(num: number): string {
@@ -32,46 +32,63 @@ function convertToArabicNumeral(num: number): string {
 
 export default function AudioPlayerDrawer() {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     isPlaying,
     isLoading,
     currentVerse,
     verses,
     surahName,
+    englishName,
     pauseAudio,
     resumeAudio,
     nextVerse,
     previousVerse,
+    replayCurrentVerse,
+    seekAudio,
     setProgress,
     duration,
     currentTime,
+    volume,
+    setVolume,
+    isMuted,
+    toggleMute,
     isPlayerVisible,
     isPlayerExpanded,
     setIsPlayerExpanded,
     closePlayer,
     calculateProgress,
-    goToFirstVerse,
+    scrollToCurrentVerse,
     currentSurah,
-    isRepeatEnabled: contextRepeatEnabled,
-    setIsRepeatEnabled: setContextRepeatEnabled,
-    currentVerseData,
+    repeatMode,
+    setRepeatMode,
   } = useAudio();
 
-  const [volume, setVolume] = useState(
-    typeof window !== "undefined" && window.audioVolume !== undefined
-      ? window.audioVolume
-      : 1
-  );
-  const [isMuted, setIsMuted] = useState(
-    typeof window !== "undefined" && window.audioIsMuted !== undefined
-      ? window.audioIsMuted
-      : false
-  );
+  // Local state for butter-smooth slider scrubbing without playback jitter
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [scrubTime, setScrubTime] = useState(0);
   const [showVolumeControl, setShowVolumeControl] = useState(false);
   const [animationClass, setAnimationClass] = useState("");
-  const [repeatMode, setRepeatMode] = useState<
-    "off" | "once" | "twice" | "thrice" | "infinite"
-  >("off");
+  const volumeContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close volume popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        volumeContainerRef.current &&
+        !volumeContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowVolumeControl(false);
+      }
+    };
+
+    if (showVolumeControl) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [showVolumeControl]);
 
   // Format time (seconds to MM:SS)
   const formatTime = (time: number) => {
@@ -83,58 +100,6 @@ export default function AudioPlayerDrawer() {
       .padStart(2, "0")}`;
   };
 
-  const getActiveAudioElement = () => {
-    if (typeof document === "undefined") return null;
-    const audioElements = document.querySelectorAll("audio");
-    for (let i = 0; i < audioElements.length; i++) {
-      const audio = audioElements[i] as HTMLAudioElement;
-      if (!audio.paused || audio.currentTime > 0) {
-        return audio;
-      }
-    }
-    return audioElements.length > 0 ? (audioElements[0] as HTMLAudioElement) : null;
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-
-    if (typeof window !== "undefined") {
-      window.audioVolume = newVolume;
-    }
-
-    const audioElement = getActiveAudioElement();
-    if (audioElement) {
-      audioElement.volume = newVolume;
-    }
-
-    if (newVolume === 0) {
-      setIsMuted(true);
-      if (typeof window !== "undefined") {
-        window.audioIsMuted = true;
-      }
-    } else {
-      setIsMuted(false);
-      if (typeof window !== "undefined") {
-        window.audioIsMuted = false;
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    const newMutedState = !isMuted;
-    setIsMuted(newMutedState);
-
-    if (typeof window !== "undefined") {
-      window.audioIsMuted = newMutedState;
-    }
-
-    const audioElement = getActiveAudioElement();
-    if (audioElement) {
-      audioElement.muted = newMutedState;
-    }
-  };
-
   const togglePlay = () => {
     if (isPlaying) {
       pauseAudio();
@@ -143,84 +108,45 @@ export default function AudioPlayerDrawer() {
     }
   };
 
-  const handleRepeat = () => {
-    let newRepeatCount = 0;
-    let newRepeatMode: "off" | "once" | "twice" | "thrice" | "infinite" = "off";
-
+  const cycleRepeatMode = () => {
     if (repeatMode === "off") {
-      newRepeatMode = "once";
-      newRepeatCount = 1;
+      setRepeatMode("once");
     } else if (repeatMode === "once") {
-      newRepeatMode = "twice";
-      newRepeatCount = 2;
+      setRepeatMode("twice");
     } else if (repeatMode === "twice") {
-      newRepeatMode = "thrice";
-      newRepeatCount = 3;
+      setRepeatMode("thrice");
     } else if (repeatMode === "thrice") {
-      newRepeatMode = "infinite";
-      newRepeatCount = -1;
+      setRepeatMode("infinite");
     } else {
-      newRepeatMode = "off";
-      newRepeatCount = 0;
-    }
-
-    setRepeatMode(newRepeatMode);
-    setContextRepeatEnabled(newRepeatCount !== 0);
-
-    if (typeof window !== "undefined") {
-      window.audioRepeatCount = newRepeatCount;
+      setRepeatMode("off");
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const count = window.audioRepeatCount || 0;
-      if (count === 0) {
-        setRepeatMode("off");
-        setContextRepeatEnabled(false);
-      } else if (count === 1) {
-        setRepeatMode("once");
-        setContextRepeatEnabled(true);
-      } else if (count === 2) {
-        setRepeatMode("twice");
-        setContextRepeatEnabled(true);
-      } else if (count === 3) {
-        setRepeatMode("thrice");
-        setContextRepeatEnabled(true);
-      } else if (count === -1) {
-        setRepeatMode("infinite");
-        setContextRepeatEnabled(true);
+  const getRepeatModeLabel = () => {
+    switch (repeatMode) {
+      case "once":
+        return "Repeat: 1×";
+      case "twice":
+        return "Repeat: 2×";
+      case "thrice":
+        return "Repeat: 3×";
+      case "infinite":
+        return "Repeat: ∞";
+      default:
+        return "Repeat: Off";
+    }
+  };
+
+  const navigateToCurrentVerse = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentSurah && currentVerse) {
+      if (pathname === `/surah/${currentSurah}`) {
+        scrollToCurrentVerse();
+      } else {
+        router.push(`/surah/${currentSurah}#verse-${currentVerse}`);
       }
     }
-  }, [setContextRepeatEnabled]);
-
-  useEffect(() => {
-    const applySettingsToAudio = () => {
-      const audioElement = getActiveAudioElement();
-      if (audioElement) {
-        audioElement.volume = volume;
-        audioElement.muted = isMuted;
-      }
-    };
-
-    applySettingsToAudio();
-    const intervalId = setInterval(applySettingsToAudio, 1500);
-    return () => clearInterval(intervalId);
-  }, [volume, isMuted]);
-
-  useEffect(() => {
-    if (contextRepeatEnabled && repeatMode === "off") {
-      setRepeatMode("once");
-      if (typeof window !== "undefined" && window.audioRepeatCount === 0) {
-        window.audioRepeatCount = 1;
-      }
-    } else if (!contextRepeatEnabled && repeatMode !== "off") {
-      setRepeatMode("off");
-      if (typeof window !== "undefined") {
-        window.audioRepeatCount = 0;
-      }
-    }
-  }, [contextRepeatEnabled, repeatMode]);
+  };
 
   useEffect(() => {
     if (isPlayerExpanded) {
@@ -230,129 +156,67 @@ export default function AudioPlayerDrawer() {
     }
   }, [isPlayerExpanded, isPlayerVisible]);
 
-  useEffect(() => {
-    const handleNewAudio = (mutations: MutationRecord[]) => {
-      for (const mutation of mutations) {
-        if (mutation.type === "childList") {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeName === "AUDIO") {
-              const audioElement = node as HTMLAudioElement;
-              audioElement.volume = volume;
-              audioElement.muted = isMuted;
-
-              audioElement.addEventListener("ended", () => {
-                if (
-                  typeof window !== "undefined" &&
-                  window.audioRepeatCount !== undefined &&
-                  window.audioRepeatCount !== 0
-                ) {
-                  const repeatCount = window.audioRepeatCount;
-                  if (repeatCount === -1) {
-                    audioElement.currentTime = 0;
-                    audioElement.play().catch(console.error);
-                  } else if (repeatCount !== undefined && repeatCount > 0) {
-                    // Decrement count and repeat if still positive
-                    window.audioRepeatCount = repeatCount - 1;
-                    audioElement.currentTime = 0;
-                    audioElement.play().catch(console.error);
-                  }
-                }
-              });
-            }
-          });
-        }
-      }
-    };
-
-    if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {
-      const observer = new MutationObserver(handleNewAudio);
-      observer.observe(document.body, { childList: true, subtree: true });
-      return () => observer.disconnect();
-    }
-  }, [volume, isMuted]);
-
-  const rewind = () => {
-    const audioElement = getActiveAudioElement();
-    if (audioElement) {
-      const newTime = Math.max(0, audioElement.currentTime - 10);
-      audioElement.currentTime = newTime;
-      setProgress(newTime);
-    }
-  };
-
-  const fastForward = () => {
-    const audioElement = getActiveAudioElement();
-    if (audioElement) {
-      const newTime = Math.min(
-        audioElement.duration || 0,
-        audioElement.currentTime + 10
-      );
-      audioElement.currentTime = newTime;
-      setProgress(newTime);
-    }
-  };
-
-  const navigateToCurrentVerse = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (currentSurah && currentVerse) {
-      router.push(`/surah/${currentSurah}#verse-${currentVerse}`);
-    }
-  };
-
   if (!isPlayerVisible) {
     return null;
   }
 
-  const getRepeatModeText = () => {
-    switch (repeatMode) {
-      case "once":
-        return "1×";
-      case "twice":
-        return "2×";
-      case "thrice":
-        return "3×";
-      case "infinite":
-        return "∞";
-      default:
-        return "Off";
-    }
-  };
+  const effectiveTime = isScrubbing ? scrubTime : currentTime;
+  const progressRatio = calculateProgress();
+  const progressPercent = Math.round(progressRatio * 100);
+
+  // Clean title display with Arabic isolation
+  const displaySurahTitle = englishName || surahName || "Quran";
+  const hasDistinctArabicName =
+    surahName &&
+    englishName &&
+    surahName.trim().toLowerCase() !== englishName.trim().toLowerCase();
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
+    <div className="fixed bottom-6 sm:bottom-8 left-0 right-0 flex justify-center z-50 px-3 sm:px-4 pointer-events-none mb-[env(safe-area-inset-bottom)]">
       <div
         className={`pointer-events-auto bg-neutral-950/95 text-white backdrop-blur-xl border border-white/10 shadow-2xl transition-[max-width,border-radius,padding] duration-300 ease-out ${animationClass} ${
           isPlayerExpanded
-            ? "w-full max-w-2xl rounded-2xl p-4 sm:p-5"
+            ? "w-full max-w-xl md:max-w-2xl rounded-2xl p-4 sm:p-5"
             : "w-auto max-w-md p-2.5 pr-4 rounded-full"
         }`}
         onClick={() => !isPlayerExpanded && setIsPlayerExpanded(true)}
       >
         {isPlayerExpanded ? (
           <div className="text-white space-y-3">
-            {/* Header row */}
-            <div className="flex items-center justify-between">
+            {/* Header row: Verse info and collapse / close */}
+            <div className="flex items-center justify-between gap-3">
               <div
-                className="flex items-center gap-3 cursor-pointer hover:bg-white/10 p-1.5 rounded-xl transition-colors"
+                className="flex items-center gap-3 cursor-pointer hover:bg-white/10 p-1.5 -ml-1 rounded-xl transition-colors min-w-0"
                 onClick={navigateToCurrentVerse}
-                title="Go to verse in Surah"
+                title="Scroll to verse in Surah"
               >
-                <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0 shadow-sm">
                   <span className="font-amiri text-base">
                     {currentVerse && convertToArabicNumeral(currentVerse)}
                   </span>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold leading-tight">
-                    Surah {surahName}
-                  </h3>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-sm font-semibold leading-tight text-white truncate">
+                      Surah {displaySurahTitle}
+                    </h3>
+                    {hasDistinctArabicName && (
+                      <span
+                        dir="rtl"
+                        lang="ar"
+                        className="font-amiri text-sm text-primary font-medium"
+                      >
+                        ({surahName})
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-white/70">
                     Verse {currentVerse} of {verses.length}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -390,53 +254,72 @@ export default function AudioPlayerDrawer() {
               </div>
             </div>
 
-            {/* Time & progress bar */}
+            {/* Scrubber / Progress row */}
             <div className="flex items-center gap-2.5 text-xs text-white/70">
               <span className="tabular-nums font-mono min-w-[36px]">
-                {formatTime(currentTime)}
+                {formatTime(effectiveTime)}
               </span>
               <Slider
-                value={[currentTime]}
-                max={duration || 100}
-                step={0.01}
-                onValueChange={(value) => setProgress(value[0])}
+                value={[effectiveTime]}
+                max={duration > 0 ? duration : 100}
+                step={0.1}
+                onValueChange={(val) => {
+                  setIsScrubbing(true);
+                  setScrubTime(val[0]);
+                }}
+                onValueCommit={(val) => {
+                  setIsScrubbing(false);
+                  setProgress(val[0]);
+                }}
                 className="flex-1 cursor-pointer"
-                aria-label="Recitation progress"
+                aria-label="Recitation progress scrubber"
               />
               <span className="tabular-nums font-mono min-w-[36px] text-right">
                 {formatTime(duration)}
               </span>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-between pt-1">
+            {/* Controls Row */}
+            <div className="flex items-center justify-between pt-1 gap-1">
+              {/* Repeat Mode Toggle */}
               <Button
                 variant="ghost"
                 size="sm"
-                className={`text-white hover:bg-white/15 rounded-lg text-xs h-8 px-2.5 flex items-center gap-1.5 ${
-                  repeatMode !== "off" ? "bg-white/20 text-white font-medium" : ""
+                className={`text-white hover:bg-white/15 rounded-lg text-xs h-8 px-2 sm:px-2.5 flex items-center gap-1.5 transition-colors shrink-0 ${
+                  repeatMode !== "off"
+                    ? "bg-primary/20 text-primary hover:bg-primary/30 font-medium"
+                    : "text-white/80"
                 }`}
-                onClick={handleRepeat}
-                aria-label={`Repeat mode: ${getRepeatModeText()}`}
+                onClick={cycleRepeatMode}
+                aria-label={`Current repeat mode: ${getRepeatModeLabel()}`}
               >
                 <Repeat className="h-3.5 w-3.5" />
-                <span>{getRepeatModeText()}</span>
+                <span className="hidden xs:inline text-[11px] sm:text-xs">
+                  {getRepeatModeLabel()}
+                </span>
+                <span className="xs:hidden text-[11px]">
+                  {repeatMode === "off" ? "Off" : repeatMode}
+                </span>
               </Button>
 
-              <div className="flex items-center gap-1 sm:gap-2">
+              {/* Playback Controls Center */}
+              <div className="flex items-center gap-0.5 sm:gap-1.5">
+                {/* Replay Current Verse from 00:00 */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    goToFirstVerse();
+                    replayCurrentVerse();
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
-                  aria-label="Restart from first verse"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95"
+                  aria-label="Restart current verse from beginning"
+                  title="Restart verse"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>
 
+                {/* Previous Verse */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -444,32 +327,36 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95 disabled:opacity-40"
                   disabled={!currentVerse || currentVerse <= 1 || isLoading}
                   aria-label="Previous verse"
+                  title="Previous verse"
                 >
                   <SkipBack className="h-4 w-4" />
                 </Button>
 
+                {/* Rewind 10 Seconds */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    rewind();
+                    seekAudio(-10);
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95"
                   aria-label="Rewind 10 seconds"
+                  title="Rewind 10s"
                 >
                   <Rewind className="h-4 w-4" />
                 </Button>
 
+                {/* Primary Play / Pause Button */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     togglePlay();
                   }}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-10 rounded-full p-0 flex items-center justify-center shrink-0 shadow-sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-10 sm:h-11 sm:w-11 rounded-full p-0 flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform"
                   disabled={isLoading}
                   aria-label={
                     isLoading
@@ -482,25 +369,28 @@ export default function AudioPlayerDrawer() {
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : isPlaying ? (
-                    <PauseCircle className="h-5 w-5" />
+                    <PauseCircle className="h-5 w-5 sm:h-6 sm:w-6" />
                   ) : (
-                    <PlayCircle className="h-5 w-5" />
+                    <PlayCircle className="h-5 w-5 sm:h-6 sm:w-6" />
                   )}
                 </Button>
 
+                {/* Fast Forward 10 Seconds */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    fastForward();
+                    seekAudio(10);
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95"
                   aria-label="Fast forward 10 seconds"
+                  title="Fast-forward 10s"
                 >
                   <FastForward className="h-4 w-4" />
                 </Button>
 
+                {/* Next Verse */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -508,30 +398,31 @@ export default function AudioPlayerDrawer() {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95 disabled:opacity-40"
                   disabled={
                     !currentVerse || currentVerse >= verses.length || isLoading
                   }
                   aria-label="Next verse"
+                  title="Next verse"
                 >
                   <SkipForward className="h-4 w-4" />
                 </Button>
               </div>
 
               {/* Volume Popover */}
-              <div className="relative">
+              <div className="relative shrink-0" ref={volumeContainerRef}>
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowVolumeControl(!showVolumeControl);
                   }}
-                  onMouseEnter={() => setShowVolumeControl(true)}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full"
+                  className="h-8 w-8 text-white hover:bg-white/15 rounded-full active:scale-95"
                   aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+                  title="Volume"
                 >
-                  {isMuted ? (
+                  {isMuted || volume === 0 ? (
                     <VolumeX className="h-4 w-4 text-red-400" />
                   ) : (
                     <Volume2 className="h-4 w-4" />
@@ -540,16 +431,14 @@ export default function AudioPlayerDrawer() {
 
                 {showVolumeControl && (
                   <div
-                    className="absolute bottom-full right-0 mb-3 bg-neutral-900 border border-white/15 p-3 rounded-xl shadow-xl w-32 flex flex-col gap-2"
-                    onMouseEnter={() => setShowVolumeControl(true)}
-                    onMouseLeave={() => setShowVolumeControl(false)}
+                    className="absolute bottom-full right-0 mb-3 bg-neutral-900/95 border border-white/15 p-3 rounded-xl shadow-2xl w-36 flex flex-col gap-2.5 backdrop-blur-md z-50 animate-in fade-in zoom-in-95 duration-150"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="flex justify-between items-center text-[10px] text-white/70">
+                    <div className="flex justify-between items-center text-[11px] text-white/80 font-medium">
                       <span>Volume</span>
                       <button
                         onClick={toggleMute}
-                        className="hover:underline text-xs"
+                        className="text-[10px] text-primary hover:underline font-semibold"
                       >
                         {isMuted ? "Unmute" : "Mute"}
                       </button>
@@ -557,8 +446,8 @@ export default function AudioPlayerDrawer() {
                     <Slider
                       value={[isMuted ? 0 : volume]}
                       max={1}
-                      step={0.01}
-                      onValueChange={handleVolumeChange}
+                      step={0.05}
+                      onValueChange={(val) => setVolume(val[0])}
                       className="w-full cursor-pointer"
                       aria-label="Volume slider"
                     />
@@ -568,9 +457,9 @@ export default function AudioPlayerDrawer() {
             </div>
           </div>
         ) : (
-          /* Collapsed Mini Island */
+          /* Collapsed Mini Dynamic Island */
           <div className="flex items-center gap-3 text-white">
-            {/* Circular Progress */}
+            {/* Circular Progress Gauge */}
             <div className="relative w-8 h-8 shrink-0">
               <svg className="w-8 h-8" viewBox="0 0 36 36" aria-hidden="true">
                 <circle
@@ -589,15 +478,7 @@ export default function AudioPlayerDrawer() {
                   stroke="currentColor"
                   strokeWidth="3"
                   strokeDasharray="100.53"
-                  strokeDashoffset={
-                    100.53 -
-                    (currentVerse &&
-                    verses.length &&
-                    currentVerse >= verses.length
-                      ? 1
-                      : calculateProgress()) *
-                      100.53
-                  }
+                  strokeDashoffset={100.53 - progressRatio * 100.53}
                   className="text-primary transition-[stroke-dashoffset] duration-300"
                   transform="rotate(-90 18 18)"
                 />
@@ -607,32 +488,30 @@ export default function AudioPlayerDrawer() {
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="white"
-                  fontSize="9"
+                  fontSize="8.5"
                   fontWeight="bold"
-                  className="font-mono"
+                  className="font-mono tabular-nums"
                 >
-                  {currentVerse &&
-                  verses.length &&
-                  currentVerse >= verses.length
-                    ? "100%"
-                    : `${Math.round(calculateProgress() * 100)}%`}
+                  {`${progressPercent}%`}
                 </text>
               </svg>
             </div>
 
+            {/* Verse Title & Info */}
             <div
               className="flex-1 min-w-0 cursor-pointer hover:bg-white/10 rounded-lg px-2 py-0.5 transition-colors"
               onClick={navigateToCurrentVerse}
-              title="Go to verse"
+              title="Go to verse in Surah"
             >
               <p className="text-xs font-semibold truncate leading-tight">
-                Surah {surahName}
+                Surah {displaySurahTitle}
               </p>
               <p className="text-[11px] text-white/70 truncate">
                 Verse {currentVerse} of {verses.length}
               </p>
             </div>
 
+            {/* Collapsed Play/Pause Toggle */}
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -640,7 +519,7 @@ export default function AudioPlayerDrawer() {
               }}
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-white hover:bg-white/15 rounded-full shrink-0"
+              className="h-8 w-8 text-white hover:bg-white/15 rounded-full shrink-0 active:scale-95"
               disabled={isLoading}
               aria-label={
                 isLoading
@@ -664,4 +543,3 @@ export default function AudioPlayerDrawer() {
     </div>
   );
 }
-

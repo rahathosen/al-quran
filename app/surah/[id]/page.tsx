@@ -245,7 +245,8 @@ export default async function SurahPage({
               <SurahAudioPlayer
                 surahId={surahId}
                 verses={verses}
-                surahName={surah.englishName}
+                surahName={surah.name}
+                englishName={surah.englishName}
               />
             </div>
           </div>

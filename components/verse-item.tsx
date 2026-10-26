@@ -72,7 +72,7 @@ export default function VerseItem({
     if (isCurrentVerse && isPlaying) {
       pauseAudio();
     } else {
-      playVerse(surahId, verse.number, verses, surahName);
+      playVerse(surahId, verse.number, verses, surahName, englishName);
     }
   };
 
@@ -307,4 +307,5 @@ export default function VerseItem({
     </div>
   );
 }
+
 
