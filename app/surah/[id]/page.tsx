@@ -241,7 +241,7 @@ export default async function SurahPage({
                 </span>
                 <span className="opacity-50 text-xs">•</span>
                 <span className="text-xs sm:text-sm font-normal text-primary-foreground/80 italic">
-                  "{surah.englishNameTranslation}"
+                  &ldquo;{surah.englishNameTranslation}&rdquo;
                 </span>
               </span>
             </h1>
