@@ -227,6 +227,12 @@ export function updateRecentSurah(surah: RecentSurah): void {
   }
 }
 
+function syncSettingsCookie(settings: Record<string, any>): void {
+  if (typeof document === "undefined") return;
+  const encoded = encodeURIComponent(JSON.stringify(settings));
+  document.cookie = `quran-settings=${encoded}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+}
+
 // Get user settings
 export function getSettings(): Record<string, any> {
   if (typeof window === "undefined") return {};
@@ -235,12 +241,7 @@ export function getSettings(): Record<string, any> {
     const settings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     const parsedSettings = settings ? JSON.parse(settings) : {};
 
-    // Set cookies for server components to access
-    if (typeof document !== "undefined") {
-      document.cookie = `quran-settings=${JSON.stringify(
-        parsedSettings
-      )}; path=/; max-age=31536000; SameSite=Lax`;
-    }
+    syncSettingsCookie(parsedSettings);
 
     return parsedSettings;
   } catch (error) {
@@ -255,13 +256,7 @@ export function saveSettings(settings: Record<string, any>): void {
 
   try {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-
-    // Set cookies for server components to access
-    if (typeof document !== "undefined") {
-      document.cookie = `quran-settings=${JSON.stringify(
-        settings
-      )}; path=/; max-age=31536000; SameSite=Lax`;
-    }
+    syncSettingsCookie(settings);
   } catch (error) {
     console.error("Error saving settings:", error);
   }

@@ -155,8 +155,8 @@ function SurahCard({ surah }: { surah: Surah }) {
           <p className="text-xs md:text-sm text-muted-foreground truncate">
             {surah.englishName} • {surah.numberOfAyahs} Verses
           </p>
-          <p className="text-xs text-primary font-medium truncate mt-0.5 opacity-90">
-            "{surah.englishNameTranslation}"
+          <p className="text-xs text-primary italic truncate mt-0.5 opacity-90">
+            &quot;{surah.englishNameTranslation}&quot;
           </p>
         </div>
       </div>
@@ -198,7 +198,7 @@ function SurahListItem({ surah }: { surah: Surah }) {
         </div>
 
         <p className="text-xs text-muted-foreground truncate mt-0.5">
-          "{surah.englishNameTranslation}" • {surah.numberOfAyahs} Verses
+          &quot;{surah.englishNameTranslation}&quot; • {surah.numberOfAyahs} Verses
         </p>
       </div>
 

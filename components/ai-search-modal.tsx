@@ -72,11 +72,12 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         body: JSON.stringify({ query: searchTerm }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "An unexpected error occurred. Please try again.");
+        return;
+      }
 
       if (data.results && Array.isArray(data.results)) {
         if (data.results.length === 0) {
@@ -98,11 +99,11 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
           );
         }
       } else {
-        setError("No results found or invalid response format.");
+        setError("No results found. Please try a different query.");
       }
     } catch (err) {
       console.error("Search error:", err);
-      setError("An error occurred while searching. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -167,7 +168,8 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
         <div className="max-h-[60vh] overflow-y-auto p-4">
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3.5 rounded-xl text-sm mb-4">
-              <p className="font-semibold">{error}</p>
+              <p className="font-semibold">Search Error</p>
+              <p>{error}</p>
             </div>
           )}
 
@@ -187,6 +189,7 @@ export default function AISearchModal({ isOpen, onClose }: AISearchModalProps) {
                       {result.explanation}
                     </p>
                   )}
+
                   <div className="flex items-center justify-between">
                     <Link
                       href={`/surah/${result.surahNumber}#verse-${result.verseNumber}`}

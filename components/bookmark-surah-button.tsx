@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { toast } from "sonner";
 import {
   isSurahBookmarked,
   addSurahBookmark,
   removeSurahBookmark,
 } from "@/lib/local-storage";
-import { toast } from "sonner";
 
 interface BookmarkSurahButtonProps {
   surahId: number;

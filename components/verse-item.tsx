@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import { useAudio } from "@/context/audio-context";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   addBookmark,
   removeBookmark,
   isVerseBookmarked,
   type BookmarkedVerse,
 } from "@/lib/local-storage";
-import { toast } from "sonner";
 
 interface VerseItemProps {
   verse: {
@@ -307,3 +307,4 @@ export default function VerseItem({
     </div>
   );
 }
+

@@ -174,6 +174,14 @@ export default function VerseMetadata({
               if (!isNaN(newPage)) {
                 setCurrentPage(newPage);
               }
+            } else {
+              const pageElement = el.querySelector(".verse-page");
+              if (pageElement && pageElement.textContent) {
+                const newPage = Number.parseInt(pageElement.textContent, 10);
+                if (!isNaN(newPage)) {
+                  setCurrentPage(newPage);
+                }
+              }
             }
           }
         });

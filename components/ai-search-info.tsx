@@ -44,6 +44,10 @@ export default function AISearchInfo() {
               Our AI search interprets semantic meaning rather than exact keywords,
               mapping concepts to relevant Quranic passages with English and Bengali translations.
             </p>
+            <p>
+              For each result, you&apos;ll see the verse in Arabic, translations,
+              and a link to view it in context within its surah.
+            </p>
           </AccordionContent>
         </AccordionItem>
 
@@ -52,11 +56,57 @@ export default function AISearchInfo() {
             Example Searches
           </AccordionTrigger>
           <AccordionContent className="text-muted-foreground text-sm">
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <li>• <span className="font-medium text-foreground">Patience & perseverance</span></li>
-              <li>• <span className="font-medium text-foreground">Forgiveness & mercy</span></li>
-              <li>• <span className="font-medium text-foreground">Dealing with hardship</span></li>
-              <li>• <span className="font-medium text-foreground">Gratitude to Allah</span></li>
+            <ul className="space-y-2">
+              <li>
+                • <span className="font-medium text-foreground">Patience</span> - Find verses
+                about patience and perseverance
+              </li>
+              <li>
+                • <span className="font-medium text-foreground">Forgiveness</span> - Discover
+                verses about Allah&apos;s forgiveness
+              </li>
+              <li>
+                • <span className="font-medium text-foreground">Dealing with hardship</span> -
+                Guidance on facing difficulties
+              </li>
+              <li>
+                • <span className="font-medium text-foreground">Gratitude</span> - Verses about
+                being thankful to Allah
+              </li>
+              <li>
+                • <span className="font-medium text-foreground">Knowledge</span> - Verses about
+                seeking knowledge
+              </li>
+            </ul>
+            <p className="mt-3 text-sm bg-primary/10 text-foreground p-2 rounded">
+              Results include Arabic text, English translation, and Bengali
+              translation when available.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="tips" className="border-border">
+          <AccordionTrigger className="text-sm font-medium hover:text-primary">
+            Search Tips
+          </AccordionTrigger>
+          <AccordionContent className="text-muted-foreground text-sm">
+            <ul className="space-y-2">
+              <li>• Be specific in your search to get more relevant results</li>
+              <li>
+                • Use natural language questions like &quot;How should I treat my
+                parents?&quot;
+              </li>
+              <li>
+                • Try different phrasings if you don&apos;t get the results you
+                expect
+              </li>
+              <li>
+                • Search for concepts rather than specific words for better
+                results
+              </li>
+              <li>
+                • Remember that results are AI-generated and may not be perfect
+              </li>
             </ul>
           </AccordionContent>
         </AccordionItem>

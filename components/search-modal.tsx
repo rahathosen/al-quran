@@ -236,7 +236,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           ) : searchTerm ? (
             <div className="text-center p-8 text-sm text-muted-foreground">
-              No results found for "{searchTerm}"
+              No results found for &quot;{searchTerm}&quot;
             </div>
           ) : (
             <div className="p-4 space-y-4">
@@ -261,9 +261,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
               <div className="bg-muted/30 p-3 rounded-xl border border-border/50 text-xs text-muted-foreground space-y-1.5">
                 <p className="font-medium text-foreground">Search tips:</p>
-                <p>• Search by surah name (e.g., "Baqarah", "فاتحة")</p>
-                <p>• Search by number (e.g., "1", "114")</p>
-                <p>• Search specific verse (e.g., "2:255" for Ayatul Kursi)</p>
+                <p>• Search by surah name (e.g., &quot;Baqarah&quot;, &quot;فاتحة&quot;)</p>
+                <p>• Search by number (e.g., &quot;1&quot;, &quot;114&quot;)</p>
+                <p>• Search specific verse (e.g., &quot;2:255&quot; for Ayatul Kursi)</p>
               </div>
             </div>
           )}

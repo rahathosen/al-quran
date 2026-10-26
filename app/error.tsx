@@ -19,7 +19,7 @@ export default function Error({
       <div className="bg-white p-8 rounded-lg shadow-lg border border-[#d4af37]/20 max-w-md w-full text-center">
         <h2 className="text-2xl font-bold text-[#1a5e63] mb-4">Something went wrong</h2>
         <p className="text-[#555] mb-6">
-          We couldn't load the Quran data. This might be due to a network issue or API limitation.
+          We couldn&apos;t load the Quran data. This might be due to a network issue or API limitation.
         </p>
         <div className="flex gap-4 justify-center">
           <Button onClick={reset} className="bg-[#1a5e63] hover:bg-[#134548]">
